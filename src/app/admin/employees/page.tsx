@@ -8,16 +8,21 @@ export default function EmployeesPage() {
   const [employees, setEmployees] = useState<IUser[]>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [page, setPage] = useState(1);
+  const [total, setTotal] = useState(0);
+  const pageSize = 5;
 
   useEffect(() => {
-    fetchEmployees();
-  }, []);
+    fetchEmployees(page);
+  }, [page]);
 
-  function fetchEmployees() {
-    fetch("/api/users")
+  function fetchEmployees(pageNumber = 1) {
+    fetch(`/api/users?page=${pageNumber}&limit=${pageSize}`)
       .then((res) => res.json())
       .then((data) => {
-        setEmployees(data);
+        console.log("data", data);
+        setTotal(data.total);
+        setEmployees(data.users);
         setLoading(false);
       })
       .catch((err) => {
@@ -25,6 +30,8 @@ export default function EmployeesPage() {
         setLoading(false);
       });
   }
+
+  const totalPages = Math.ceil(total / pageSize);
 
   if (loading) return <p>Loading employees...</p>;
 
@@ -60,6 +67,26 @@ export default function EmployeesPage() {
             ))}
           </tbody>
         </table>
+      </div>
+
+      <div className="flex justify-center mt-6 space-x-2">
+        <button
+          onClick={() => setPage((p) => Math.max(1, p - 1))}
+          className="px-3 py-1 bg-gray-200 rounded hover:bg-gray-300"
+          disabled={page === 1}
+        >
+          Prev
+        </button>
+        <span className="px-4 py-2 text-sm font-medium">
+          Page {page} of {totalPages}
+        </span>
+        <button
+          onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+          className="px-3 py-1 bg-gray-200 rounded hover:bg-gray-300"
+          disabled={page === totalPages}
+        >
+          Next
+        </button>
       </div>
 
       {isModalOpen && (
