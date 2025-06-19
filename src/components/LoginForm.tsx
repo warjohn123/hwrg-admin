@@ -6,10 +6,29 @@ export default function LoginForm() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
-  const handleLogin = (e: React.FormEvent) => {
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     // Handle your login logic here
     console.log("Email:", email, "Password:", password);
+
+    if (!email && !password) {
+      alert("Missing Fields. Please enter email and password");
+      return;
+    }
+
+    const res = await fetch("/api/login", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email, password }),
+    });
+
+    const result = await res.json();
+
+    if (!res.ok) {
+      alert(result.error);
+    } else {
+      console.log("Logged in:", result.user);
+    }
   };
 
   return (
@@ -47,7 +66,7 @@ export default function LoginForm() {
 
       <button
         type="submit"
-        className="w-full bg-blue-600 text-white py-2 rounded-md hover:bg-blue-700 transition"
+        className="w-full cursor-pointer bg-blue-600 text-white py-2 rounded-md hover:bg-blue-700 transition"
       >
         Sign In
       </button>
