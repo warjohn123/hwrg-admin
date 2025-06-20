@@ -9,8 +9,6 @@ export async function POST(req: Request) {
     if (!email || !password || !name) {
       return NextResponse.json({ error: "Missing fields" }, { status: 400 });
     }
-    console.log("email", email);
-    console.log("password", password);
 
     // Create Auth user
     const { data: authUser, error: authError } =
