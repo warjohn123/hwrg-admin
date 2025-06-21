@@ -1,9 +1,4 @@
 import Sidebar from "@/components/Sidebar";
-import type { Metadata } from "next";
-
-export const metadata: Metadata = {
-  title: "Admin Panel",
-};
 
 export default function AdminLayout({
   children,

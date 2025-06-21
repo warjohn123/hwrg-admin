@@ -1,15 +1,15 @@
 "use client";
 
+import { useRouter } from "next/navigation";
 import { useState } from "react";
 
 export default function LoginForm() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const router = useRouter();
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    // Handle your login logic here
-    console.log("Email:", email, "Password:", password);
 
     if (!email && !password) {
       alert("Missing Fields. Please enter email and password");
@@ -27,6 +27,7 @@ export default function LoginForm() {
     if (!res.ok) {
       alert(result.error);
     } else {
+      router.push("/admin/dashboard");
       console.log("Logged in:", result.user);
     }
   };

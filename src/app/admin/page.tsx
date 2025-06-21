@@ -1,12 +1,30 @@
-export default function AdminDashboard() {
-  return (
-    <div>
-      <h2 className="text-2xl font-bold mb-4">Dashboard</h2>
-      <div className="grid grid-cols-3 gap-4">
-        <div className="p-6 bg-white rounded shadow">Users: 120</div>
-        <div className="p-6 bg-white rounded shadow">Clock-ins: 342</div>
-        <div className="p-6 bg-white rounded shadow">Reports: 12</div>
-      </div>
-    </div>
-  );
+"use client";
+
+import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
+import { supabase } from "@/lib/supabase";
+
+export default function AdminPage() {
+  const router = useRouter();
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const verifySession = async () => {
+      const {
+        data: { session },
+      } = await supabase.auth.getSession();
+
+      if (!session) {
+        router.replace("/login");
+      } else {
+        setLoading(false);
+      }
+    };
+
+    verifySession();
+  }, []);
+
+  if (loading) return <div>Loading...</div>;
+
+  return <div>✅ Admin Panel</div>;
 }
