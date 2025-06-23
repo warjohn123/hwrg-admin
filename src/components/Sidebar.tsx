@@ -1,8 +1,13 @@
 "use client";
 
+import { supabase } from "@/lib/supabase";
 import Link from "next/link";
 
 export default function Sidebar() {
+  const logout = async () => {
+    await supabase.auth.signOut();
+    window.location.href = "/login";
+  };
   return (
     <aside className="w-64 h-screen bg-gray-800 text-white p-5">
       <h1 className="text-xl font-bold mb-6">Admin</h1>
@@ -19,6 +24,9 @@ export default function Sidebar() {
         <Link href="/admin/timelogs" className="hover:text-yellow-400">
           Time Logs
         </Link>
+        <div onClick={logout} className="hover:text-yellow-400 cursor-pointer">
+          Logout
+        </div>
       </nav>
     </aside>
   );

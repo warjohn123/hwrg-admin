@@ -1,11 +1,13 @@
 "use client";
 
+import { supabase } from "@/lib/supabase";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 
 export default function LoginForm() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [isSigningIn, setIsSigningIn] = useState<boolean>(false);
   const router = useRouter();
 
   const handleLogin = async (e: React.FormEvent) => {
@@ -16,19 +18,18 @@ export default function LoginForm() {
       return;
     }
 
-    const res = await fetch("/api/login", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ email, password }),
+    setIsSigningIn(true);
+
+    const { error } = await supabase.auth.signInWithPassword({
+      email,
+      password,
     });
 
-    const result = await res.json();
-
-    if (!res.ok) {
-      alert(result.error);
+    if (error) {
+      alert(error);
+      setIsSigningIn(false);
     } else {
       router.push("/admin/dashboard");
-      console.log("Logged in:", result.user);
     }
   };
 
@@ -69,7 +70,7 @@ export default function LoginForm() {
         type="submit"
         className="w-full cursor-pointer bg-blue-600 text-white py-2 rounded-md hover:bg-blue-700 transition"
       >
-        Sign In
+        {isSigningIn ? "Signing in" : "Sign In"}
       </button>
     </form>
   );
