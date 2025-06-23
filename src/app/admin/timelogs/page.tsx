@@ -1,5 +1,7 @@
 "use client";
 
+import TimelogModal from "@/components/modals/TimelogModal";
+import { formateDate } from "@/lib/formatDate";
 import { ITimelog } from "@/types/Timelog";
 import { useEffect, useState } from "react";
 
@@ -8,6 +10,9 @@ export default function TimeLogsPage() {
   const [loading, setLoading] = useState(true);
   const [page, setPage] = useState(1);
   const [total, setTotal] = useState(0);
+  const [selectedTimelog, setSelectedTimelog] = useState<ITimelog | undefined>(
+    undefined
+  );
   const pageSize = 5;
 
   useEffect(() => {
@@ -33,7 +38,6 @@ export default function TimeLogsPage() {
 
   if (loading) return <p>Loading timelogs...</p>;
 
-  console.log("timelogs", timelogs);
   return (
     <div>
       <div className="flex justify-between items-center mb-4">
@@ -51,15 +55,26 @@ export default function TimeLogsPage() {
           </thead>
           <tbody>
             {timelogs.map((timelog) => (
-              <tr key={timelog.id} className="border-b hover:bg-gray-50">
+              <tr
+                key={timelog.id}
+                className="border-b hover:bg-gray-50 cursor-pointer"
+                onClick={() => {
+                  setSelectedTimelog(timelog);
+                }}
+              >
                 <td className="px-6 py-4">{timelog.users?.name}</td>
                 <td className="px-6 py-4">{timelog.date}</td>
-                <td className="px-6 py-4">{timelog.clock_in}</td>
-                <td className="px-6 py-4">{timelog.clock_out}</td>
+                <td className="px-6 py-4">{formateDate(timelog.clock_in)}</td>
+                <td className="px-6 py-4">{formateDate(timelog.clock_out)}</td>
               </tr>
             ))}
           </tbody>
         </table>
+        <TimelogModal
+          timelog={selectedTimelog}
+          isOpen={Boolean(selectedTimelog)}
+          setSelectedTimelog={setSelectedTimelog}
+        />
       </div>
 
       <div className="flex justify-center mt-6 space-x-2">

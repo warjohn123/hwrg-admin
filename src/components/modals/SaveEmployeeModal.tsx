@@ -1,6 +1,6 @@
 "use client";
 
-import { IAssignment, IUser, IUserType } from "@/types/User";
+import { IAssignment, IUserType } from "@/types/User";
 import { useState } from "react";
 import { toast } from "react-toastify";
 
