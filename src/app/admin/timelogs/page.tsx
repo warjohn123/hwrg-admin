@@ -36,6 +36,9 @@ export default function TimeLogsPage() {
   console.log("timelogs", timelogs);
   return (
     <div>
+      <div className="flex justify-between items-center mb-4">
+        <h2 className="text-2xl font-bold">Timelogs</h2>
+      </div>
       <div className="overflow-x-auto bg-white rounded shadow">
         <table className="min-w-full table-auto">
           <thead className="bg-gray-100 text-left">

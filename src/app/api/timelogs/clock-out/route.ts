@@ -4,7 +4,7 @@ import { NextResponse } from "next/server";
 export async function PUT(req: Request) {
   try {
     const body = await req.json();
-    const { user_id } = body;
+    const { user_id, clock_out_photo } = body;
 
     const now = new Date().toISOString();
 
@@ -15,7 +15,7 @@ export async function PUT(req: Request) {
     // Insert into 'users' table
     const { data, error: dbError } = await supabase
       .from("timelogs")
-      .update({ clock_out: new Date().toISOString() })
+      .update({ clock_out: new Date().toISOString(), clock_out_photo })
       .eq("user_id", user_id)
       .is("clock_out", null)
       .order("clock_in", { ascending: false })
