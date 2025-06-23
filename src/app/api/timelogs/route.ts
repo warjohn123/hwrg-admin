@@ -10,7 +10,7 @@ export async function GET(req: NextRequest) {
   const from = (page - 1) * pageSize;
   const to = from + pageSize - 1;
 
-  if (!user_id) {
+  if (user_id) {
     const { data, error, count } = await supabase
       .from("timelogs")
       .select("*", { count: "exact", head: false })
@@ -25,10 +25,10 @@ export async function GET(req: NextRequest) {
   } else {
     const { data, error, count } = await supabase
       .from("timelogs")
-      .select("*", { count: "exact", head: false })
+      .select("*, users (id, name)", { count: "exact", head: false })
       .range(from, to);
 
-    console.log("data", data);
+    console.log("data test", data);
 
     if (error) {
       return NextResponse.json({ error: error.message }, { status: 500 });

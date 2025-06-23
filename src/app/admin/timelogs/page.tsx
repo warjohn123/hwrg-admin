@@ -32,12 +32,15 @@ export default function TimeLogsPage() {
   const totalPages = Math.ceil(total / pageSize);
 
   if (loading) return <p>Loading timelogs...</p>;
+
+  console.log("timelogs", timelogs);
   return (
     <div>
       <div className="overflow-x-auto bg-white rounded shadow">
         <table className="min-w-full table-auto">
           <thead className="bg-gray-100 text-left">
             <tr>
+              <th className="px-6 py-3 text-sm font-medium">Employee</th>
               <th className="px-6 py-3 text-sm font-medium">Date</th>
               <th className="px-6 py-3 text-sm font-medium">Clock In</th>
               <th className="px-6 py-3 text-sm font-medium">Clock Out</th>
@@ -46,6 +49,7 @@ export default function TimeLogsPage() {
           <tbody>
             {timelogs.map((timelog) => (
               <tr key={timelog.id} className="border-b hover:bg-gray-50">
+                <td className="px-6 py-4">{timelog.users?.name}</td>
                 <td className="px-6 py-4">{timelog.date}</td>
                 <td className="px-6 py-4">{timelog.clock_in}</td>
                 <td className="px-6 py-4">{timelog.clock_out}</td>

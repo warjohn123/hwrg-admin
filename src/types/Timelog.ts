@@ -1,3 +1,5 @@
+import { IUser } from "./User";
+
 export type ITimelog = {
   id: string;
   user_id: string; //FK
@@ -5,4 +7,5 @@ export type ITimelog = {
   clock_in: string;
   clock_out: string;
   date: string;
+  users?: IUser;
 };
