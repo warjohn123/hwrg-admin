@@ -1,24 +1,37 @@
 import { supabase } from "@/lib/supabase";
-import { NextRequest } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 
 export async function GET(
-  request: NextRequest,
+  req: NextRequest,
   { params }: { params: { id: string } }
 ) {
-  const id = params.id;
-
-  console.log("id", id);
+  const id = await params.id;
 
   const { data, error } = await supabase
-    .from("users") // your custom users table
+    .from("users")
     .select("*")
     .eq("id", id)
     .single();
 
-  if (error)
-    return new Response(JSON.stringify({ error: error.message }), {
-      status: 400,
-    });
+  if (error) {
+    return NextResponse.json({ error: error.message }, { status: 404 });
+  }
 
-  return new Response(JSON.stringify(data), { status: 200 });
+  return NextResponse.json(data);
+}
+
+export async function PUT(
+  req: NextRequest,
+  { params }: { params: { id: string } }
+) {
+  const id = await params.id;
+  const body = await req.json();
+
+  const { error } = await supabase.from("users").update(body).eq("id", id);
+
+  if (error) {
+    return NextResponse.json({ error: error.message }, { status: 400 });
+  }
+
+  return NextResponse.json({ message: "User updated successfully" });
 }

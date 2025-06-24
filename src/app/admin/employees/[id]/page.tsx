@@ -60,7 +60,7 @@ export default function EmployeeDetailsPage() {
       documents: [...(employee.documents || []), ...uploadedDocPaths],
     };
 
-    await fetch(`/api/employees/${id}`, {
+    await fetch(`/api/users/${id}`, {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(updatedEmployee),
@@ -207,7 +207,7 @@ export default function EmployeeDetailsPage() {
       <button
         onClick={handleSave}
         disabled={isSaving}
-        className="px-6 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50"
+        className="px-6 py-2 bg-blue-600 cursor-pointer text-white rounded-md hover:bg-blue-700 disabled:opacity-50"
       >
         {isSaving ? "Saving..." : "Save Changes"}
       </button>
