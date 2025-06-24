@@ -15,6 +15,7 @@ export async function GET(req: NextRequest) {
       .from("timelogs")
       .select("*", { count: "exact", head: false })
       .eq("user_id", user_id)
+      .order("created_at", { ascending: false }) // descending order
       .range(from, to);
 
     if (error) {
@@ -26,6 +27,7 @@ export async function GET(req: NextRequest) {
     const { data, error, count } = await supabase
       .from("timelogs")
       .select("*, users (id, name)", { count: "exact", head: false })
+      .order("created_at", { ascending: false }) // descending order
       .range(from, to);
 
     console.log("data test", data);

@@ -2,6 +2,7 @@
 
 import TimelogModal from "@/components/modals/TimelogModal";
 import { formateDate } from "@/lib/formatDate";
+import { getHoursRendered } from "@/lib/getHoursRendered";
 import { ITimelog } from "@/types/Timelog";
 import { useEffect, useState } from "react";
 
@@ -51,6 +52,7 @@ export default function TimeLogsPage() {
               <th className="px-6 py-3 text-sm font-medium">Date</th>
               <th className="px-6 py-3 text-sm font-medium">Clock In</th>
               <th className="px-6 py-3 text-sm font-medium">Clock Out</th>
+              <th className="px-6 py-3 text-sm font-medium">Hours Rendered</th>
             </tr>
           </thead>
           <tbody>
@@ -66,6 +68,9 @@ export default function TimeLogsPage() {
                 <td className="px-6 py-4">{timelog.date}</td>
                 <td className="px-6 py-4">{formateDate(timelog.clock_in)}</td>
                 <td className="px-6 py-4">{formateDate(timelog.clock_out)}</td>
+                <td className="font-bold px-6 py-4">
+                  {getHoursRendered(timelog.clock_in, timelog.clock_out)}
+                </td>
               </tr>
             ))}
           </tbody>
