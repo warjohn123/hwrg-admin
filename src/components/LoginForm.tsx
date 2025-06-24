@@ -1,6 +1,7 @@
 "use client";
 
 import { supabase } from "@/lib/supabase";
+import { IUserType } from "@/types/User";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 
@@ -20,10 +21,22 @@ export default function LoginForm() {
 
     setIsSigningIn(true);
 
-    const { error } = await supabase.auth.signInWithPassword({
+    const { data, error } = await supabase.auth.signInWithPassword({
       email,
       password,
     });
+
+    const { data: userData, error: userError } = await supabase
+      .from("users")
+      .select("type")
+      .eq("id", data.user!.id)
+      .single();
+
+    if (userError || userData?.type !== IUserType.ADMIN) {
+      alert("Access denied");
+      setIsSigningIn(false);
+      return;
+    }
 
     if (error) {
       alert(error);

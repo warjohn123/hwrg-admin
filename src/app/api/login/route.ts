@@ -1,4 +1,5 @@
 import { supabase } from "@/lib/supabase";
+import { IUserType } from "@/types/User";
 import { NextResponse } from "next/server";
 
 export async function POST(req: Request) {
@@ -9,11 +10,18 @@ export async function POST(req: Request) {
     password,
   });
 
-  console.log("email", email);
-  console.log("password", password);
-
   if (error) {
     return NextResponse.json({ error: error.message }, { status: 401 });
+  }
+
+  const { data: userData, error: userError } = await supabase
+    .from("users")
+    .select("type")
+    .eq("id", data.user.id)
+    .single();
+
+  if (userError || userData?.type !== IUserType.ADMIN) {
+    return NextResponse.json({ error: "Access denied" }, { status: 403 });
   }
 
   return NextResponse.json({

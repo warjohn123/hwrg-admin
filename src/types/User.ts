@@ -11,6 +11,7 @@ export type IUser = {
 
 export enum IUserType {
   EMPLOYEE = "employee",
+  ADMIN = "admin",
 }
 
 export enum IAssignment {
