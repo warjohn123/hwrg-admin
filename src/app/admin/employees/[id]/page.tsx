@@ -55,7 +55,7 @@ export default function EmployeeDetailsPage() {
       })
     );
 
-    const updatedEmployee = {
+    const updatedEmployee: IUser = {
       ...employee,
       documents: [...(employee.documents || []), ...uploadedDocPaths],
     };
@@ -131,8 +131,8 @@ export default function EmployeeDetailsPage() {
         Birthday
       </label>
       <input
-        type="date"
-        name="birthday"
+        type="text"
+        name="bday"
         value={employee.bday}
         onChange={handleInputChange}
         className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
@@ -149,19 +149,11 @@ export default function EmployeeDetailsPage() {
         className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
       />
 
-      {/* <TextInput
-        name="firstDuty"
-        label="First Date of Duty"
-        type="date"
-        value={employee.first_duty_date}
-        onChange={handleInputChange}
-      /> */}
-
       <label className="block font-medium text-sm text-gray-700 mb-1">
         First Duty Date
       </label>
       <input
-        type="date"
+        type="text"
         name="first_duty_date"
         value={employee.first_duty_date}
         onChange={handleInputChange}

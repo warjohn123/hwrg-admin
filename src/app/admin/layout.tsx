@@ -12,7 +12,7 @@ export default function AdminLayout({
       <Sidebar />
 
       {/* Right side */}
-      <div className="flex-1 flex flex-col bg-gray-100">
+      <div className="flex-1 flex flex-col bg-gray-100 overflow-auto h-screen">
         {/* Header bar */}
         <div className="flex items-center justify-between bg-white px-6 py-4 shadow-md">
           <h1 className="text-xl font-semibold">Admin Dashboard</h1>
