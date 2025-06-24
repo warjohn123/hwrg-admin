@@ -7,6 +7,10 @@ export type IUser = {
   bday: string;
   contact: string;
   email: string;
+  picture: string;
+  documents: string[];
+  rate_per_day: number;
+  first_duty_date: string;
 };
 
 export enum IUserType {
@@ -17,4 +21,5 @@ export enum IUserType {
 export enum IAssignment {
   CHICKY_OINK = "Chicky Oink",
   IMAGAWAYAKI = "Imagawayaki",
+  POTATO_FRY = "Potato Fry",
 }

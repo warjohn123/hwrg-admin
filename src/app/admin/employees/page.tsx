@@ -3,6 +3,7 @@
 import SaveEmployeeModal from "@/components/modals/SaveEmployeeModal";
 import { IUser } from "@/types/User";
 import { useEffect, useState } from "react";
+import { redirect } from "next/navigation";
 
 export default function EmployeesPage() {
   const [employees, setEmployees] = useState<IUser[]>([]);
@@ -59,7 +60,11 @@ export default function EmployeesPage() {
           </thead>
           <tbody>
             {employees.map((emp) => (
-              <tr key={emp.id} className="border-b hover:bg-gray-50">
+              <tr
+                key={emp.id}
+                className="border-b hover:bg-gray-50 cursor-pointer"
+                onClick={() => redirect(`/admin/employees/${emp.id}`)}
+              >
                 <td className="px-6 py-4">{emp.name}</td>
                 <td className="px-6 py-4">{emp.email}</td>
                 <td className="px-6 py-4">{emp.assignment}</td>
