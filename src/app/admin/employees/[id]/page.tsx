@@ -2,9 +2,10 @@
 
 import { useState, useEffect } from "react";
 import { useParams } from "next/navigation";
-// import { TextInput, Button, Label, Select, FileInput } from "@/components/ui"; // Assume you're using a component library or custom UI components
-import Image from "next/image";
 import { IUser } from "@/types/User";
+import { uploadImage } from "@/lib/uploadImage";
+import { toast } from "react-toastify";
+import { supabase } from "@/lib/supabase";
 
 const ASSIGNMENT_OPTIONS = ["Imagawayaki", "Chicky Oink", "Potato Fry"];
 
@@ -13,6 +14,11 @@ export default function EmployeeDetailsPage() {
   const [employee, setEmployee] = useState<IUser | null>(null);
   const [isSaving, setIsSaving] = useState(false);
   const [files, setFiles] = useState<File[]>([]);
+  const [picture, setPicture] = useState<File>();
+
+  const employeePicture = supabase.storage
+    .from("employees")
+    .getPublicUrl(employee?.picture || "").data.publicUrl;
 
   useEffect(() => {
     // Fetch employee data
@@ -37,37 +43,59 @@ export default function EmployeeDetailsPage() {
     setFiles(Array.from(e.target.files));
   };
 
+  const handlePictureChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (!e.target.files) return;
+    const img = e.target.files[0];
+    if (!img || !img.type.startsWith("image/")) {
+      alert("Please upload a valid image file.");
+      return;
+    }
+    setPicture(e.target.files[0]);
+  };
+
   const handleSave = async () => {
     if (!employee) return;
     setIsSaving(true);
 
-    // Upload documents (mocked)
-    const uploadedDocPaths = await Promise.all(
-      files.map(async (file) => {
-        const formData = new FormData();
-        formData.append("file", file);
-        const res = await fetch(`/api/employees/${id}/upload`, {
-          method: "POST",
-          body: formData,
-        });
-        const result = await res.json();
-        return result.url;
-      })
-    );
+    try {
+      //Upload picture
+      const employeePicture = picture
+        ? await uploadImage(picture, employee.id, "employees")
+        : null;
 
-    const updatedEmployee: IUser = {
-      ...employee,
-      documents: [...(employee.documents || []), ...uploadedDocPaths],
-    };
+      // Upload documents (mocked)
+      const uploadedDocPaths = await Promise.all(
+        files.map(async (file) => {
+          const formData = new FormData();
+          formData.append("file", file);
+          const res = await fetch(`/api/employees/${id}/upload`, {
+            method: "POST",
+            body: formData,
+          });
+          const result = await res.json();
+          return result.url;
+        })
+      );
 
-    await fetch(`/api/users/${id}`, {
-      method: "PUT",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(updatedEmployee),
-    });
+      const updatedEmployee: IUser = {
+        ...employee,
+        picture: employeePicture ? employeePicture : null,
+        documents: [...(employee.documents || []), ...uploadedDocPaths],
+      };
 
-    setEmployee(updatedEmployee);
-    setIsSaving(false);
+      await fetch(`/api/users/${id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(updatedEmployee),
+      });
+
+      toast.success("Employee updated successfully!");
+      setEmployee(updatedEmployee);
+    } catch (e) {
+      toast.error("Something went wrong. Please contact IT department");
+    } finally {
+      setIsSaving(false);
+    }
   };
 
   if (!employee) return <p>Loading...</p>;
@@ -76,23 +104,24 @@ export default function EmployeeDetailsPage() {
     <div className="max-w-3xl mx-auto p-4 space-y-4">
       <h1 className="text-2xl font-bold">Edit Employee Details</h1>
 
-      {/* <Label>Employee Picture</Label>
-      {employee.picture && (
-        <Image
-          src={employee.picture}
+      <label className="block font-medium text-sm text-gray-700 mb-1">
+        Employee Picture
+      </label>
+      {employeePicture && (
+        <img
+          src={employeePicture}
           alt="Employee Picture"
           width={120}
           height={120}
           className="rounded-full"
         />
       )}
-      <TextInput
-        type="text"
-        name="picture"
-        value={employee.picture}
-        onChange={handleInputChange}
-        placeholder="Image URL"
-      /> */}
+      <input
+        type="file"
+        accept="image/png, image/jpeg"
+        onChange={handlePictureChange}
+        className="block w-full text-sm text-gray-700 file:mr-4 file:py-2 file:px-4 file:rounded file:border-0 file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
+      />
 
       <label className="block font-medium text-sm text-gray-700 mb-1">
         Employee Name
@@ -123,6 +152,17 @@ export default function EmployeeDetailsPage() {
         type="text"
         name="contact"
         value={employee.contact}
+        onChange={handleInputChange}
+        className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+      />
+
+      <label className="block font-medium text-sm text-gray-700 mb-1">
+        Address
+      </label>
+      <input
+        type="text"
+        name="address"
+        value={employee.address}
         onChange={handleInputChange}
         className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
       />
