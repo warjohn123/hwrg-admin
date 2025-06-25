@@ -6,6 +6,7 @@ import { IUser } from "@/types/User";
 import { uploadFile } from "@/lib/uploadFile";
 import { toast } from "react-toastify";
 import { supabase } from "@/lib/supabase";
+import EmployeeDocuments from "@/components/EmployeeDocuments";
 
 const ASSIGNMENT_OPTIONS = ["Imagawayaki", "Chicky Oink", "Potato Fry"];
 
@@ -28,7 +29,7 @@ export default function EmployeeDetailsPage() {
         .from("employee-documents")
         .getPublicUrl(document || "");
 
-      return data.publicUrl;
+      return { url: data.publicUrl, path: document };
     });
   }, [employee]);
 
@@ -236,20 +237,7 @@ export default function EmployeeDetailsPage() {
         className="block w-full text-sm text-gray-700 file:mr-4 file:py-2 file:px-4 file:rounded file:border-0 file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
       />
 
-      <ul className="list-disc ml-6 space-y-1">
-        {employeeDocuments?.map((doc, index) => (
-          <li key={index}>
-            <a
-              href={doc}
-              download
-              target="_blank"
-              className="text-blue-600 underline"
-            >
-              {doc.split("/").pop()}
-            </a>
-          </li>
-        ))}
-      </ul>
+      <EmployeeDocuments employeeDocuments={employeeDocuments} />
 
       <button
         onClick={handleSave}
