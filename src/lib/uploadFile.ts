@@ -1,8 +1,7 @@
-import { decode } from "base64-arraybuffer";
 import { supabase } from "./supabase";
 import { fileToBase64 } from "./toBase64";
 
-export async function uploadImage(file: File, userId: string, bucket: string) {
+export async function uploadFile(file: File, userId: string, bucket: string) {
   try {
     const base64 = await fileToBase64(file);
 
@@ -16,18 +15,15 @@ export async function uploadImage(file: File, userId: string, bucket: string) {
       array[i] = binary.charCodeAt(i);
     }
 
-    console.log("base64", base64);
-
     // Get file extension and MIME type
     const fileExt = file.name.split(".").pop();
-    const mimeType = "image/jpeg";
-    const blob = new Blob([array], { type: mimeType });
+    const blob = new Blob([array], { type: file.type });
 
     // Upload as ArrayBuffer
     const { data, error } = await supabase.storage
       .from(bucket)
       .upload(`${bucket}/${userId}_${Date.now()}.${fileExt}`, blob, {
-        contentType: mimeType,
+        contentType: file.type,
         upsert: true,
       });
 

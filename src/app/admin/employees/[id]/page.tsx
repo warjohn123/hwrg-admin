@@ -1,9 +1,9 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { useParams } from "next/navigation";
 import { IUser } from "@/types/User";
-import { uploadImage } from "@/lib/uploadImage";
+import { uploadFile } from "@/lib/uploadFile";
 import { toast } from "react-toastify";
 import { supabase } from "@/lib/supabase";
 
@@ -19,6 +19,18 @@ export default function EmployeeDetailsPage() {
   const employeePicture = supabase.storage
     .from("employees")
     .getPublicUrl(employee?.picture || "").data.publicUrl;
+
+  const employeeDocuments = useMemo(() => {
+    if (!employee?.documents) return [];
+
+    return employee.documents.map((document) => {
+      const { data } = supabase.storage
+        .from("employee-documents")
+        .getPublicUrl(document || "");
+
+      return data.publicUrl;
+    });
+  }, [employee]);
 
   useEffect(() => {
     // Fetch employee data
@@ -60,20 +72,18 @@ export default function EmployeeDetailsPage() {
     try {
       //Upload picture
       const employeePicture = picture
-        ? await uploadImage(picture, employee.id, "employees")
+        ? await uploadFile(picture, employee.id, "employees")
         : null;
 
       // Upload documents (mocked)
       const uploadedDocPaths = await Promise.all(
         files.map(async (file) => {
-          const formData = new FormData();
-          formData.append("file", file);
-          const res = await fetch(`/api/employees/${id}/upload`, {
-            method: "POST",
-            body: formData,
-          });
-          const result = await res.json();
-          return result.url;
+          const result = await uploadFile(
+            file,
+            employee.id,
+            "employee-documents"
+          );
+          return result || "";
         })
       );
 
@@ -227,9 +237,14 @@ export default function EmployeeDetailsPage() {
       />
 
       <ul className="list-disc ml-6 space-y-1">
-        {employee.documents?.map((doc, index) => (
+        {employeeDocuments?.map((doc, index) => (
           <li key={index}>
-            <a href={doc} download className="text-blue-600 underline">
+            <a
+              href={doc}
+              download
+              target="_blank"
+              className="text-blue-600 underline"
+            >
               {doc.split("/").pop()}
             </a>
           </li>
