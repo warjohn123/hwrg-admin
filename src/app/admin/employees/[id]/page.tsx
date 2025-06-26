@@ -237,7 +237,10 @@ export default function EmployeeDetailsPage() {
         className="block w-full text-sm text-gray-700 file:mr-4 file:py-2 file:px-4 file:rounded file:border-0 file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
       />
 
-      <EmployeeDocuments employeeDocuments={employeeDocuments} />
+      <EmployeeDocuments
+        employeeDocuments={employeeDocuments}
+        employeeId={employee.id}
+      />
 
       <button
         onClick={handleSave}

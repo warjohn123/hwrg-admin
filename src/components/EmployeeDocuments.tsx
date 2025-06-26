@@ -1,26 +1,48 @@
 import { supabase } from "@/lib/supabase";
+import { useState } from "react";
 
 interface Props {
   employeeDocuments: { url: string; path: string }[];
+  employeeId: string;
 }
 
-export default function EmployeeDocuments({ employeeDocuments }: Props) {
+export default function EmployeeDocuments({
+  employeeDocuments,
+  employeeId,
+}: Props) {
+  const [documents, setDocuments] = useState(employeeDocuments);
   const handleDelete = async (pathToDelete: string) => {
-    console.log("path to delete", pathToDelete);
     const { error } = await supabase.storage
       .from("employee-documents")
       .remove([pathToDelete]);
-
-    console.log("error", error);
 
     if (error) {
       alert("Error deleting file: " + error.message);
       return;
     }
+
+    // Step 2: Remove from local state
+    const updatedDocuments = documents.filter(
+      (doc) => doc.path !== pathToDelete
+    );
+
+    // Step 3: Update Supabase table
+    const updatedPaths = updatedDocuments.map((doc) => doc.path);
+    const { error: dbError, data } = await supabase
+      .from("users")
+      .update({ documents: updatedPaths })
+      .eq("id", employeeId)
+      .select();
+
+    if (dbError) {
+      alert("Failed to update employee record: " + dbError.message);
+    }
+    setDocuments(updatedDocuments);
   };
+  console.log("documents", documents);
   return (
     <ul className="list-disc ml-6 space-y-2">
-      {employeeDocuments.map(({ url, path }, index) => (
+      {documents.map(({ url, path }, index) => (
         <li key={index} className="flex items-center justify-between gap-2">
           <a
             href={url}
