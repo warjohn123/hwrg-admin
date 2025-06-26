@@ -18,7 +18,10 @@ export default function Sidebar() {
     <aside className="w-64 h-screen bg-gray-800 text-white p-5">
       <h1 className="text-xl font-bold mb-6">HWRG</h1>
       <nav className="flex flex-col space-y-4">
-        <Link href="/admin" className={linkClasses("/admin")}>
+        <Link
+          href="/admin/dashboard"
+          className={linkClasses("/admin/dashboard")}
+        >
           Dashboard
         </Link>
         <Link

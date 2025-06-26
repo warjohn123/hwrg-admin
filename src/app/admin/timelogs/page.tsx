@@ -1,6 +1,8 @@
 "use client";
 
 import TimelogModal from "@/components/modals/TimelogModal";
+import Pagination from "@/components/Pagination";
+import { usePagination } from "@/hooks/usePagination";
 import { formateDate } from "@/lib/formatDate";
 import { getHoursRendered } from "@/lib/getHoursRendered";
 import { ITimelog } from "@/types/Timelog";
@@ -9,12 +11,10 @@ import { useEffect, useState } from "react";
 export default function TimeLogsPage() {
   const [timelogs, setTimelogs] = useState<ITimelog[]>([]);
   const [loading, setLoading] = useState(true);
-  const [page, setPage] = useState(1);
-  const [total, setTotal] = useState(0);
+  const { page, setPage, totalPages, setTotal, pageSize } = usePagination();
   const [selectedTimelog, setSelectedTimelog] = useState<ITimelog | undefined>(
     undefined
   );
-  const pageSize = 5;
 
   useEffect(() => {
     fetchTimelogs(page);
@@ -34,8 +34,6 @@ export default function TimeLogsPage() {
         setLoading(false);
       });
   }
-
-  const totalPages = Math.ceil(total / pageSize);
 
   if (loading) return <p>Loading timelogs...</p>;
 
@@ -82,25 +80,7 @@ export default function TimeLogsPage() {
         />
       </div>
 
-      <div className="flex justify-center mt-6 space-x-2">
-        <button
-          onClick={() => setPage((p) => Math.max(1, p - 1))}
-          className="px-3 py-1 bg-gray-200 rounded hover:bg-gray-300"
-          disabled={page === 1}
-        >
-          Prev
-        </button>
-        <span className="px-4 py-2 text-sm font-medium">
-          Page {page} of {totalPages}
-        </span>
-        <button
-          onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
-          className="px-3 py-1 bg-gray-200 rounded hover:bg-gray-300"
-          disabled={page === totalPages}
-        >
-          Next
-        </button>
-      </div>
+      <Pagination setPage={setPage} page={page} totalPages={totalPages} />
     </div>
   );
 }

@@ -4,13 +4,14 @@ import SaveEmployeeModal from "@/components/modals/SaveEmployeeModal";
 import { IUser } from "@/types/User";
 import { useEffect, useState } from "react";
 import { redirect } from "next/navigation";
+import Pagination from "@/components/Pagination";
+import { usePagination } from "@/hooks/usePagination";
 
 export default function EmployeesPage() {
   const [employees, setEmployees] = useState<IUser[]>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [loading, setLoading] = useState(true);
-  const [page, setPage] = useState(1);
-  const [total, setTotal] = useState(0);
+  const { page, setPage, setTotal, totalPages } = usePagination();
   const pageSize = 5;
 
   useEffect(() => {
@@ -31,8 +32,6 @@ export default function EmployeesPage() {
         setLoading(false);
       });
   }
-
-  const totalPages = Math.ceil(total / pageSize);
 
   if (loading) return <p>Loading employees...</p>;
 
@@ -74,25 +73,7 @@ export default function EmployeesPage() {
         </table>
       </div>
 
-      <div className="flex justify-center mt-6 space-x-2">
-        <button
-          onClick={() => setPage((p) => Math.max(1, p - 1))}
-          className="px-3 py-1 bg-gray-200 rounded hover:bg-gray-300"
-          disabled={page === 1}
-        >
-          Prev
-        </button>
-        <span className="px-4 py-2 text-sm font-medium">
-          Page {page} of {totalPages}
-        </span>
-        <button
-          onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
-          className="px-3 py-1 bg-gray-200 rounded hover:bg-gray-300"
-          disabled={page === totalPages}
-        >
-          Next
-        </button>
-      </div>
+      <Pagination setPage={setPage} totalPages={totalPages} page={page} />
 
       {isModalOpen && (
         <SaveEmployeeModal
