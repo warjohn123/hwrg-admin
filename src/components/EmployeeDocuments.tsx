@@ -39,7 +39,7 @@ export default function EmployeeDocuments({
     }
     setDocuments(updatedDocuments);
   };
-  console.log("documents", documents);
+
   return (
     <ul className="list-disc ml-6 space-y-2">
       {documents.map(({ url, path }, index) => (
