@@ -1,4 +1,4 @@
-import { IInventoryFormat, MainReport } from "./MainReport";
+import { IInventoryFormat, SalesReport } from "./SalesReport";
 
 interface ImagawayakiSales {
   chocolate: number;
@@ -24,7 +24,7 @@ interface IImagawayakiReportInventory {
   plastic_bag: IInventoryFormat;
 }
 
-export interface IImagawayakiReport extends MainReport {
+export interface IImagawayakiReport extends SalesReport {
   sales: ImagawayakiSales;
   inventory: IImagawayakiReportInventory;
 }

@@ -1,6 +1,6 @@
-import { IInventoryFormat, MainReport } from "./MainReport";
+import { IInventoryFormat, SalesReport } from "./SalesReport";
 
-export interface IChickyOinkReport extends MainReport {
+export interface IChickyOinkReport extends SalesReport {
   sales: ChickyOinkSales;
   inventory: IChickyOinkReportInventory;
 }

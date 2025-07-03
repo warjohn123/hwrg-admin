@@ -1,3 +1,5 @@
+import { IAssignment } from "./User";
+
 interface IExpense {
   name: string;
   value: number;
@@ -12,7 +14,7 @@ export interface IInventoryFormat {
   notes: string;
 }
 
-export interface MainReport {
+export interface SalesReport {
   id: string;
   title: string;
   date: string;
@@ -24,4 +26,5 @@ export interface MainReport {
   on_duty: string;
   prepared_by: string;
   expenses: IExpense;
+  report_for: IAssignment;
 }
