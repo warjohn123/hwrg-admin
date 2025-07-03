@@ -24,7 +24,6 @@ export default function TimeLogsPage() {
     fetch(`/api/timelogs?page=${pageNumber}&limit=${pageSize}`)
       .then((res) => res.json())
       .then((data) => {
-        console.log("data", data);
         setTotal(data.total);
         setTimelogs(data.timelogs);
         setLoading(false);

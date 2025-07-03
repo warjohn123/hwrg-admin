@@ -1,18 +1,18 @@
 "use client";
 
-import { useState, useEffect, useMemo } from "react";
-import { useParams } from "next/navigation";
-import { IUser } from "@/types/User";
-import { uploadFile } from "@/lib/uploadFile";
-import { toast } from "react-toastify";
-import { supabase } from "@/lib/supabase";
+import EmployeeDetailsForm from "@/components/EmployeeDetailsForm";
 import EmployeeDocuments from "@/components/EmployeeDocuments";
-
-const ASSIGNMENT_OPTIONS = ["Imagawayaki", "Chicky Oink", "Potato Fry"];
+import { useEmployeeDetails } from "@/hooks/useEmployeeDetails";
+import { supabase } from "@/lib/supabase";
+import { uploadFile } from "@/lib/uploadFile";
+import { IUser } from "@/types/User";
+import { useParams } from "next/navigation";
+import { useEffect, useMemo, useState } from "react";
+import { toast } from "react-toastify";
 
 export default function EmployeeDetailsPage() {
   const { id } = useParams();
-  const [employee, setEmployee] = useState<IUser | null>(null);
+  const { employee, setEmployee, handleInputChange } = useEmployeeDetails();
   const [isSaving, setIsSaving] = useState(false);
   const [files, setFiles] = useState<File[]>([]);
   const [picture, setPicture] = useState<File>();
@@ -42,14 +42,6 @@ export default function EmployeeDetailsPage() {
     };
     fetchEmployee();
   }, [id]);
-
-  const handleInputChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
-  ) => {
-    if (!employee) return;
-    const { name, value } = e.target;
-    setEmployee({ ...employee, [name]: value });
-  };
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (!e.target.files) return;
@@ -134,98 +126,10 @@ export default function EmployeeDetailsPage() {
         className="block w-full text-sm text-gray-700 file:mr-4 file:py-2 file:px-4 file:rounded file:border-0 file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
       />
 
-      <label className="block font-medium text-sm text-gray-700 mb-1">
-        Employee Name
-      </label>
-      <input
-        type="text"
-        name="name"
-        value={employee.name}
-        onChange={handleInputChange}
-        className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+      <EmployeeDetailsForm
+        employee={employee}
+        handleInputChange={handleInputChange}
       />
-
-      <label className="block font-medium text-sm text-gray-700 mb-1">
-        Employee Email
-      </label>
-      <input
-        type="text"
-        name="email"
-        value={employee.email}
-        onChange={handleInputChange}
-        className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-      />
-
-      <label className="block font-medium text-sm text-gray-700 mb-1">
-        Employee Contact
-      </label>
-      <input
-        type="text"
-        name="contact"
-        value={employee.contact}
-        onChange={handleInputChange}
-        className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-      />
-
-      <label className="block font-medium text-sm text-gray-700 mb-1">
-        Address
-      </label>
-      <input
-        type="text"
-        name="address"
-        value={employee.address}
-        onChange={handleInputChange}
-        className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-      />
-
-      <label className="block font-medium text-sm text-gray-700 mb-1">
-        Birthday
-      </label>
-      <input
-        type="text"
-        name="bday"
-        value={employee.bday}
-        onChange={handleInputChange}
-        className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-      />
-
-      <label className="block font-medium text-sm text-gray-700 mb-1">
-        Rate per Day (₱)
-      </label>
-      <input
-        type="number"
-        name="rate_per_day"
-        value={employee.rate_per_day}
-        onChange={handleInputChange}
-        className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-      />
-
-      <label className="block font-medium text-sm text-gray-700 mb-1">
-        First Duty Date
-      </label>
-      <input
-        type="text"
-        name="first_duty_date"
-        value={employee.first_duty_date}
-        onChange={handleInputChange}
-        className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-      />
-
-      <label className="block font-medium text-sm text-gray-700 mb-1">
-        Assignment
-      </label>
-      <select
-        name="assignment"
-        value={employee.assignment}
-        onChange={handleInputChange}
-        className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-      >
-        {ASSIGNMENT_OPTIONS.map((option) => (
-          <option key={option} value={option}>
-            {option}
-          </option>
-        ))}
-      </select>
 
       <label className="block font-medium text-sm text-gray-700 mb-1">
         Upload Documents

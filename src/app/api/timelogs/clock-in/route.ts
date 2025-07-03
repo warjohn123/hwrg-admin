@@ -9,6 +9,9 @@ export async function POST(req: Request) {
     const now = new Date().toISOString();
     const formattedDate = now.split("T")[0];
 
+    console.log("new date", new Date());
+    console.log("now", now);
+
     if (!clock_in_photo || !user_id) {
       return NextResponse.json({ error: "Missing fields" }, { status: 400 });
     }
@@ -26,6 +29,7 @@ export async function POST(req: Request) {
 
     return NextResponse.json({
       message: "Clocked in successfully",
+      data: data,
     });
   } catch (err) {
     return NextResponse.json({ error: "Server error" }, { status: 500 });

@@ -11,8 +11,7 @@ export default function EmployeesPage() {
   const [employees, setEmployees] = useState<IUser[]>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [loading, setLoading] = useState(true);
-  const { page, setPage, setTotal, totalPages } = usePagination();
-  const pageSize = 5;
+  const { page, setPage, setTotal, totalPages, pageSize } = usePagination();
 
   useEffect(() => {
     fetchEmployees(page);
