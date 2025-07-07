@@ -28,7 +28,7 @@ export default function EmployeeDocuments({
 
     // Step 3: Update Supabase table
     const updatedPaths = updatedDocuments.map((doc) => doc.path);
-    const { error: dbError, data } = await supabase
+    const { error: dbError } = await supabase
       .from("users")
       .update({ documents: updatedPaths })
       .eq("id", employeeId)

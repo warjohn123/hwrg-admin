@@ -39,6 +39,7 @@ export async function POST(req: Request) {
       user: data?.[0],
     });
   } catch (err) {
+    console.error(err);
     return NextResponse.json({ error: "Server error" }, { status: 500 });
   }
 }

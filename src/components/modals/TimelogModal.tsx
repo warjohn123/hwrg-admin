@@ -4,6 +4,7 @@ import { formateDate } from "@/lib/formatDate";
 import { supabase } from "@/lib/supabase";
 import { ITimelog } from "@/types/Timelog";
 import { Dialog } from "@headlessui/react";
+import Image from "next/image";
 
 interface ClockLogModalProps {
   isOpen: boolean;
@@ -45,7 +46,7 @@ export default function TimelogModal({
             <p className="text-sm text-gray-600 mb-2">
               {formateDate(timelog.clock_in)}
             </p>
-            <img
+            <Image
               src={clockInImage}
               alt="Clock In Photo"
               className="w-full h-48 object-cover rounded-md border"
@@ -58,7 +59,7 @@ export default function TimelogModal({
               {formateDate(timelog.clock_out)}
             </p>
             {clockOutImage ? (
-              <img
+              <Image
                 src={clockOutImage}
                 alt="Clock Out Photo"
                 className="w-full h-48 object-cover rounded-md border"

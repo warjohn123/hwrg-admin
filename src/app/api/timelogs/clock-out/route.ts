@@ -6,8 +6,6 @@ export async function PUT(req: Request) {
     const body = await req.json();
     const { user_id, clock_out_photo } = body;
 
-    const now = new Date().toISOString();
-
     if (!user_id) {
       return NextResponse.json({ error: "Missing fields" }, { status: 400 });
     }
@@ -30,6 +28,7 @@ export async function PUT(req: Request) {
       user: data?.[0],
     });
   } catch (err) {
+    console.error(err);
     return NextResponse.json({ error: "Server error" }, { status: 500 });
   }
 }

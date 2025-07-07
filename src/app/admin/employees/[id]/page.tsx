@@ -6,6 +6,7 @@ import { useEmployeeDetails } from "@/hooks/useEmployeeDetails";
 import { supabase } from "@/lib/supabase";
 import { uploadFile } from "@/lib/uploadFile";
 import { IUser } from "@/types/User";
+import Image from "next/image";
 import { useParams } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
 import { toast } from "react-toastify";
@@ -95,6 +96,7 @@ export default function EmployeeDetailsPage() {
       toast.success("Employee updated successfully!");
       setEmployee(updatedEmployee);
     } catch (e) {
+      console.error(e);
       toast.error("Something went wrong. Please contact IT department");
     } finally {
       setIsSaving(false);
@@ -111,7 +113,7 @@ export default function EmployeeDetailsPage() {
         Employee Picture
       </label>
       {employeePicture && (
-        <img
+        <Image
           src={employeePicture}
           alt="Employee Picture"
           width={120}

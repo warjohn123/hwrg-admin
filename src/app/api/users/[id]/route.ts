@@ -3,9 +3,9 @@ import { NextRequest, NextResponse } from "next/server";
 
 export async function GET(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
-  const id = await params.id;
+  const { id } = await params;
 
   const { data, error } = await supabase
     .from("users")
@@ -22,9 +22,9 @@ export async function GET(
 
 export async function PUT(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
-  const id = await params.id;
+  const { id } = await params;
   const body = await req.json();
 
   const { error } = await supabase.from("users").update(body).eq("id", id);

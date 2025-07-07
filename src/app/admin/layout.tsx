@@ -1,5 +1,4 @@
 import Sidebar from "@/components/Sidebar";
-import { supabase } from "@/lib/supabase";
 
 export default function AdminLayout({
   children,
