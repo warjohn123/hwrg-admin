@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { supabase } from "@/lib/supabase";
+import { supabaseBE } from "@/lib/supabase";
 
 export default function AdminPage() {
   const router = useRouter();
@@ -12,7 +12,7 @@ export default function AdminPage() {
     const verifySession = async () => {
       const {
         data: { session },
-      } = await supabase.auth.getSession();
+      } = await supabaseBE.auth.getSession();
 
       if (!session) {
         router.replace("/login");

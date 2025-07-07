@@ -1,4 +1,4 @@
-import { supabase } from "@/lib/supabase";
+import { supabaseBE } from "@/lib/supabase";
 import { NextResponse } from "next/server";
 
 export async function POST(req: Request) {
@@ -17,7 +17,7 @@ export async function POST(req: Request) {
     }
 
     // Insert into 'users' table
-    const { data, error: dbError } = await supabase
+    const { data, error: dbError } = await supabaseBE
       .from("timelogs")
       .insert([
         { clock_in_photo, clock_in: now, user_id, date: formattedDate },

@@ -3,7 +3,7 @@
 import EmployeeDetailsForm from "@/components/EmployeeDetailsForm";
 import EmployeeDocuments from "@/components/EmployeeDocuments";
 import { useEmployeeDetails } from "@/hooks/useEmployeeDetails";
-import { supabase } from "@/lib/supabase";
+import { supabaseBE } from "@/lib/supabase";
 import { uploadFile } from "@/lib/uploadFile";
 import { IUser } from "@/types/User";
 import Image from "next/image";
@@ -18,7 +18,7 @@ export default function EmployeeDetailsPage() {
   const [files, setFiles] = useState<File[]>([]);
   const [picture, setPicture] = useState<File>();
 
-  const employeePicture = supabase.storage
+  const employeePicture = supabaseBE.storage
     .from("employees")
     .getPublicUrl(employee?.picture || "").data.publicUrl;
 
@@ -26,7 +26,7 @@ export default function EmployeeDetailsPage() {
     if (!employee?.documents) return [];
 
     return employee.documents.map((document) => {
-      const { data } = supabase.storage
+      const { data } = supabaseBE.storage
         .from("employee-documents")
         .getPublicUrl(document || "");
 
