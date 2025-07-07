@@ -1,6 +1,6 @@
 "use client";
 
-import { supabase } from "@/lib/supabase";
+import { supabase } from "@/lib/supabaseClient";
 import { IUserType } from "@/types/User";
 import { useRouter } from "next/navigation";
 import { useState } from "react";

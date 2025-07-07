@@ -1,6 +1,6 @@
 "use client";
 
-import { supabase } from "@/lib/supabase";
+import { supabase } from "@/lib/supabaseClient";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 

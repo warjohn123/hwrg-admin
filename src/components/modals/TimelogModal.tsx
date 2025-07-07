@@ -1,7 +1,7 @@
 "use client";
 
 import { formateDate } from "@/lib/formatDate";
-import { supabase } from "@/lib/supabase";
+import { supabase } from "@/lib/supabaseClient";
 import { ITimelog } from "@/types/Timelog";
 import { Dialog } from "@headlessui/react";
 import Image from "next/image";

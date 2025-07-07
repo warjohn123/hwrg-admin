@@ -1,4 +1,4 @@
-import { supabase } from "@/lib/supabase";
+import { supabase } from "@/lib/supabaseClient";
 import { IUserType } from "@/types/User";
 import { NextResponse } from "next/server";
 

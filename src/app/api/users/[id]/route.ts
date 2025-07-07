@@ -1,4 +1,4 @@
-import { supabaseBE } from "@/lib/supabase";
+import { getSupabase } from "@/lib/supabaseServer";
 import { NextRequest, NextResponse } from "next/server";
 
 export async function GET(
@@ -7,7 +7,7 @@ export async function GET(
 ) {
   const { id } = await params;
 
-  const { data, error } = await supabaseBE
+  const { data, error } = await getSupabase()
     .from("users")
     .select("*")
     .eq("id", id)
@@ -27,7 +27,7 @@ export async function PUT(
   const { id } = await params;
   const body = await req.json();
 
-  const { error } = await supabaseBE.from("users").update(body).eq("id", id);
+  const { error } = await getSupabase().from("users").update(body).eq("id", id);
 
   if (error) {
     return NextResponse.json({ error: error.message }, { status: 400 });

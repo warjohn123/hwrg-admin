@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { supabaseBE } from "@/lib/supabase";
+import { getSupabase } from "@/lib/supabaseServer";
 
 export async function POST(req: Request) {
   try {
@@ -12,7 +12,7 @@ export async function POST(req: Request) {
 
     // Create Auth user
     const { data: authUser, error: authError } =
-      await supabaseBE.auth.admin.createUser({
+      await getSupabase().auth.admin.createUser({
         email,
         password,
         email_confirm: true, // Set to false if you want email confirmation
@@ -26,7 +26,7 @@ export async function POST(req: Request) {
     }
 
     // Insert into 'users' table
-    const { data, error: dbError } = await supabaseBE
+    const { data, error: dbError } = await getSupabase()
       .from("users")
       .insert([{ id: authUser.user.id, name, email, type, assignment }]); // Ensure your table has a UUID 'id' column
 

@@ -1,4 +1,4 @@
-import { supabase } from "./supabase";
+import { supabase } from "./supabaseClient";
 import { fileToBase64 } from "./toBase64";
 
 export async function uploadFile(file: File, userId: string, bucket: string) {
