@@ -4,6 +4,7 @@ import { supabase } from "@/lib/supabaseClient";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { X } from "lucide-react";
+import { useRouter } from "next/navigation";
 
 interface SidebarProps {
   isOpen: boolean;
@@ -12,10 +13,14 @@ interface SidebarProps {
 
 export default function Sidebar({ isOpen, setIsOpen }: SidebarProps) {
   const pathname = usePathname();
+  const router = useRouter();
 
   const logout = async () => {
-    await supabase.auth.signOut();
-    window.location.href = "/login";
+    const result = await supabase.auth.signOut();
+
+    console.log("result", result);
+
+    window.location.href = "/login"; // full reload
   };
 
   const linkClasses = (href: string) =>
