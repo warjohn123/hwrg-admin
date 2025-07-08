@@ -1,10 +1,9 @@
 "use client";
 
 import { supabase } from "@/lib/supabaseClient";
+import { X } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { X } from "lucide-react";
-import { useRouter } from "next/navigation";
 
 interface SidebarProps {
   isOpen: boolean;
@@ -13,7 +12,6 @@ interface SidebarProps {
 
 export default function Sidebar({ isOpen, setIsOpen }: SidebarProps) {
   const pathname = usePathname();
-  const router = useRouter();
 
   const logout = async () => {
     const result = await supabase.auth.signOut();
