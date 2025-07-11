@@ -1,13 +1,13 @@
-"use client";
+'use client';
 
-import { supabase } from "@/lib/supabaseClient";
-import { IUserType } from "@/types/User";
-import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { supabase } from '@/lib/supabaseClient';
+import { IUserType } from '@/types/User';
+import { useRouter } from 'next/navigation';
+import { useState } from 'react';
 
 export default function LoginForm() {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
   const [isSigningIn, setIsSigningIn] = useState<boolean>(false);
   const router = useRouter();
 
@@ -15,7 +15,7 @@ export default function LoginForm() {
     e.preventDefault();
 
     if (!email && !password) {
-      alert("Missing Fields. Please enter email and password");
+      alert('Missing Fields. Please enter email and password');
       return;
     }
 
@@ -27,13 +27,13 @@ export default function LoginForm() {
     });
 
     const { data: userData, error: userError } = await supabase
-      .from("users")
-      .select("type")
-      .eq("id", data.user!.id)
-      .single();
+      .from('users')
+      .select('type')
+      .eq('id', data.user?.id)
+      .maybeSingle();
 
     if (userError || userData?.type !== IUserType.ADMIN) {
-      alert("Access denied");
+      alert('Access denied');
       setIsSigningIn(false);
       return;
     }
@@ -42,7 +42,7 @@ export default function LoginForm() {
       alert(error);
       setIsSigningIn(false);
     } else {
-      router.push("/admin/dashboard");
+      router.push('/admin/dashboard');
     }
   };
 
@@ -83,7 +83,7 @@ export default function LoginForm() {
         type="submit"
         className="w-full cursor-pointer bg-blue-600 text-white py-2 rounded-md hover:bg-blue-700 transition"
       >
-        {isSigningIn ? "Signing in" : "Sign In"}
+        {isSigningIn ? 'Signing in' : 'Sign In'}
       </button>
     </form>
   );
