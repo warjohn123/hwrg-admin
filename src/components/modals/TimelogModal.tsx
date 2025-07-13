@@ -1,10 +1,10 @@
-"use client";
+'use client';
 
-import { formateDate } from "@/lib/formatDate";
-import { supabase } from "@/lib/supabaseClient";
-import { ITimelog } from "@/types/Timelog";
-import { Dialog } from "@headlessui/react";
-import Image from "next/image";
+import { formateDate } from '@/lib/formatDate';
+import { supabase } from '@/lib/supabaseClient';
+import { ITimelog } from '@/types/Timelog';
+import { Dialog } from '@headlessui/react';
+import Image from 'next/image';
 
 interface ClockLogModalProps {
   isOpen: boolean;
@@ -20,14 +20,12 @@ export default function TimelogModal({
   if (!timelog) return <></>;
 
   const clockInImage = supabase.storage
-    .from("timelog-photos")
+    .from('timelog-photos')
     .getPublicUrl(timelog.clock_in_photo).data.publicUrl;
 
   const clockOutImage = supabase.storage
-    .from("timelog-photos")
+    .from('timelog-photos')
     .getPublicUrl(timelog.clock_out_photo).data.publicUrl;
-
-  console.log("clockInImage", clockInImage);
 
   return (
     <Dialog

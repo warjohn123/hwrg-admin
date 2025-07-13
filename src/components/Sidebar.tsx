@@ -1,9 +1,9 @@
-"use client";
+'use client';
 
-import { supabase } from "@/lib/supabaseClient";
-import { X } from "lucide-react";
-import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { supabase } from '@/lib/supabaseClient';
+import { X } from 'lucide-react';
+import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 
 interface SidebarProps {
   isOpen: boolean;
@@ -16,14 +16,14 @@ export default function Sidebar({ isOpen, setIsOpen }: SidebarProps) {
   const logout = async () => {
     const result = await supabase.auth.signOut();
 
-    console.log("result", result);
+    console.log('result', result);
 
-    window.location.href = "/login"; // full reload
+    window.location.href = '/login'; // full reload
   };
 
   const linkClasses = (href: string) =>
     `hover:text-yellow-400 ${
-      pathname === href ? "text-yellow-400 font-semibold" : "text-white"
+      pathname === href ? 'text-yellow-400 font-semibold' : 'text-white'
     }`;
 
   return (
@@ -31,7 +31,7 @@ export default function Sidebar({ isOpen, setIsOpen }: SidebarProps) {
       className={`
         fixed top-0 left-0 min-h-screen bg-gray-800 text-white p-5 z-50 transition-transform duration-300
         w-64
-        ${isOpen ? "translate-x-0" : "-translate-x-full"}
+        ${isOpen ? 'translate-x-0' : '-translate-x-full'}
         md:translate-x-0 md:relative md:flex md:flex-col
       `}
     >
@@ -46,20 +46,23 @@ export default function Sidebar({ isOpen, setIsOpen }: SidebarProps) {
       <nav className="flex flex-col space-y-4">
         <Link
           href="/admin/dashboard"
-          className={linkClasses("/admin/dashboard")}
+          className={linkClasses('/admin/dashboard')}
         >
           Dashboard
         </Link>
         <Link
           href="/admin/employees"
-          className={linkClasses("/admin/employees")}
+          className={linkClasses('/admin/employees')}
         >
           Employees
         </Link>
-        <Link href="/admin/reports" className={linkClasses("/admin/reports")}>
+        <Link href="/admin/branches" className={linkClasses('/admin/branches')}>
+          Branches
+        </Link>
+        <Link href="/admin/reports" className={linkClasses('/admin/reports')}>
           Reports
         </Link>
-        <Link href="/admin/timelogs" className={linkClasses("/admin/timelogs")}>
+        <Link href="/admin/timelogs" className={linkClasses('/admin/timelogs')}>
           Time Logs
         </Link>
         <div onClick={logout} className="hover:text-yellow-400 cursor-pointer">

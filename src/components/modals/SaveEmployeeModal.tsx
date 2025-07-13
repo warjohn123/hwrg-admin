@@ -1,8 +1,9 @@
-"use client";
+'use client';
 
-import { IAssignment, IUserType } from "@/types/User";
-import { useState } from "react";
-import { toast } from "react-toastify";
+import { DUTY_ASSIGNMENTS } from '@/constants/assignments';
+import { IAssignment, IUserType } from '@/types/User';
+import { useState } from 'react';
+import { toast } from 'react-toastify';
 
 type Props = {
   isModalOpen: boolean;
@@ -15,19 +16,19 @@ export default function SaveEmployeeModal({
   fetchEmployees,
   setIsModalOpen,
 }: Props) {
-  const [name, setName] = useState("");
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+  const [name, setName] = useState('');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
   const [assignment, setAssignment] = useState<IAssignment>(
-    IAssignment.CHICKY_OINK
+    IAssignment.CHICKY_OINK,
   );
   const [isLoading, setIsLoading] = useState<boolean>(false);
 
   const addEmployee = async () => {
     setIsLoading(true);
-    const res = await fetch("/api/users/add", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
+    const res = await fetch('/api/users/add', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         name,
         email,
@@ -39,7 +40,7 @@ export default function SaveEmployeeModal({
     const data = await res.json();
 
     if (res.ok) {
-      toast.success("Employee added successfully!");
+      toast.success('Employee added successfully!');
       setIsModalOpen(false);
       fetchEmployees();
       // You can also close the modal or refresh list here
@@ -79,11 +80,13 @@ export default function SaveEmployeeModal({
               className="w-full mb-4 px-3 py-2 border rounded"
               onChange={(e) => setAssignment(e.target.value as IAssignment)}
             >
-              <option value={IAssignment.CHICKY_OINK}>
-                {IAssignment.CHICKY_OINK}
-              </option>
-              <option value={IAssignment.IMAGAWAYAKI}>
-                {IAssignment.IMAGAWAYAKI}
+              {DUTY_ASSIGNMENTS.map((assignment) => (
+                <option key={assignment} value={assignment}>
+                  {assignment}
+                </option>
+              ))}
+              <option value={IAssignment.POTATO_FRY}>
+                {IAssignment.POTATO_FRY}
               </option>
             </select>
             <div className="flex justify-end space-x-2">
