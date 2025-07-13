@@ -50,7 +50,6 @@ export default function TimeLogsPage() {
         <table className="min-w-full table-auto">
           <thead className="bg-gray-100 text-left">
             <tr>
-              <th className="px-6 py-3 text-sm font-medium">ID</th>
               <th className="px-6 py-3 text-sm font-medium">Assignment</th>
               <th className="px-6 py-3 text-sm font-medium">Branch name</th>
             </tr>
@@ -61,10 +60,10 @@ export default function TimeLogsPage() {
                 key={branch.id}
                 className="border-b hover:bg-gray-50 cursor-pointer"
                 onClick={() => {
+                  setIsSaveModalOpen(true);
                   setSelectedBranch(branch);
                 }}
               >
-                <td className="px-6 py-4">{branch.id}</td>
                 <td className="px-6 py-4">{branch.assignment}</td>
                 <td className="px-6 py-4">{branch.branch_name}</td>
               </tr>

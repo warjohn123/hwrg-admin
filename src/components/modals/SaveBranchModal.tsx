@@ -1,7 +1,9 @@
 import { DUTY_ASSIGNMENTS } from '@/constants/assignments';
+import { createBranch, updateBranch } from '@/services/branch.service';
 import { IBranch } from '@/types/Branch';
+import { IAssignment } from '@/types/User';
 import { Dialog } from '@headlessui/react';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { toast } from 'react-toastify';
 
 interface SaveBranchModalProps {
@@ -17,13 +19,20 @@ export default function SaveBranchModal({
   setIsOpen,
   fetchBranches,
 }: SaveBranchModalProps) {
-  const [branchName, setBranchName] = useState(branch?.branch_name || '');
+  const [branchName, setBranchName] = useState('');
   const [assignment, setAssignment] = useState('');
   const [errors, setErrors] = useState<{
     branchName?: string;
     assignment?: string;
   }>({});
   const [isLoading, setIsLoading] = useState<boolean>(false);
+
+  useEffect(() => {
+    if (!branch) return;
+
+    setBranchName(branch.branch_name);
+    setAssignment(branch.assignment);
+  }, [branch]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -35,32 +44,48 @@ export default function SaveBranchModal({
     setErrors(newErrors);
 
     if (Object.keys(newErrors).length === 0) {
-      // Submit logic here (API call or state update)
-      console.log({ branchName, assignment });
-
       setIsLoading(true);
-      const res = await fetch('/api/branches/add', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          branch_name: branchName,
-          assignment,
-        }),
-      });
-      const data = await res.json();
 
-      if (res.ok) {
-        toast.success('Branch added successfully!');
-        setIsOpen(false);
-        fetchBranches();
-        // You can also close the modal or refresh list here
+      if (!branch) {
+        await addBranch();
       } else {
-        toast.error(`Error: ${data.error}`);
+        await editBranch();
       }
 
-      setIsLoading(false);
-      setIsOpen(false); // Close modal on success
-      clearForm();
+      closeModal();
+    }
+  };
+
+  const addBranch = async () => {
+    const res = await createBranch({
+      branch_name: branchName,
+      assignment: assignment as IAssignment,
+    });
+    const data = await res?.json();
+
+    if (res?.ok) {
+      toast.success('Branch added successfully!');
+      fetchBranches();
+      // You can also close the modal or refresh list here
+    } else {
+      toast.error(`Error: ${data.error}`);
+    }
+  };
+
+  const editBranch = async () => {
+    const res = await updateBranch({
+      id: branch?.id,
+      branch_name: branchName,
+      assignment: assignment as IAssignment,
+    });
+    const data = await res?.json();
+
+    if (res?.ok) {
+      toast.success('Branch updated successfully!');
+      fetchBranches();
+      // You can also close the modal or refresh list here
+    } else {
+      toast.error(`Error: ${data.error}`);
     }
   };
 
@@ -69,12 +94,18 @@ export default function SaveBranchModal({
     setAssignment('');
   };
 
+  const closeModal = () => {
+    setIsLoading(false);
+    setIsOpen(false);
+    clearForm();
+  };
+
   if (!isOpen) return <></>;
 
   return (
     <Dialog
       open={isOpen}
-      onClose={() => setIsOpen(false)}
+      onClose={closeModal}
       className="fixed inset-0 z-50 flex items-center justify-center bg-black/50"
     >
       <Dialog.Panel className="bg-white p-6 rounded-xl w-full max-w-md shadow-lg">
@@ -120,7 +151,7 @@ export default function SaveBranchModal({
           <div className="flex justify-end gap-2">
             <button
               type="button"
-              onClick={() => setIsOpen(false)}
+              onClick={closeModal}
               className="cursor-pointer px-4 py-2 bg-gray-300 text-black rounded"
             >
               Cancel
@@ -130,7 +161,7 @@ export default function SaveBranchModal({
               disabled={isLoading}
               className="cursor-pointer px-4 py-2 bg-blue-600 text-white rounded"
             >
-              {!!branch ? 'Update' : 'Save'}
+              {isLoading ? 'Saving' : 'Save'}
             </button>
           </div>
         </form>
