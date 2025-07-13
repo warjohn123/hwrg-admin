@@ -1,15 +1,15 @@
-"use client";
+'use client';
 
-import EmployeeDetailsForm from "@/components/EmployeeDetailsForm";
-import EmployeeDocuments from "@/components/EmployeeDocuments";
-import { useEmployeeDetails } from "@/hooks/useEmployeeDetails";
-import { getSupabase } from "@/lib/supabaseServer";
-import { uploadFile } from "@/lib/uploadFile";
-import { IUser } from "@/types/User";
-import Image from "next/image";
-import { useParams } from "next/navigation";
-import { useEffect, useMemo, useState } from "react";
-import { toast } from "react-toastify";
+import EmployeeDetailsForm from '@/components/EmployeeDetailsForm';
+import EmployeeDocuments from '@/components/EmployeeDocuments';
+import { useEmployeeDetails } from '@/hooks/useEmployeeDetails';
+import { supabase } from '@/lib/supabaseClient';
+import { uploadFile } from '@/lib/uploadFile';
+import { IUser } from '@/types/User';
+import Image from 'next/image';
+import { useParams } from 'next/navigation';
+import { useEffect, useMemo, useState } from 'react';
+import { toast } from 'react-toastify';
 
 export default function EmployeeDetailsPage() {
   const { id } = useParams();
@@ -18,17 +18,17 @@ export default function EmployeeDetailsPage() {
   const [files, setFiles] = useState<File[]>([]);
   const [picture, setPicture] = useState<File>();
 
-  const employeePicture = getSupabase()
-    .storage.from("employees")
-    .getPublicUrl(employee?.picture || "").data.publicUrl;
+  const employeePicture = supabase.storage
+    .from('employees')
+    .getPublicUrl(employee?.picture || '').data.publicUrl;
 
   const employeeDocuments = useMemo(() => {
     if (!employee?.documents) return [];
 
     return employee.documents.map((document) => {
-      const { data } = getSupabase()
-        .storage.from("employee-documents")
-        .getPublicUrl(document || "");
+      const { data } = supabase.storage
+        .from('employee-documents')
+        .getPublicUrl(document || '');
 
       return { url: data.publicUrl, path: document };
     });
@@ -52,8 +52,8 @@ export default function EmployeeDetailsPage() {
   const handlePictureChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (!e.target.files) return;
     const img = e.target.files[0];
-    if (!img || !img.type.startsWith("image/")) {
-      alert("Please upload a valid image file.");
+    if (!img || !img.type.startsWith('image/')) {
+      alert('Please upload a valid image file.');
       return;
     }
     setPicture(e.target.files[0]);
@@ -66,7 +66,7 @@ export default function EmployeeDetailsPage() {
     try {
       //Upload picture
       const employeePicture = picture
-        ? await uploadFile(picture, employee.id, "employees")
+        ? await uploadFile(picture, employee.id, 'employees')
         : null;
 
       // Upload documents (mocked)
@@ -75,10 +75,10 @@ export default function EmployeeDetailsPage() {
           const result = await uploadFile(
             file,
             employee.id,
-            "employee-documents"
+            'employee-documents',
           );
-          return result || "";
-        })
+          return result || '';
+        }),
       );
 
       const updatedEmployee: IUser = {
@@ -88,16 +88,16 @@ export default function EmployeeDetailsPage() {
       };
 
       await fetch(`/api/users/${id}`, {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(updatedEmployee),
       });
 
-      toast.success("Employee updated successfully!");
+      toast.success('Employee updated successfully!');
       setEmployee(updatedEmployee);
     } catch (e) {
       console.error(e);
-      toast.error("Something went wrong. Please contact IT department");
+      toast.error('Something went wrong. Please contact IT department');
     } finally {
       setIsSaving(false);
     }
@@ -153,7 +153,7 @@ export default function EmployeeDetailsPage() {
         disabled={isSaving}
         className="px-6 py-2 bg-blue-600 cursor-pointer text-white rounded-md hover:bg-blue-700 disabled:opacity-50"
       >
-        {isSaving ? "Saving..." : "Save Changes"}
+        {isSaving ? 'Saving...' : 'Save Changes'}
       </button>
     </div>
   );
