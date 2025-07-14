@@ -26,7 +26,9 @@ export default function AddBranchAssignmentModal({
     try {
       const res = await getEmployees();
       setEmployees(res.users);
-    } catch (e) {}
+    } catch (e) {
+      console.error(e);
+    }
   };
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
