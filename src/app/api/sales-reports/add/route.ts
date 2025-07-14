@@ -3,13 +3,11 @@ import { getSupabase } from '@/lib/supabaseServer';
 import { handleCors } from '@/lib/cors';
 
 export async function OPTIONS(request: Request) {
-  return (await handleCors(request))!;
+  return handleCors(request)!; // handles preflight
 }
 
 export async function POST(req: Request) {
-  const corsResponse = await handleCors(req);
-  if (corsResponse) return corsResponse;
-
+  const cors = handleCors(req);
   try {
     const body = await req.json();
     const {
@@ -21,6 +19,9 @@ export async function POST(req: Request) {
       type,
       cash,
       cash_fund,
+      branch_id,
+      title,
+      user_id,
     } = body;
 
     // Insert into 'sales_reports' table
@@ -36,21 +37,37 @@ export async function POST(req: Request) {
           on_duty,
           prepared_by,
           type,
-          title: 'This is a report',
+          user_id,
+          branch_id,
+          title,
           report_date: new Date().toISOString(),
         },
       ]); // Ensure your table has a UUID 'id' column
 
+    console.log('dbError', dbError);
+
     if (dbError) {
-      return NextResponse.json({ error: dbError.message }, { status: 500 });
+      return NextResponse.json(
+        { error: dbError.message },
+        { status: 500, headers: cors?.headers },
+      );
     }
 
-    return NextResponse.json({
-      message: 'Sales report created successfully',
-      report: data?.[0],
-    });
+    return NextResponse.json(
+      {
+        message: 'Sales report created successfully',
+        report: data?.[0],
+      },
+      {
+        status: 200,
+        headers: cors?.headers,
+      },
+    );
   } catch (err) {
     console.error(err);
-    return NextResponse.json({ error: 'Server error' }, { status: 500 });
+    return NextResponse.json(
+      { error: 'Server error' },
+      { status: 500, headers: cors?.headers },
+    );
   }
 }

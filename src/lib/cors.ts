@@ -1,15 +1,23 @@
-export async function handleCors(request: Request): Promise<Response | null> {
+import { NextResponse } from 'next/server';
+
+export function handleCors(request: Request): NextResponse | null {
+  const origin = request.headers.get('origin');
+
+  // Allow from localhost:5173 in dev, adjust for prod
+  const allowedOrigin =
+    origin && origin.includes('localhost:5173') ? origin : null;
+
+  const headers = {
+    'Access-Control-Allow-Origin': allowedOrigin || '*',
+    'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
+    'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+    'Access-Control-Allow-Credentials': 'true',
+  };
+
   if (request.method === 'OPTIONS') {
-    return new Response(null, {
-      status: 204,
-      headers: {
-        'Access-Control-Allow-Origin': 'http://localhost:5173',
-        'Access-Control-Allow-Methods': 'GET,POST,PUT,DELETE,OPTIONS',
-        'Access-Control-Allow-Headers': 'Content-Type,Authorization',
-        'Access-Control-Allow-Credentials': 'true',
-      },
-    });
+    return new NextResponse(null, { status: 204, headers });
   }
 
-  return null; // let the handler continue
+  // ❗️ Not null — return headers so they can be merged in GET/POST responses too
+  return new NextResponse(null, { headers });
 }
