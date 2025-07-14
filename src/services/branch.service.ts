@@ -33,3 +33,12 @@ export async function updateBranch(branch: IBranch) {
     console.error(e);
   }
 }
+
+export async function getBranchDetails(id: string) {
+  try {
+    const res = await fetch(`/api/branches/${id}`);
+    return res.json();
+  } catch (e) {
+    console.error(e);
+  }
+}

@@ -30,8 +30,6 @@ export async function GET(req: NextRequest) {
       .order('created_at', { ascending: false }) // descending order
       .range(from, to);
 
-    console.log('data test', data);
-
     if (error) {
       return NextResponse.json({ error: error.message }, { status: 500 });
     }

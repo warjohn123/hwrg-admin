@@ -16,8 +16,6 @@ export default function Sidebar({ isOpen, setIsOpen }: SidebarProps) {
   const logout = async () => {
     const result = await supabase.auth.signOut();
 
-    console.log('result', result);
-
     window.location.href = '/login'; // full reload
   };
 

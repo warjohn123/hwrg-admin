@@ -1,11 +1,11 @@
-"use client";
+'use client';
 
-import SaveEmployeeModal from "@/components/modals/SaveEmployeeModal";
-import { IUser } from "@/types/User";
-import { useEffect, useState } from "react";
-import { redirect } from "next/navigation";
-import Pagination from "@/components/Pagination";
-import { usePagination } from "@/hooks/usePagination";
+import SaveEmployeeModal from '@/components/modals/SaveEmployeeModal';
+import { IUser } from '@/types/User';
+import { useEffect, useState } from 'react';
+import { redirect } from 'next/navigation';
+import Pagination from '@/components/Pagination';
+import { usePagination } from '@/hooks/usePagination';
 
 export default function EmployeesPage() {
   const [employees, setEmployees] = useState<IUser[]>([]);
@@ -21,13 +21,12 @@ export default function EmployeesPage() {
     fetch(`/api/users?page=${pageNumber}&limit=${pageSize}`)
       .then((res) => res.json())
       .then((data) => {
-        console.log("data", data);
         setTotal(data.total);
         setEmployees(data.users);
         setLoading(false);
       })
       .catch((err) => {
-        console.error("Failed to fetch users:", err);
+        console.error('Failed to fetch users:', err);
         setLoading(false);
       });
   }
