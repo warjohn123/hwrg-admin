@@ -1,10 +1,13 @@
 'use client';
 
 import AddBranchAssignmentModal from '@/components/modals/AddBranchAssignmentModal';
-import Pagination from '@/components/Pagination';
-import { usePagination } from '@/hooks/usePagination';
-import { getBranchDetails } from '@/services/branch.service';
+import {
+  fetchAssignedEmployeesByBranch,
+  getBranchDetails,
+} from '@/services/branch.service';
 import { IBranch } from '@/types/Branch';
+import { IBranchAssignment } from '@/types/BranchAssignment';
+import { IUser } from '@/types/User';
 import { useParams } from 'next/navigation';
 import { useEffect, useState } from 'react';
 
@@ -13,33 +16,36 @@ export default function BranchDetailsPage() {
   const [branch, setBranch] = useState<IBranch>();
   const [isSaveModalOpen, setIsSaveModalOpen] = useState<boolean>(false);
   const [loading, setLoading] = useState(true);
-  const { page, setPage, totalPages, setTotal, pageSize } = usePagination();
+  const [assignedEmployees, setAssignedEmployees] = useState<IUser[]>([]);
 
   useEffect(() => {
     init();
-  }, [page]);
+  }, []);
 
   async function init() {
-    await fetchBranch(id as string);
-    fetchBranchAssignments(page);
+    setLoading(true);
+    try {
+      await fetchBranch();
+      await fetchAssignments();
+    } catch (e) {
+      console.error(e);
+    } finally {
+      setLoading(false);
+    }
   }
 
-  async function fetchBranch(id: string) {
-    const res = await getBranchDetails(id);
+  async function fetchBranch() {
+    const res = await getBranchDetails(id?.toString() || '');
     setBranch(res);
   }
 
-  function fetchBranchAssignments(pageNumber = 1) {
-    fetch(`/api/branches/${id}?page=${pageNumber}&limit=${pageSize}`)
-      .then((res) => res.json())
-      .then((data) => {
-        setTotal(data.total);
-        setLoading(false);
-      })
-      .catch((err) => {
-        console.error('Failed to fetch branches:', err);
-        setLoading(false);
-      });
+  async function fetchAssignments() {
+    const res = await fetchAssignedEmployeesByBranch(id?.toString() || '');
+    const branchAssignments: IBranchAssignment[] = res.branch_assignments;
+
+    const assigned = branchAssignments.map((assignment) => assignment.users);
+
+    setAssignedEmployees(assigned);
   }
 
   if (loading) return <p>Loading assignments...</p>;
@@ -65,35 +71,24 @@ export default function BranchDetailsPage() {
             </tr>
           </thead>
           <tbody>
-            {/* {branches.map((branch) => (
+            {assignedEmployees.map((employee) => (
               <tr
-                key={branch.id}
+                key={employee.id}
                 className="border-b hover:bg-gray-50 cursor-pointer"
-                onClick={() => {
-                  setIsSaveModalOpen(true);
-                  setSelectedBranch(branch);
-                }}
               >
-                <td className="px-6 py-4">{branch.assignment}</td>
-                <td className="px-6 py-4">{branch.branch_name}</td>
+                <td className="px-6 py-4">{employee.name}</td>
               </tr>
-            ))} */}
+            ))}
           </tbody>
         </table>
         <AddBranchAssignmentModal
           branchId={id?.toString() || ''}
           isOpen={isSaveModalOpen}
+          selectedEmployeesList={assignedEmployees}
+          fetchAssignedEmployees={fetchAssignments}
           setIsOpen={setIsSaveModalOpen}
         />
-        {/* <SaveBranchModal
-          branch={selectedBranch}
-          isOpen={isSaveModalOpen}
-          fetchBranches={fetchBranches}
-          setIsOpen={setIsSaveModalOpen}
-        /> */}
       </div>
-
-      <Pagination setPage={setPage} page={page} totalPages={totalPages} />
     </div>
   );
 }

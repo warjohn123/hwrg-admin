@@ -42,3 +42,12 @@ export async function getBranchDetails(id: string) {
     console.error(e);
   }
 }
+
+export async function fetchAssignedEmployeesByBranch(branchId: string) {
+  try {
+    const res = await fetch(`/api/branches/${branchId}/assignments`);
+    return res.json();
+  } catch (e) {
+    console.error(e);
+  }
+}

@@ -1,18 +1,24 @@
+import { assignBranch } from '@/services/branch_assignments.service';
 import { getEmployees } from '@/services/employees.service';
 import { IUser } from '@/types/User';
 import { Dialog } from '@headlessui/react';
 import { useEffect, useState } from 'react';
+import { toast } from 'react-toastify';
 import EmployeeAssignmentInput from '../EmployeeAssignmentInput';
 
 interface Props {
   isOpen: boolean;
   branchId: string;
+  selectedEmployeesList: IUser[];
+  fetchAssignedEmployees: () => void;
   setIsOpen: (val: boolean) => void;
 }
 
 export default function AddBranchAssignmentModal({
   isOpen,
   branchId,
+  selectedEmployeesList,
+  fetchAssignedEmployees,
   setIsOpen,
 }: Props) {
   const [isLoading, setIsLoading] = useState<boolean>(false);
@@ -21,6 +27,9 @@ export default function AddBranchAssignmentModal({
     setIsLoading(false);
     setIsOpen(false);
   };
+  const [newSelectedEmployees, setNewSelectedEmployees] = useState<IUser[]>(
+    selectedEmployeesList,
+  );
 
   const fetchAllEmployees = async () => {
     try {
@@ -31,8 +40,34 @@ export default function AddBranchAssignmentModal({
     }
   };
 
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+
+    setIsLoading(true);
+
+    const beforeIds = new Set(selectedEmployeesList.map((e) => e.id));
+    const nowIds = new Set(newSelectedEmployees.map((e) => e.id));
+
+    const added = newSelectedEmployees.filter((e) => !beforeIds.has(e.id));
+    const removed = selectedEmployeesList.filter((e) => !nowIds.has(e.id));
+
+    try {
+      for (const employee of added) {
+        await assignBranch(employee.id, branchId, 'add');
+      }
+
+      for (const employee of removed) {
+        await assignBranch(employee.id, branchId, 'remove');
+      }
+
+      fetchAssignedEmployees();
+      closeModal();
+    } catch (e) {
+      toast.error('Something went wrong. Please try again');
+      console.error(e);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   useEffect(() => {
@@ -55,26 +90,9 @@ export default function AddBranchAssignmentModal({
         <form onSubmit={handleSubmit} className="space-y-4">
           <EmployeeAssignmentInput
             allEmployees={employees}
-            selectedEmployees={[]}
+            selectedEmployees={newSelectedEmployees}
+            setSelectedEmployees={setNewSelectedEmployees}
           />
-          {/* <div>
-            <label className="block text-sm font-medium mb-1">Assignment</label>
-            <select
-              value={assignment}
-              onChange={(e) => setAssignment(e.target.value)}
-              className="w-full border rounded px-3 py-2"
-            >
-              <option value="">Select an assignment</option>
-              {DUTY_ASSIGNMENTS.map((a) => (
-                <option key={a} value={a}>
-                  {a}
-                </option>
-              ))}
-            </select>
-            {errors.assignment && (
-              <p className="text-red-500 text-sm">{errors.assignment}</p>
-            )}
-          </div> */}
 
           <div className="flex justify-end gap-2">
             <button

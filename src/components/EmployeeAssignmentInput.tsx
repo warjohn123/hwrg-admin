@@ -4,28 +4,29 @@ import { useState } from 'react';
 interface Props {
   allEmployees: IUser[];
   selectedEmployees: IUser[];
+  setSelectedEmployees: (val: IUser[]) => void;
 }
 
 export default function ChipsAutocomplete({
   allEmployees,
   selectedEmployees,
+  setSelectedEmployees,
 }: Props) {
   const [inputValue, setInputValue] = useState('');
-  const [selected, setSelected] = useState<IUser[]>(selectedEmployees);
 
   const filtered = allEmployees.filter(
     (u) =>
       u.name.toLowerCase().includes(inputValue.toLowerCase()) &&
-      !selected.find((s) => s.id === u.id),
+      !selectedEmployees.find((s) => s.id === u.id),
   );
 
   const addUser = (user: IUser) => {
-    setSelected([...selected, user]);
+    setSelectedEmployees([...selectedEmployees, user]);
     setInputValue('');
   };
 
   const removeUser = (userId: string) => {
-    setSelected(selected.filter((u) => u.id !== userId));
+    setSelectedEmployees(selectedEmployees.filter((u) => u.id !== userId));
   };
 
   return (
@@ -35,7 +36,7 @@ export default function ChipsAutocomplete({
       </label>
 
       <div className="flex flex-wrap items-center gap-2 border rounded px-2 py-2">
-        {selected.map((user) => (
+        {selectedEmployees.map((user) => (
           <div
             key={user.id}
             className="flex items-center bg-blue-100 text-blue-800 px-2 py-1 rounded-full text-sm"
