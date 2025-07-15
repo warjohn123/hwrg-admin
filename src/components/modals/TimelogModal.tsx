@@ -1,6 +1,6 @@
 'use client';
 
-import { formateDate } from '@/lib/formatDate';
+import { formatDate } from '@/lib/formatDate';
 import { supabase } from '@/lib/supabaseClient';
 import { ITimelog } from '@/types/Timelog';
 import { Dialog } from '@headlessui/react';
@@ -42,7 +42,7 @@ export default function TimelogModal({
           <div>
             <p className="font-semibold text-gray-700">🕒 Clock In</p>
             <p className="text-sm text-gray-600 mb-2">
-              {formateDate(timelog.clock_in)}
+              {formatDate(timelog.clock_in)}
             </p>
             <Image
               src={clockInImage}
@@ -54,7 +54,7 @@ export default function TimelogModal({
           <div className="border-t pt-4">
             <p className="font-semibold text-gray-700">🕔 Clock Out</p>
             <p className="text-sm text-gray-600 mb-2">
-              {formateDate(timelog.clock_out)}
+              {formatDate(timelog.clock_out)}
             </p>
             {clockOutImage ? (
               <Image

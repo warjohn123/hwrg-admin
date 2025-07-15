@@ -5,7 +5,10 @@ export function handleCors(request: Request): NextResponse | null {
 
   // Allow from localhost:5173 in dev, adjust for prod
   const allowedOrigin =
-    origin && origin.includes('localhost:5173') ? origin : null;
+    (origin && origin.includes('localhost:5173')) ||
+    (origin && origin.includes('hwrg-sales-report.vercel.app/'))
+      ? origin
+      : null;
 
   const headers = {
     'Access-Control-Allow-Origin': allowedOrigin || '*',

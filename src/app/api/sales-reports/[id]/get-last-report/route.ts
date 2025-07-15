@@ -16,8 +16,9 @@ export async function GET(
   const { data, error, count } = await getSupabase()
     .from('sales_reports')
     .select('*')
-    .eq('id', id)
-    .single();
+    .eq('branch_id', id)
+    .order('created_at', { ascending: false }) // or 'id' if it's auto-incremented
+    .limit(1);
 
   if (error) {
     return NextResponse.json(
@@ -26,5 +27,8 @@ export async function GET(
     );
   }
 
-  return NextResponse.json(data, { headers: cors?.headers, status: 200 });
+  return NextResponse.json(
+    { sales_reports: data, total: count ?? 0 },
+    { headers: cors?.headers, status: 200 },
+  );
 }

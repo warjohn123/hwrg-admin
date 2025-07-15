@@ -1,19 +1,19 @@
-"use client";
+'use client';
 
-import TimelogModal from "@/components/modals/TimelogModal";
-import Pagination from "@/components/Pagination";
-import { usePagination } from "@/hooks/usePagination";
-import { formateDate } from "@/lib/formatDate";
-import { getHoursRendered } from "@/lib/getHoursRendered";
-import { ITimelog } from "@/types/Timelog";
-import { useEffect, useState } from "react";
+import TimelogModal from '@/components/modals/TimelogModal';
+import Pagination from '@/components/Pagination';
+import { usePagination } from '@/hooks/usePagination';
+import { formatDate } from '@/lib/formatDate';
+import { getHoursRendered } from '@/lib/getHoursRendered';
+import { ITimelog } from '@/types/Timelog';
+import { useEffect, useState } from 'react';
 
 export default function TimeLogsPage() {
   const [timelogs, setTimelogs] = useState<ITimelog[]>([]);
   const [loading, setLoading] = useState(true);
   const { page, setPage, totalPages, setTotal, pageSize } = usePagination();
   const [selectedTimelog, setSelectedTimelog] = useState<ITimelog | undefined>(
-    undefined
+    undefined,
   );
 
   useEffect(() => {
@@ -29,7 +29,7 @@ export default function TimeLogsPage() {
         setLoading(false);
       })
       .catch((err) => {
-        console.error("Failed to fetch timelogs:", err);
+        console.error('Failed to fetch timelogs:', err);
         setLoading(false);
       });
   }
@@ -63,8 +63,8 @@ export default function TimeLogsPage() {
               >
                 <td className="px-6 py-4">{timelog.users?.name}</td>
                 <td className="px-6 py-4">{timelog.date}</td>
-                <td className="px-6 py-4">{formateDate(timelog.clock_in)}</td>
-                <td className="px-6 py-4">{formateDate(timelog.clock_out)}</td>
+                <td className="px-6 py-4">{formatDate(timelog.clock_in)}</td>
+                <td className="px-6 py-4">{formatDate(timelog.clock_out)}</td>
                 <td className="font-bold px-6 py-4">
                   {getHoursRendered(timelog.clock_in, timelog.clock_out)}
                 </td>
