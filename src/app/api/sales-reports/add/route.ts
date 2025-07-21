@@ -42,7 +42,8 @@ export async function POST(req: Request) {
           title,
           report_date: new Date().toISOString(),
         },
-      ]); // Ensure your table has a UUID 'id' column
+      ])
+      .select('id'); //Ensure your table has a UUID 'id' column
 
     console.log('dbError', dbError);
 
@@ -51,6 +52,20 @@ export async function POST(req: Request) {
         { error: dbError.message },
         { status: 500, headers: cors?.headers },
       );
+    }
+
+    const reportId = data?.[0].id;
+
+    for (const exp of expenses) {
+      await getSupabase()
+        .from('expenses')
+        .insert([
+          {
+            sales_report_id: reportId,
+            name: exp.name,
+            value: exp.value,
+          },
+        ]);
     }
 
     return NextResponse.json(

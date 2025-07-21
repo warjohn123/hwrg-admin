@@ -15,7 +15,7 @@ export async function GET(
 
   const { data, error, count } = await getSupabase()
     .from('sales_reports')
-    .select('*')
+    .select('*, expenses(*)')
     .eq('id', id)
     .single();
 
