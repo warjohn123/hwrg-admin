@@ -13,7 +13,7 @@ export async function GET(
   const cors = handleCors(req);
   const { id } = await params;
 
-  const { data, error, count } = await getSupabase()
+  const { data, error } = await getSupabase()
     .from('sales_reports')
     .select('*, expenses(*)')
     .eq('id', id)
@@ -26,5 +26,5 @@ export async function GET(
     );
   }
 
-  return NextResponse.json(data, { headers: cors?.headers, status: 200 });
+  return NextResponse.json({ data }, { headers: cors?.headers, status: 200 });
 }

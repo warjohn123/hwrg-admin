@@ -1,6 +1,8 @@
-import { IAssignment } from "./User";
+import type { IAssignment } from './User';
 
-interface IExpense {
+export interface IExpense {
+  id?: number;
+  sales_report_id?: number;
   name: string;
   value: number;
 }
@@ -15,16 +17,15 @@ export interface IInventoryFormat {
 }
 
 export interface SalesReport {
-  id: string;
+  id?: string;
   title: string;
-  date: string;
+  report_date: string;
   cash: number;
   cash_fund: number;
-  total_remit: number;
-  short: number;
-  over: number;
   on_duty: string;
   prepared_by: string;
-  expenses: IExpense;
-  report_for: IAssignment;
+  type: IAssignment;
+  expenses: IExpense[];
+  branch_id: number; //FK to branches table
+  user_id: string; //FK to users table
 }
