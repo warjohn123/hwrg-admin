@@ -1,5 +1,3 @@
-import { DateObject } from 'react-multi-date-picker';
-
 export async function getSalesReportDetails(id: string) {
   try {
     const res = await fetch(`/api/sales-reports/${id}`);
@@ -21,7 +19,7 @@ export async function fetchSalesReports(
   params.set('limit', limit.toString());
   if (branchId) params.set('branchId', branchId);
   if (dates?.length === 2) {
-    params.set('dates', dates.join(',')); // produces "2025-07-22,2025-07-23"
+    params.set('dates', dates.join(','));
   }
 
   const res = await fetch(`/api/sales-reports?${params.toString()}`);
