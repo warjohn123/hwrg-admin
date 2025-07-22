@@ -14,6 +14,21 @@ export async function GET(
   const { searchParams } = new URL(req.url);
   const { id } = await params;
 
+  const { data: assignments, error: assignmentError } = await getSupabase()
+    .from('branch_assignments')
+    .select('branch_id')
+    .eq('user_id', id);
+
+  if (assignmentError) {
+    console.error(assignmentError);
+    return NextResponse.json(
+      { error: assignmentError.message },
+      { status: 500, headers: cors?.headers },
+    );
+  }
+
+  const branchIds = assignments.map((a) => a.branch_id);
+
   const page = parseInt(searchParams.get('page') || '1');
   const pageSize = parseInt(searchParams.get('limit') || '10');
 
@@ -26,7 +41,7 @@ export async function GET(
       count: 'exact',
       head: false,
     })
-    .eq('user_id', id)
+    .in('branch_id', branchIds)
     .range(from, to);
 
   if (error) {
