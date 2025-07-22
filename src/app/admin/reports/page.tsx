@@ -21,19 +21,31 @@ export default function ReportsPage() {
 
   useEffect(() => {
     const fetchAllData = () => {
-      Promise.all([getSalesReports(page, selectedBranch), getBranches()]).then(
-        () => {
-          setLoading(false);
-        },
-      );
+      setLoading(true);
+      Promise.all([
+        getSalesReports(page, selectedBranch, dates),
+        getBranches(),
+      ]).then(() => {
+        setLoading(false);
+      });
     };
 
-    fetchAllData();
-  }, [page, selectedBranch]);
+    if (dates.length === 2) fetchAllData();
+  }, [page, selectedBranch, dates]);
 
-  async function getSalesReports(pageNumber = 1, branchId = '') {
+  async function getSalesReports(
+    pageNumber = 1,
+    branchId = '',
+    dates: DateObject[],
+  ) {
     try {
-      const res = await fetchSalesReports(pageNumber, pageSize, branchId);
+      const formattedDates = dates.map((date) => date.format('YYYY-MM-DD'));
+      const res = await fetchSalesReports(
+        pageNumber,
+        pageSize,
+        branchId,
+        formattedDates,
+      );
       setTotal(res.total);
       setSalesReports(res.sales_reports);
       setLoading(false);
@@ -73,6 +85,7 @@ export default function ReportsPage() {
           style={{ zIndex: 9999, height: '45px', width: '200px' }}
           value={dates}
           onChange={setDates}
+          format="YYYY-MM-DD"
           range
         />
       </div>

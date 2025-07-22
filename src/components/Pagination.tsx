@@ -5,7 +5,7 @@ interface Props {
 }
 
 export default function Pagination({ setPage, page, totalPages }: Props) {
-  if (totalPages === 1) return <></>;
+  if (totalPages <= 1) return <></>;
   return (
     <div className="flex justify-center mt-6 space-x-2">
       <button

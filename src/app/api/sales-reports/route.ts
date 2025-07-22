@@ -13,6 +13,9 @@ export async function GET(req: NextRequest) {
   const pageParam = searchParams.get('page');
   const limitParam = searchParams.get('limit');
   const branchId = searchParams.get('branchId');
+  const dates = searchParams.get('dates');
+
+  console.log('dates', dates);
 
   let query = getSupabase()
     .from('sales_reports')
@@ -27,6 +30,16 @@ export async function GET(req: NextRequest) {
     query = query.eq('branch_id', branchId);
   }
 
+  if (dates) {
+    const [start, end] = dates
+      .split(',')
+      .map((date) => new Date(date).toISOString().split('T')[0]);
+
+    console.log({ start, end });
+
+    query = query.gte('report_date', start).lte('report_date', end);
+  }
+
   // Optional pagination
   if (pageParam && limitParam) {
     const page = parseInt(pageParam);
@@ -37,6 +50,8 @@ export async function GET(req: NextRequest) {
   }
 
   const { data, error, count } = await query;
+
+  console.log('error', error);
 
   if (error) {
     return NextResponse.json(
