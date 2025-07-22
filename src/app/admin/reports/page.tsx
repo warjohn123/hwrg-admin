@@ -2,18 +2,15 @@
 
 import Pagination from '@/components/Pagination';
 import { usePagination } from '@/hooks/usePagination';
-// import { IBranch } from '@/types/Branch';
 import { SalesReport } from '@/types/SalesReport';
+import { redirect } from 'next/navigation';
 import { useEffect, useState } from 'react';
+import { FaArrowRight } from 'react-icons/fa6';
 
 export default function ReportsPage() {
   const [salesReports, setSalesReports] = useState<SalesReport[]>([]);
-  // const [isSaveModalOpen, setIsSaveModalOpen] = useState<boolean>(false);
   const [loading, setLoading] = useState(true);
   const { page, setPage, totalPages, setTotal, pageSize } = usePagination();
-  // const [selectedBranch, setSelectedBranch] = useState<IBranch | undefined>(
-  //   undefined,
-  // );
 
   useEffect(() => {
     fetchSalesReports(page);
@@ -54,12 +51,12 @@ export default function ReportsPage() {
               <tr key={report.id} className="border-b hover:bg-gray-50">
                 <td className="px-6 py-4">{report.title}</td>
                 <td className="px-6 py-4">{report.report_date}</td>
-                {/* <td className="px-6 py-4 flex gap-10">
+                <td className="px-6 py-4 flex gap-10">
                   <FaArrowRight
                     className="cursor-pointer"
                     onClick={() => redirect(`/admin/reports/${report.id}`)}
                   />
-                </td> */}
+                </td>
               </tr>
             ))}
           </tbody>

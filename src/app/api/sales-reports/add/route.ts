@@ -33,7 +33,6 @@ export async function POST(req: Request) {
           cash,
           cash_fund,
           inventory,
-          expenses,
           on_duty,
           prepared_by,
           type,

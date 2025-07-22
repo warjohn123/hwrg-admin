@@ -1,11 +1,11 @@
-import { IInventoryFormat, SalesReport } from "./SalesReport";
+import { IInventoryFormat, SalesReport } from './SalesReport';
 
 export interface IChickyOinkReport extends SalesReport {
   sales: ChickyOinkSales;
   inventory: IChickyOinkReportInventory;
 }
 
-interface ChickyOinkSales {
+export interface ChickyOinkSales {
   regular_chicken: number;
   spicy_chicken: number;
   regular_liempo: number;
@@ -18,7 +18,7 @@ interface ChickyOinkSales {
   uling: number;
 }
 
-interface IChickyOinkReportInventory {
+export interface IChickyOinkReportInventory {
   regular_chicken: IInventoryFormat;
   spicy_chicken: IInventoryFormat;
   regular_liempo: IInventoryFormat;
