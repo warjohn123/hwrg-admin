@@ -18,9 +18,6 @@ export default function ReportsPage() {
   const [selectedBranch, setSelectedBranch] = useState<string>('');
   const { page, setPage, totalPages, setTotal, pageSize } = usePagination();
   const [dates, setDates] = useState([new DateObject(), new DateObject()]);
-  // const [grabExpenses, setGrabExpenses] = useState<number>(0);
-  // const [foodpandaExpenses, setFoodpandaExpenses] = useState<number>(0);
-  // const [gcashExpenses, setGcashExpenses] = useState<number>(0);
 
   useEffect(() => {
     const fetchAllData = () => {
@@ -63,26 +60,18 @@ export default function ReportsPage() {
     setBranches(res.branches);
   }
 
-  console.log('sales reports', salesReports);
+  function getExpenses(name: string) {
+    return salesReports.reduce((acc, report) => {
+      const total = report.expenses.reduce((sum, expense) => {
+        return sum + (expense.name === name ? Number(expense.value) : 0);
+      }, 0);
+      return acc + total;
+    }, 0);
+  }
 
-  const grabExpenses = salesReports.reduce((acc, report) => {
-    const grabTotal = report.expenses.reduce((sum, expense) => {
-      return sum + (expense.name === 'Grab' ? Number(expense.value) : 0);
-    }, 0);
-    return acc + grabTotal;
-  }, 0);
-  const foodpandaExpenses = salesReports.reduce((acc, report) => {
-    const foodpandaTotal = report.expenses.reduce((sum, expense) => {
-      return sum + (expense.name === 'FoodPanda' ? Number(expense.value) : 0);
-    }, 0);
-    return acc + foodpandaTotal;
-  }, 0);
-  const gcashExpenses = salesReports.reduce((acc, report) => {
-    const gcashTotal = report.expenses.reduce((sum, expense) => {
-      return sum + (expense.name === 'GCash' ? Number(expense.value) : 0);
-    }, 0);
-    return acc + gcashTotal;
-  }, 0);
+  function getActualRemit(salesReport: SalesReport) {
+    return salesReport.cash.toLocaleString();
+  }
 
   if (loading) return <p>Loading sales reports...</p>;
 
@@ -126,9 +115,9 @@ export default function ReportsPage() {
       <div className="mt-5 mb-5">
         <p>Expenses Section</p>
         <div className="flex gap-10">
-          <div className="font-bold">Grab: {grabExpenses}</div>
-          <div className="font-bold">FoodPanda: {foodpandaExpenses}</div>
-          <div className="font-bold">GCash: {gcashExpenses}</div>
+          <div className="font-bold">Grab: {getExpenses('Grab')}</div>
+          <div className="font-bold">FoodPanda: {getExpenses('FoodPanda')}</div>
+          <div className="font-bold">GCash: {getExpenses('GCash')}</div>
         </div>
       </div>
       <div className="overflow-x-auto bg-white rounded shadow">
@@ -137,6 +126,7 @@ export default function ReportsPage() {
             <tr>
               <th className="px-6 py-3 text-sm font-medium">Title</th>
               <th className="px-6 py-3 text-sm font-medium">Date</th>
+              <th className="px-6 py-3 text-sm font-medium">Remit</th>
               <th className="px-6 py-3 text-sm font-medium">Actions</th>
             </tr>
           </thead>
@@ -145,6 +135,7 @@ export default function ReportsPage() {
               <tr key={report.id} className="border-b hover:bg-gray-50">
                 <td className="px-6 py-4">{report.title}</td>
                 <td className="px-6 py-4">{report.report_date}</td>
+                <td className="px-6 py-4">{getActualRemit(report)}</td>
                 <td className="px-6 py-4 flex gap-10">
                   <FaArrowRight
                     className="cursor-pointer"

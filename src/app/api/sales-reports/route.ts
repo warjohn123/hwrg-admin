@@ -15,11 +15,9 @@ export async function GET(req: NextRequest) {
   const branchId = searchParams.get('branchId');
   const dates = searchParams.get('dates');
 
-  console.log('dates', dates);
-
   let query = getSupabase()
     .from('sales_reports')
-    .select('id, title, report_date, created_at, expenses(*)', {
+    .select('id, title, report_date, cash, created_at, expenses(*)', {
       count: 'exact',
       head: false,
     })
