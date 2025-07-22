@@ -43,6 +43,15 @@ export async function getBranchDetails(id: string) {
   }
 }
 
+export async function fetchAllBranches() {
+  try {
+    const res = await fetch(`/api/branches`);
+    return res.json();
+  } catch (e) {
+    console.error(e);
+  }
+}
+
 export async function fetchAssignedEmployeesByBranch(branchId: string) {
   try {
     const res = await fetch(`/api/branches/${branchId}/assignments`);

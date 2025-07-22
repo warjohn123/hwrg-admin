@@ -10,19 +10,33 @@ export async function GET(req: NextRequest) {
   const cors = handleCors(req);
   const { searchParams } = new URL(req.url);
 
-  const page = parseInt(searchParams.get('page') || '1');
-  const pageSize = parseInt(searchParams.get('limit') || '10');
+  const pageParam = searchParams.get('page');
+  const limitParam = searchParams.get('limit');
+  const branchId = searchParams.get('branchId');
 
-  const from = (page - 1) * pageSize;
-  const to = from + pageSize - 1;
-
-  const { data, error, count } = await getSupabase()
+  let query = getSupabase()
     .from('sales_reports')
     .select('id, title, report_date, created_at', {
       count: 'exact',
       head: false,
     })
-    .range(from, to);
+    .order('created_at', { ascending: false });
+
+  // Optional branchId filtering
+  if (branchId) {
+    query = query.eq('branch_id', branchId);
+  }
+
+  // Optional pagination
+  if (pageParam && limitParam) {
+    const page = parseInt(pageParam);
+    const pageSize = parseInt(limitParam);
+    const from = (page - 1) * pageSize;
+    const to = from + pageSize - 1;
+    query = query.range(from, to);
+  }
+
+  const { data, error, count } = await query;
 
   if (error) {
     return NextResponse.json(
