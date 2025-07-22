@@ -18,6 +18,9 @@ export default function ReportsPage() {
   const [selectedBranch, setSelectedBranch] = useState<string>('');
   const { page, setPage, totalPages, setTotal, pageSize } = usePagination();
   const [dates, setDates] = useState([new DateObject(), new DateObject()]);
+  // const [grabExpenses, setGrabExpenses] = useState<number>(0);
+  // const [foodpandaExpenses, setFoodpandaExpenses] = useState<number>(0);
+  // const [gcashExpenses, setGcashExpenses] = useState<number>(0);
 
   useEffect(() => {
     const fetchAllData = () => {
@@ -60,6 +63,27 @@ export default function ReportsPage() {
     setBranches(res.branches);
   }
 
+  console.log('sales reports', salesReports);
+
+  const grabExpenses = salesReports.reduce((acc, report) => {
+    const grabTotal = report.expenses.reduce((sum, expense) => {
+      return sum + (expense.name === 'Grab' ? Number(expense.value) : 0);
+    }, 0);
+    return acc + grabTotal;
+  }, 0);
+  const foodpandaExpenses = salesReports.reduce((acc, report) => {
+    const foodpandaTotal = report.expenses.reduce((sum, expense) => {
+      return sum + (expense.name === 'FoodPanda' ? Number(expense.value) : 0);
+    }, 0);
+    return acc + foodpandaTotal;
+  }, 0);
+  const gcashExpenses = salesReports.reduce((acc, report) => {
+    const gcashTotal = report.expenses.reduce((sum, expense) => {
+      return sum + (expense.name === 'GCash' ? Number(expense.value) : 0);
+    }, 0);
+    return acc + gcashTotal;
+  }, 0);
+
   if (loading) return <p>Loading sales reports...</p>;
 
   return (
@@ -97,6 +121,14 @@ export default function ReportsPage() {
               range
             />
           </div>
+        </div>
+      </div>
+      <div className="mt-5 mb-5">
+        <p>Expenses Section</p>
+        <div className="flex gap-10">
+          <div className="font-bold">Grab: {grabExpenses}</div>
+          <div className="font-bold">FoodPanda: {foodpandaExpenses}</div>
+          <div className="font-bold">GCash: {gcashExpenses}</div>
         </div>
       </div>
       <div className="overflow-x-auto bg-white rounded shadow">
