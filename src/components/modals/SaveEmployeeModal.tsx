@@ -26,26 +26,33 @@ export default function SaveEmployeeModal({
 
   const addEmployee = async () => {
     setIsLoading(true);
-    const res = await fetch('/api/users/add', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        name,
-        email,
-        password,
-        assignment,
-        type: IUserType.EMPLOYEE,
-      }),
-    });
-    const data = await res.json();
+    try {
+      const res = await fetch('/api/users/add', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name,
+          email,
+          password,
+          assignment,
+          type: IUserType.EMPLOYEE,
+        }),
+      });
+      const data = await res.json();
 
-    if (res.ok) {
-      toast.success('Employee added successfully!');
-      setIsModalOpen(false);
-      fetchEmployees();
-      // You can also close the modal or refresh list here
-    } else {
-      toast.error(`Error: ${data.error}`);
+      if (res.ok) {
+        toast.success('Employee added successfully!');
+        setIsModalOpen(false);
+        fetchEmployees();
+        // You can also close the modal or refresh list here
+      } else {
+        toast.error(`Error: ${data.error}`);
+      }
+    } catch (e) {
+      console.error(e);
+      toast.error('Error adding employee');
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -101,7 +108,7 @@ export default function SaveEmployeeModal({
                 disabled={isLoading}
                 className="px-4 py-2 cursor-pointer bg-blue-600 text-white rounded hover:bg-blue-700"
               >
-                Save
+                {isLoading ? 'Saving...' : 'Save'}
               </button>
             </div>
           </div>
