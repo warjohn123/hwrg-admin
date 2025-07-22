@@ -68,26 +68,36 @@ export default function ReportsPage() {
         <h2 className="text-2xl font-bold">Sales Reports</h2>
       </div>
       <div className="flex flex-row gap-4">
-        <select
-          name="branch"
-          value={selectedBranch}
-          onChange={(e) => setSelectedBranch(e.target.value)}
-          className="px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-        >
-          <option value="">All Branches</option>
-          {branches?.map((branch) => (
-            <option key={branch.id} value={branch.id}>
-              {branch.branch_name}
-            </option>
-          ))}
-        </select>
-        <DatePicker
-          style={{ zIndex: 9999, height: '45px', width: '200px' }}
-          value={dates}
-          onChange={setDates}
-          format="YYYY-MM-DD"
-          range
-        />
+        <div>
+          <label>Select a branch</label>
+          <div>
+            <select
+              name="branch"
+              value={selectedBranch}
+              onChange={(e) => setSelectedBranch(e.target.value)}
+              className="px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            >
+              <option value="">All Branches</option>
+              {branches?.map((branch) => (
+                <option key={branch.id} value={branch.id}>
+                  {branch.branch_name}
+                </option>
+              ))}
+            </select>
+          </div>
+        </div>
+        <div>
+          <label>Select dates</label>
+          <div>
+            <DatePicker
+              style={{ zIndex: 9999, height: '38px', width: '200px' }}
+              value={dates}
+              onChange={setDates}
+              format="YYYY-MM-DD"
+              range
+            />
+          </div>
+        </div>
       </div>
       <div className="overflow-x-auto bg-white rounded shadow">
         <table className="min-w-full table-auto">
