@@ -74,7 +74,7 @@ export default function ChickyOinkReportDetails({ report }: Props) {
         <h2 className="text-xl font-bold">Expenses</h2>
         <div className="mt-3">
           {report.expenses.map((expense) => (
-            <div className="flex flex-row gap-3">
+            <div className="flex flex-row gap-3" key={expense.id}>
               <div>{expense.name}</div>
               <div>=</div>
               <div className="font-bold">{expense.value}</div>
