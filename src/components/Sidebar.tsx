@@ -41,12 +41,12 @@ export default function Sidebar({ isOpen, setIsOpen }: SidebarProps) {
 
       <h1 className="text-xl font-bold mb-6 hidden md:block">HWRG</h1>
       <nav className="flex flex-col space-y-4">
-        <Link
+        {/* <Link
           href="/admin/dashboard"
           className={linkClasses('/admin/dashboard')}
         >
           Dashboard
-        </Link>
+        </Link> */}
         <Link
           href="/admin/employees"
           className={linkClasses('/admin/employees')}

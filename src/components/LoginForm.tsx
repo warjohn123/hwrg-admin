@@ -42,7 +42,7 @@ export default function LoginForm() {
       alert(error);
       setIsSigningIn(false);
     } else {
-      router.push('/admin/dashboard');
+      router.push('/admin/reports');
     }
   };
 
