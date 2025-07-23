@@ -5,6 +5,7 @@ import { usePagination } from '@/hooks/usePagination';
 import { fetchAllBranches } from '@/services/branch.service';
 import { fetchSalesReports } from '@/services/sales_reports.service';
 import { IBranch } from '@/types/Branch';
+import { IChickyOinkReport } from '@/types/ChickyOinkReport';
 import { SalesReport } from '@/types/SalesReport';
 import { redirect } from 'next/navigation';
 import { useEffect, useState } from 'react';
@@ -12,7 +13,7 @@ import { FaArrowRight } from 'react-icons/fa6';
 import DatePicker, { DateObject } from 'react-multi-date-picker';
 
 export default function ReportsPage() {
-  const [salesReports, setSalesReports] = useState<SalesReport[]>([]);
+  const [salesReports, setSalesReports] = useState<IChickyOinkReport[]>([]);
   const [loading, setLoading] = useState(true);
   const [branches, setBranches] = useState<IBranch[]>([]);
   const [selectedBranch, setSelectedBranch] = useState<string>('');
@@ -75,6 +76,10 @@ export default function ReportsPage() {
     return salesReport.cash.toLocaleString();
   }
 
+  const totalRemit = salesReports.reduce((acc, report) => {
+    return acc + report.cash - report.inventory.poso.sales * 8;
+  }, 0);
+
   if (loading) return <p>Loading sales reports...</p>;
 
   return (
@@ -112,7 +117,7 @@ export default function ReportsPage() {
         </div>
       </div>
       <div className="mt-5 mb-5">
-        <p>Expenses Section</p>
+        <p className="font-bold">Total Remit: {totalRemit.toLocaleString()}</p>
         <div className="flex gap-10">
           <div className="font-bold">Grab: {getExpenses('Grab')}</div>
           <div className="font-bold">FoodPanda: {getExpenses('FoodPanda')}</div>
