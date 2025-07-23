@@ -61,12 +61,14 @@ export default function ReportsPage() {
   }
 
   function getExpenses(name: string) {
-    return salesReports.reduce((acc, report) => {
-      const total = report.expenses.reduce((sum, expense) => {
-        return sum + (expense.name === name ? Number(expense.value) : 0);
-      }, 0);
-      return acc + total;
-    }, 0);
+    return salesReports
+      .reduce((acc, report) => {
+        const total = report.expenses.reduce((sum, expense) => {
+          return sum + (expense.name === name ? Number(expense.value) : 0);
+        }, 0);
+        return acc + total;
+      }, 0)
+      .toLocaleString();
   }
 
   function getActualRemit(salesReport: SalesReport) {
@@ -77,9 +79,6 @@ export default function ReportsPage() {
 
   return (
     <div>
-      <div className="flex justify-between items-center mb-4">
-        <h2 className="text-2xl font-bold">Sales Reports</h2>
-      </div>
       <div className="flex flex-row gap-4">
         <div>
           <label>Select a branch</label>

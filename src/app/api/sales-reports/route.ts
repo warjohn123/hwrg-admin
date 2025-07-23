@@ -17,10 +17,13 @@ export async function GET(req: NextRequest) {
 
   let query = getSupabase()
     .from('sales_reports')
-    .select('id, title, report_date, cash, created_at, expenses(*)', {
-      count: 'exact',
-      head: false,
-    })
+    .select(
+      'id, title, report_date, cash, created_at, inventory, expenses(*)',
+      {
+        count: 'exact',
+        head: false,
+      },
+    )
     .order('created_at', { ascending: false });
 
   // Optional branchId filtering
