@@ -72,8 +72,11 @@ export default function ReportsPage() {
       .toLocaleString();
   }
 
-  function getActualRemit(salesReport: SalesReport) {
-    return salesReport.cash.toLocaleString();
+  function getActualRemit(salesReport: IChickyOinkReport) {
+    return (
+      salesReport.cash -
+      salesReport.inventory.poso.sales * 8
+    ).toLocaleString();
   }
 
   const totalRemit = salesReports.reduce((acc, report) => {
