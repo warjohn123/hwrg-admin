@@ -6,7 +6,6 @@ import { fetchAllBranches } from '@/services/branch.service';
 import { fetchSalesReports } from '@/services/sales_reports.service';
 import { IBranch } from '@/types/Branch';
 import { IChickyOinkReport } from '@/types/ChickyOinkReport';
-import { SalesReport } from '@/types/SalesReport';
 import { redirect } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { FaArrowRight } from 'react-icons/fa6';
