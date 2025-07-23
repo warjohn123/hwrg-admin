@@ -6,6 +6,7 @@ import { fetchAllBranches } from '@/services/branch.service';
 import { fetchSalesReports } from '@/services/sales_reports.service';
 import { IBranch } from '@/types/Branch';
 import { IChickyOinkReport } from '@/types/ChickyOinkReport';
+import Link from 'next/link';
 import { redirect } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { FaArrowRight } from 'react-icons/fa6';
@@ -143,10 +144,9 @@ export default function ReportsPage() {
                 <td className="px-6 py-4">{report.report_date}</td>
                 <td className="px-6 py-4">{getActualRemit(report)}</td>
                 <td className="px-6 py-4 flex gap-10">
-                  <FaArrowRight
-                    className="cursor-pointer"
-                    onClick={() => redirect(`/admin/reports/${report.id}`)}
-                  />
+                  <Link target="_blank" href={`/admin/reports/${report.id}`}>
+                    <FaArrowRight className="cursor-pointer" />
+                  </Link>
                 </td>
               </tr>
             ))}
