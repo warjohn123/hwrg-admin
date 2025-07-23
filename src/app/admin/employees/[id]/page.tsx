@@ -161,7 +161,8 @@ export default function EmployeeDetailsPage() {
 
       <EmployeeDocuments
         employeeDocuments={employeeDocuments}
-        employeeId={employee.id}
+        employee={employee}
+        setEmployee={setEmployee}
       />
 
       <button

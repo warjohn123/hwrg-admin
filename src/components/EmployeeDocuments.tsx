@@ -1,43 +1,47 @@
-import { supabase } from "@/lib/supabaseClient";
-import { useState } from "react";
+import { supabase } from '@/lib/supabaseClient';
+import { IUser } from '@/types/User';
+import { useState } from 'react';
 
 interface Props {
   employeeDocuments: { url: string; path: string }[];
-  employeeId: string;
+  employee: IUser;
+  setEmployee: (employee: IUser) => void;
 }
 
 export default function EmployeeDocuments({
   employeeDocuments,
-  employeeId,
+  employee,
+  setEmployee,
 }: Props) {
   const [documents, setDocuments] = useState(employeeDocuments);
   const handleDelete = async (pathToDelete: string) => {
     const { error } = await supabase.storage
-      .from("employee-documents")
+      .from('employee-documents')
       .remove([pathToDelete]);
 
     if (error) {
-      alert("Error deleting file: " + error.message);
+      alert('Error deleting file: ' + error.message);
       return;
     }
 
     // Step 2: Remove from local state
     const updatedDocuments = documents.filter(
-      (doc) => doc.path !== pathToDelete
+      (doc) => doc.path !== pathToDelete,
     );
 
     // Step 3: Update Supabase table
     const updatedPaths = updatedDocuments.map((doc) => doc.path);
     const { error: dbError } = await supabase
-      .from("users")
+      .from('users')
       .update({ documents: updatedPaths })
-      .eq("id", employeeId)
+      .eq('id', employee.id)
       .select();
 
     if (dbError) {
-      alert("Failed to update employee record: " + dbError.message);
+      alert('Failed to update employee record: ' + dbError.message);
     }
     setDocuments(updatedDocuments);
+    setEmployee({ ...employee, documents: updatedPaths } as IUser);
   };
 
   return (
@@ -50,7 +54,7 @@ export default function EmployeeDocuments({
             target="_blank"
             className="text-blue-600 underline break-all"
           >
-            {path.split("/").pop()}
+            {path.split('/').pop()}
           </a>
           <button
             onClick={() => handleDelete(path)}
