@@ -7,7 +7,6 @@ import { fetchSalesReports } from '@/services/sales_reports.service';
 import { IBranch } from '@/types/Branch';
 import { IChickyOinkReport } from '@/types/ChickyOinkReport';
 import Link from 'next/link';
-import { redirect } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { FaArrowRight } from 'react-icons/fa6';
 import DatePicker, { DateObject } from 'react-multi-date-picker';
