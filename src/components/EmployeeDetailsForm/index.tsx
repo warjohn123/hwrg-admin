@@ -1,4 +1,4 @@
-import { IAssignment, IUser } from "@/types/User";
+import { IAssignment, IUser } from '@/types/User';
 
 const ASSIGNMENT_OPTIONS = [
   IAssignment.IMAGAWAYAKI,
@@ -9,7 +9,7 @@ const ASSIGNMENT_OPTIONS = [
 interface Props {
   employee: IUser;
   handleInputChange: (
-    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
+    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>,
   ) => void;
 }
 

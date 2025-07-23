@@ -16,11 +16,12 @@ export default function EmployeeDetailsPage() {
   const { employee, setEmployee, handleInputChange } = useEmployeeDetails();
   const [isSaving, setIsSaving] = useState(false);
   const [files, setFiles] = useState<File[]>([]);
-  const [picture, setPicture] = useState<File>();
+  const [picture, setPicture] = useState<File | null>(null);
 
-  const employeePicture = supabase.storage
-    .from('employees')
-    .getPublicUrl(employee?.picture || '').data.publicUrl;
+  const employeePicture = employee?.picture
+    ? supabase.storage.from('employees').getPublicUrl(employee?.picture || '')
+        .data.publicUrl
+    : null;
 
   const employeeDocuments = useMemo(() => {
     if (!employee?.documents) return [];
@@ -57,6 +58,11 @@ export default function EmployeeDetailsPage() {
       return;
     }
     setPicture(e.target.files[0]);
+  };
+
+  const handleDeletePicture = () => {
+    setPicture(null);
+    setEmployee({ ...employee, picture: null } as IUser);
   };
 
   const handleSave = async () => {
@@ -105,6 +111,8 @@ export default function EmployeeDetailsPage() {
 
   if (!employee) return <p>Loading...</p>;
 
+  console.log('employeePicture', employeePicture);
+
   return (
     <div className="max-w-3xl mx-auto p-4 space-y-4">
       <h1 className="text-2xl font-bold">Edit Employee Details</h1>
@@ -113,13 +121,21 @@ export default function EmployeeDetailsPage() {
         Employee Picture
       </label>
       {employeePicture && (
-        <Image
-          src={employeePicture}
-          alt="Employee Picture"
-          width={120}
-          height={120}
-          className="rounded-full"
-        />
+        <>
+          <Image
+            src={employeePicture}
+            alt="Set an image for the employee"
+            width={120}
+            height={120}
+            className="rounded-full"
+          />
+          <button
+            onClick={handleDeletePicture}
+            className="text-sm text-red-500 hover:underline"
+          >
+            Delete Picture
+          </button>
+        </>
       )}
       <input
         type="file"
