@@ -14,6 +14,7 @@ import { toast } from 'react-toastify';
 export default function EmployeeDetailsPage() {
   const { id } = useParams();
   const { employee, setEmployee, handleInputChange } = useEmployeeDetails();
+  const [loading, setLoading] = useState<boolean>(true);
   const [isSaving, setIsSaving] = useState(false);
   const [files, setFiles] = useState<File[]>([]);
   const [picture, setPicture] = useState<File | null>(null);
@@ -37,13 +38,22 @@ export default function EmployeeDetailsPage() {
 
   useEffect(() => {
     // Fetch employee data
-    const fetchEmployee = async () => {
-      const res = await fetch(`/api/users/${id}`);
-      const data = await res.json();
-      setEmployee(data);
-    };
     fetchEmployee();
   }, [id]);
+
+  const fetchEmployee = async () => {
+    setLoading(true);
+    try {
+      const res = await fetch(`/api/users/${id}`);
+      const data = await res.json();
+
+      setEmployee(data);
+    } catch {
+      toast.error('Failed to fetch employee data');
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (!e.target.files) return;
@@ -100,7 +110,7 @@ export default function EmployeeDetailsPage() {
       });
 
       toast.success('Employee updated successfully!');
-      setEmployee(updatedEmployee);
+      fetchEmployee();
     } catch (e) {
       console.error(e);
       toast.error('Something went wrong. Please contact IT department');
@@ -109,9 +119,9 @@ export default function EmployeeDetailsPage() {
     }
   };
 
-  if (!employee) return <p>Loading...</p>;
+  if (loading) return <p>Loading...</p>;
 
-  console.log('employeePicture', employeePicture);
+  if (!employee) return <p>Employee not found</p>;
 
   return (
     <div className="max-w-3xl mx-auto p-4 space-y-4">
