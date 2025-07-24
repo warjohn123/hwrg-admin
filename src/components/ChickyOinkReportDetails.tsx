@@ -36,7 +36,7 @@ export default function ChickyOinkReportDetails({ report }: Props) {
   const cash = report.cash;
 
   return (
-    <div className="p-5">
+    <>
       <h1 className="font-bold text-2xl mt-5">{report.title}</h1>
 
       {/** Sales Section */}
@@ -197,6 +197,6 @@ export default function ChickyOinkReportDetails({ report }: Props) {
           </table>
         </div>
       </div>
-    </div>
+    </>
   );
 }

@@ -3,17 +3,26 @@ import { NextRequest, NextResponse } from 'next/server';
 
 export async function GET(req: NextRequest) {
   const { searchParams } = new URL(req.url);
-  const page = parseInt(searchParams.get('page') || '1');
-  const pageSize = parseInt(searchParams.get('limit') || '10');
 
-  const from = (page - 1) * pageSize;
-  const to = from + pageSize - 1;
+  const pageParam = searchParams.get('page');
+  const limitParam = searchParams.get('limit');
 
-  const { data, error, count } = await getSupabase()
+  let query = getSupabase()
     .from('users')
     .select('id, name, email, assignment', { count: 'exact', head: false })
-    .eq('type', 'employee')
-    .range(from, to);
+    .order('created_at', { ascending: false })
+    .eq('type', 'employee');
+
+  // Optional pagination
+  if (pageParam && limitParam) {
+    const page = parseInt(pageParam);
+    const pageSize = parseInt(limitParam);
+    const from = (page - 1) * pageSize;
+    const to = from + pageSize - 1;
+    query = query.range(from, to);
+  }
+
+  const { data, error, count } = await query;
 
   if (error) {
     return NextResponse.json({ error: error.message }, { status: 500 });
