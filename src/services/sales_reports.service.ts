@@ -25,3 +25,10 @@ export async function fetchSalesReports(
   const res = await fetch(`/api/sales-reports?${params.toString()}`);
   return res.json();
 }
+
+export async function deleteSalesReport(id: string) {
+  const res = await fetch(`/api/sales-reports/${id}`, {
+    method: 'DELETE',
+  });
+  return res.json();
+}

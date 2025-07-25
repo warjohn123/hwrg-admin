@@ -1,14 +1,18 @@
 'use client';
 
+import ConfirmModal from '@/components/modals/ConfirmationModal';
 import Pagination from '@/components/Pagination';
 import { usePagination } from '@/hooks/usePagination';
 import { fetchAllBranches } from '@/services/branch.service';
-import { fetchSalesReports } from '@/services/sales_reports.service';
+import {
+  deleteSalesReport,
+  fetchSalesReports,
+} from '@/services/sales_reports.service';
 import { IBranch } from '@/types/Branch';
 import { IChickyOinkReport } from '@/types/ChickyOinkReport';
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
-import { FaArrowRight } from 'react-icons/fa6';
+import { FaArrowRight, FaTrash } from 'react-icons/fa6';
 import DatePicker, { DateObject } from 'react-multi-date-picker';
 
 export default function ReportsPage() {
@@ -18,6 +22,8 @@ export default function ReportsPage() {
   const [selectedBranch, setSelectedBranch] = useState<string>('');
   const { page, setPage, totalPages, setTotal, pageSize } = usePagination();
   const [dates, setDates] = useState([new DateObject(), new DateObject()]);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [selectedReportId, setSelectedReportId] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchAllData = () => {
@@ -38,6 +44,7 @@ export default function ReportsPage() {
     branchId = '',
     dates: DateObject[],
   ) {
+    setLoading(true);
     try {
       const formattedDates = dates.map((date) => date.format('YYYY-MM-DD'));
       const res = await fetchSalesReports(
@@ -81,6 +88,14 @@ export default function ReportsPage() {
   const totalRemit = salesReports.reduce((acc, report) => {
     return acc + report.cash - report.inventory.poso.sales * 8;
   }, 0);
+
+  async function handleDelete() {
+    if (!selectedReportId) return;
+    await deleteSalesReport(selectedReportId);
+    setShowDeleteModal(false);
+    setSelectedReportId(null);
+    getSalesReports(page, selectedBranch, dates);
+  }
 
   if (loading) return <p>Loading sales reports...</p>;
 
@@ -146,11 +161,26 @@ export default function ReportsPage() {
                   <Link target="_blank" href={`/admin/reports/${report.id}`}>
                     <FaArrowRight className="cursor-pointer" />
                   </Link>
+                  <FaTrash
+                    className="cursor-pointer text-red-500"
+                    onClick={() => {
+                      setShowDeleteModal(true);
+                      setSelectedReportId(report.id ?? null);
+                    }}
+                  />
                 </td>
               </tr>
             ))}
           </tbody>
         </table>
+        <ConfirmModal
+          isOpen={showDeleteModal}
+          onClose={() => setShowDeleteModal(false)}
+          onConfirm={handleDelete}
+          title="Delete Sales Report?"
+          description="Are you sure you want to delete this report? This cannot be undone."
+          confirmText="Delete"
+        />
       </div>
 
       <Pagination setPage={setPage} page={page} totalPages={totalPages} />

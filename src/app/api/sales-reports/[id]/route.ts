@@ -28,3 +28,28 @@ export async function GET(
 
   return NextResponse.json(data, { headers: cors?.headers, status: 200 });
 }
+
+export async function DELETE(
+  req: NextRequest,
+  { params }: { params: Promise<{ id: string }> },
+) {
+  const cors = handleCors(req);
+  const { id } = await params;
+
+  const { error } = await getSupabase()
+    .from('sales_reports')
+    .delete()
+    .eq('id', id);
+
+  if (error) {
+    return NextResponse.json(
+      { error: error.message },
+      { status: 500, headers: cors?.headers },
+    );
+  }
+
+  return NextResponse.json(
+    { message: 'Sales report deleted successfully' },
+    { status: 200, headers: cors?.headers },
+  );
+}
