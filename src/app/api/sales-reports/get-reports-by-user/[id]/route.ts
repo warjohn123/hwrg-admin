@@ -29,20 +29,37 @@ export async function GET(
 
   const branchIds = assignments.map((a) => a.branch_id);
 
-  const page = parseInt(searchParams.get('page') || '1');
-  const pageSize = parseInt(searchParams.get('limit') || '10');
+  const pageParam = searchParams.get('page');
+  const limitParam = searchParams.get('limit');
+  const dates = searchParams.get('dates');
 
-  const from = (page - 1) * pageSize;
-  const to = from + pageSize - 1;
-
-  const { data, error, count } = await getSupabase()
+  let query = getSupabase()
     .from('sales_reports')
     .select('id, title, report_date, created_at', {
       count: 'exact',
       head: false,
     })
-    .in('branch_id', branchIds)
-    .range(from, to);
+    .order('created_at', { ascending: false })
+    .in('branch_id', branchIds);
+
+  if (dates) {
+    const [start, end] = dates
+      .split(',')
+      .map((date) => new Date(date).toISOString().split('T')[0]);
+
+    query = query.gte('report_date', start).lte('report_date', end);
+  }
+
+  // Optional pagination
+  if (pageParam && limitParam) {
+    const page = parseInt(pageParam);
+    const pageSize = parseInt(limitParam);
+    const from = (page - 1) * pageSize;
+    const to = from + pageSize - 1;
+    query = query.range(from, to);
+  }
+
+  const { data, error, count } = await query;
 
   if (error) {
     return NextResponse.json(
