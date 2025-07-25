@@ -89,6 +89,10 @@ export default function ReportsPage() {
     return acc + report.cash - report.inventory.poso.sales * 8;
   }, 0);
 
+  const totalPosoSales = salesReports.reduce((acc, report) => {
+    return acc + report.inventory.poso.sales * 8;
+  }, 0);
+
   async function handleDelete() {
     if (!selectedReportId) return;
     await deleteSalesReport(selectedReportId);
@@ -135,6 +139,9 @@ export default function ReportsPage() {
       </div>
       <div className="mt-5 mb-5">
         <p className="font-bold">Total Remit: {totalRemit.toLocaleString()}</p>
+        <p className="font-bold">
+          Total POSO Sales: {totalPosoSales.toLocaleString()}
+        </p>
         <div className="flex gap-10">
           <div className="font-bold">Grab: {getExpenses('Grab')}</div>
           <div className="font-bold">FoodPanda: {getExpenses('FoodPanda')}</div>
