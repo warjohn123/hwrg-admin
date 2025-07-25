@@ -35,7 +35,7 @@ export async function GET(
 
   let query = getSupabase()
     .from('sales_reports')
-    .select('id, title, report_date, created_at', {
+    .select('id, title, report_date, cash, created_at', {
       count: 'exact',
       head: false,
     })
