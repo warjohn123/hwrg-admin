@@ -92,9 +92,6 @@ export default function SaveEmployeeModal({
                   {assignment}
                 </option>
               ))}
-              <option value={IAssignment.POTATO_FRY}>
-                {IAssignment.POTATO_FRY}
-              </option>
             </select>
             <div className="flex justify-end space-x-2">
               <button
