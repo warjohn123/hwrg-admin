@@ -17,7 +17,7 @@ export async function GET(
   const { data, error } = await getSupabase()
     .from('branch_assignments')
     .select(
-      'id, branch_id, user_id, users (id, name), branches (id, branch_name)',
+      'id, branch_id, user_id, users (id, name), branches (id, branch_name, assignment)',
     )
     .eq('user_id', id);
 
