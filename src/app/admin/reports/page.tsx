@@ -53,8 +53,8 @@ export default function ReportsPage() {
         branchId,
         formattedDates,
       );
-      setTotal(res.total);
-      setSalesReports(res.sales_reports);
+      setTotal(res.total ?? 0);
+      setSalesReports(res.sales_reports ?? []);
       setLoading(false);
     } catch (e) {
       console.error('Failed to fetch sales reports:', e);
@@ -78,15 +78,10 @@ export default function ReportsPage() {
       .toLocaleString();
   }
 
-  function getActualRemit(salesReport: IChickyOinkReport) {
-    return (
-      salesReport.cash -
-      salesReport.inventory.poso.sales * 8
-    ).toLocaleString();
-  }
+  console.log('salesReports', salesReports);
 
   const totalRemit = salesReports.reduce((acc, report) => {
-    return acc + report.cash - report.inventory.poso.sales * 8;
+    return acc + report.cash;
   }, 0);
 
   const totalPosoSales = salesReports.reduce((acc, report) => {
@@ -163,7 +158,7 @@ export default function ReportsPage() {
               <tr key={report.id} className="border-b hover:bg-gray-50">
                 <td className="px-6 py-4">{report.title}</td>
                 <td className="px-6 py-4">{report.report_date}</td>
-                <td className="px-6 py-4">{getActualRemit(report)}</td>
+                <td className="px-6 py-4">{report.cash.toLocaleString()}</td>
                 <td className="px-6 py-4 flex gap-10">
                   <Link target="_blank" href={`/admin/reports/${report.id}`}>
                     <FaArrowRight className="cursor-pointer" />
