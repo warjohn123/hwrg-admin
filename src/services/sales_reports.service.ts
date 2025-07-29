@@ -1,3 +1,5 @@
+import { IAssignment } from '@/types/User';
+
 export async function getSalesReportDetails(id: string) {
   try {
     const res = await fetch(`/api/sales-reports/${id}`);
@@ -12,6 +14,7 @@ export async function fetchSalesReports(
   limit: number,
   branchId = '',
   dates: string[],
+  type: IAssignment,
 ) {
   const params = new URLSearchParams();
 
@@ -21,6 +24,7 @@ export async function fetchSalesReports(
   if (dates?.length === 2) {
     params.set('dates', dates.join(','));
   }
+  if (type) params.set('type', type);
 
   const res = await fetch(`/api/sales-reports?${params.toString()}`);
   return res.json();

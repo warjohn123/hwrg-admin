@@ -10,6 +10,7 @@ import {
 } from '@/services/sales_reports.service';
 import { IBranch } from '@/types/Branch';
 import { IChickyOinkReport } from '@/types/ChickyOinkReport';
+import { IAssignment } from '@/types/User';
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import { FaArrowRight, FaTrash } from 'react-icons/fa6';
@@ -52,6 +53,7 @@ export default function ReportsPage() {
         pageSize,
         branchId,
         formattedDates,
+        IAssignment.CHICKY_OINK,
       );
       setTotal(res.total ?? 0);
       setSalesReports(res.sales_reports ?? []);
@@ -77,8 +79,6 @@ export default function ReportsPage() {
       }, 0)
       .toLocaleString();
   }
-
-  console.log('salesReports', salesReports);
 
   const totalRemit = salesReports.reduce((acc, report) => {
     return acc + report.cash;
@@ -155,12 +155,18 @@ export default function ReportsPage() {
           </thead>
           <tbody>
             {salesReports.map((report) => (
-              <tr key={report.id} className="border-b hover:bg-gray-50">
+              <tr
+                key={report.id}
+                className="border-b hover:bg-gray-50 cursor-pointer"
+              >
                 <td className="px-6 py-4">{report.title}</td>
                 <td className="px-6 py-4">{report.report_date}</td>
                 <td className="px-6 py-4">{report.cash.toLocaleString()}</td>
                 <td className="px-6 py-4 flex gap-10">
-                  <Link target="_blank" href={`/admin/reports/${report.id}`}>
+                  <Link
+                    target="_blank"
+                    href={`/admin/chicky-oink-reports/${report.id}`}
+                  >
                     <FaArrowRight className="cursor-pointer" />
                   </Link>
                   <FaTrash

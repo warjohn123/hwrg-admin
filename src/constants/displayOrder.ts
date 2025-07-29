@@ -1,4 +1,4 @@
-export const DISPLAY_ORDER = [
+export const CHICKY_OINK_INVENTORY_DISPLAY_ORDER = [
   'regular_chicken',
   'spicy_chicken',
   'regular_liempo',
@@ -9,4 +9,27 @@ export const DISPLAY_ORDER = [
   'atchara_small',
   'atchara_big',
   'uling',
+];
+
+export const IMAGAWAYAKI_INVENTORY_DISPLAY_ORDER = [
+  'batter',
+  'chocolate',
+  'oreo',
+  'cheese',
+  'custard',
+  'minute_maid',
+  'mineral_water',
+  'cups',
+  'straws',
+  'blue_lemon',
+  'lemon_fruit',
+  'cucumber',
+  'cucumber_fruit',
+  'straws',
+  'ice_cube',
+  'bulsita_1',
+  'bulsita_2',
+  'box_1',
+  'box_2',
+  'plastic_bag',
 ];

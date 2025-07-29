@@ -1,6 +1,11 @@
-import { IInventoryFormat, SalesReport } from "./SalesReport";
+import type { SalesReport } from './SalesReport';
 
-interface ImagawayakiSales {
+export interface IImagawayakiReport extends SalesReport {
+  sales: ImagawayakiSales;
+  inventory: IImagawayakiReportInventory;
+}
+
+export interface ImagawayakiSales {
   chocolate: number;
   oreo: number;
   cheese: number;
@@ -8,23 +13,18 @@ interface ImagawayakiSales {
   plain: number;
   juice: number;
   mineral_water: number;
+  minute_maid: number;
 }
 
-interface IImagawayakiReportInventory {
-  batter: IInventoryFormat;
-  chocolate: IInventoryFormat;
-  oreo: IInventoryFormat;
-  cheese: IInventoryFormat;
-  custard: IInventoryFormat;
-  mineral_water: IInventoryFormat;
-  paper_bag_1: IInventoryFormat;
-  paper_bag_2: IInventoryFormat;
-  box_1: IInventoryFormat;
-  box_2: IInventoryFormat;
-  plastic_bag: IInventoryFormat;
+export interface IImagawayakiInventoryFormat {
+  initial_stocks: string | number;
+  delivered: string | number;
+  pull_out: string | number;
+  sales: string | number;
+  remaining_stocks: string | number;
+  notes: string;
 }
 
-export interface IImagawayakiReport extends SalesReport {
-  sales: ImagawayakiSales;
-  inventory: IImagawayakiReportInventory;
+export interface IImagawayakiReportInventory {
+  [key: string]: IImagawayakiInventoryFormat;
 }

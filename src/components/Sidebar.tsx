@@ -56,8 +56,17 @@ export default function Sidebar({ isOpen, setIsOpen }: SidebarProps) {
         <Link href="/admin/branches" className={linkClasses('/admin/branches')}>
           Branches
         </Link>
-        <Link href="/admin/reports" className={linkClasses('/admin/reports')}>
-          Reports
+        <Link
+          href="/admin/chicky-oink-reports"
+          className={linkClasses('/admin/chicky-oink-reports')}
+        >
+          Chicky Oink Reports
+        </Link>
+        <Link
+          href="/admin/imagawayaki-reports"
+          className={linkClasses('/admin/imagawayaki-reports')}
+        >
+          Imagawayaki Reports
         </Link>
         <Link href="/admin/timelogs" className={linkClasses('/admin/timelogs')}>
           Time Logs

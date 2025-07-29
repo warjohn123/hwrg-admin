@@ -44,8 +44,6 @@ export async function POST(req: Request) {
       ])
       .select('id'); //Ensure your table has a UUID 'id' column
 
-    console.log('dbError', dbError);
-
     if (dbError) {
       return NextResponse.json(
         { error: dbError.message },

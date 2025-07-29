@@ -3,6 +3,7 @@
 import ChickyOinkReportDetails from '@/components/ChickyOinkReportDetails';
 import { getSalesReportDetails } from '@/services/sales_reports.service';
 import { IChickyOinkReport } from '@/types/ChickyOinkReport';
+import { IAssignment } from '@/types/User';
 import { useParams } from 'next/navigation';
 import { useEffect, useState } from 'react';
 
@@ -26,11 +27,9 @@ export default function ReportDetailsPage() {
     fetchReport();
   }, []);
 
-  console.log('report', report);
-
   if (loading) return <>Loading report....</>;
 
-  if (report?.type === 'Chicky Oink')
+  if (report?.type === IAssignment.CHICKY_OINK)
     return <ChickyOinkReportDetails report={report} />;
 
   return <></>;

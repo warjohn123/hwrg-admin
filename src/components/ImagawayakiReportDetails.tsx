@@ -1,32 +1,31 @@
-import { CHICKY_OINK_INVENTORY_DISPLAY_ORDER } from '@/constants/displayOrder';
+import { IMAGAWAYAKI_INVENTORY_DISPLAY_ORDER } from '@/constants/displayOrder';
 import Divider from './UI/Divider';
-import { CHICKY_OINK_INVENTORY } from '@/constants/ChickyOinkInventory';
+import { IMAGAWAYAKI_PRODUCTS } from '@/constants/ImagawayakiProduct';
 import {
-  ChickyOinkSales,
-  IChickyOinkReport,
-  IChickyOinkReportInventory,
-} from '@/types/ChickyOinkReport';
+  IImagawayakiReport,
+  IImagawayakiReportInventory,
+  ImagawayakiSales,
+} from '@/types/ImagawayakiReport';
 
 interface Props {
-  report: IChickyOinkReport;
+  report: IImagawayakiReport;
 }
 
-function getTotalSales(sales: ChickyOinkSales) {
+function getTotalSales(sales: ImagawayakiSales) {
   const totalSales =
-    sales.regular_chicken * CHICKY_OINK_INVENTORY.REGULAR_CHICKEN.price +
-    sales.spicy_chicken * CHICKY_OINK_INVENTORY.SPICY_CHICKEN.price +
-    sales.regular_liempo * CHICKY_OINK_INVENTORY.REGULAR_LIEMPO.price +
-    sales.spicy_liempo * CHICKY_OINK_INVENTORY.SPICY_LIEMPO.price +
-    sales.liog * CHICKY_OINK_INVENTORY.LIOG.price +
-    sales.spicy_liog * CHICKY_OINK_INVENTORY.SPICY_LIOG.price +
-    sales.poso * CHICKY_OINK_INVENTORY.POSO.price +
-    sales.atchara_small * CHICKY_OINK_INVENTORY.ATCHARA_SMALL.price +
-    sales.atchara_big * CHICKY_OINK_INVENTORY.ATCHARA_BIG.price;
+    sales.chocolate * IMAGAWAYAKI_PRODUCTS.CHOCOLATE.price +
+    sales.oreo * IMAGAWAYAKI_PRODUCTS.OREO.price +
+    sales.cheese * IMAGAWAYAKI_PRODUCTS.CHEESE.price +
+    sales.custard * IMAGAWAYAKI_PRODUCTS.CUSTARD.price +
+    sales.plain * IMAGAWAYAKI_PRODUCTS.PLAIN.price +
+    sales.juice * IMAGAWAYAKI_PRODUCTS.JUICE.price +
+    sales.mineral_water * IMAGAWAYAKI_PRODUCTS.MINERAL_WATER.price +
+    sales.minute_maid * IMAGAWAYAKI_PRODUCTS.MINUTE_MAID.price;
 
   return totalSales;
 }
 
-export default function ChickyOinkReportDetails({ report }: Props) {
+export default function ImagawayakiReportDetails({ report }: Props) {
   const totalExpenses = report.expenses.reduce(
     (partialSum, a) => partialSum + (a.value || 0),
     0,
@@ -42,20 +41,22 @@ export default function ChickyOinkReportDetails({ report }: Props) {
       {/** Sales Section */}
       <div>
         <div className="mt-5 flex flex-col gap-3">
-          {Object.entries(CHICKY_OINK_INVENTORY).map(([key]) => (
+          {Object.entries(IMAGAWAYAKI_PRODUCTS).map(([key]) => (
             <div className="flex flex-row gap-3" key={key}>
-              <div className="w-30">{CHICKY_OINK_INVENTORY[key].name}</div>
+              <div className="w-30">{IMAGAWAYAKI_PRODUCTS[key].name}</div>
               <div className="font-bold w-10">
-                {report.sales[key.toLowerCase() as keyof ChickyOinkSales]}
+                {report.sales[key.toLowerCase() as keyof ImagawayakiSales]}
               </div>
               <div>X</div>
-              <div className="w-10">{CHICKY_OINK_INVENTORY[key].price}</div>
+              <div className="w-10">{IMAGAWAYAKI_PRODUCTS[key].price}</div>
               <div>=</div>
               <span className="font-bold">
                 ₱
                 {(
-                  (report.sales[CHICKY_OINK_INVENTORY[key].attribute] ?? 0) *
-                  CHICKY_OINK_INVENTORY[key].price!
+                  (report.sales[
+                    IMAGAWAYAKI_PRODUCTS[key]
+                      .attribute as keyof ImagawayakiSales
+                  ] ?? 0) * IMAGAWAYAKI_PRODUCTS[key].price!
                 ).toLocaleString()}
               </span>
             </div>
@@ -143,8 +144,8 @@ export default function ChickyOinkReportDetails({ report }: Props) {
               {Object.keys(report.inventory)
                 .sort(
                   (a, b) =>
-                    CHICKY_OINK_INVENTORY_DISPLAY_ORDER.indexOf(a) -
-                    CHICKY_OINK_INVENTORY_DISPLAY_ORDER.indexOf(b),
+                    IMAGAWAYAKI_INVENTORY_DISPLAY_ORDER.indexOf(a) -
+                    IMAGAWAYAKI_INVENTORY_DISPLAY_ORDER.indexOf(b),
                 )
                 .map((key: string) => (
                   <tr key={key}>
@@ -154,42 +155,42 @@ export default function ChickyOinkReportDetails({ report }: Props) {
                     <td className="border px-4 py-2">
                       {
                         report.inventory[
-                          key as keyof IChickyOinkReportInventory
+                          key as keyof IImagawayakiReportInventory
                         ].initial_stocks
                       }
                     </td>
                     <td className="border px-4 py-2 w-30">
                       {
                         report.inventory[
-                          key as keyof IChickyOinkReportInventory
+                          key as keyof IImagawayakiReportInventory
                         ].delivered
                       }
                     </td>
                     <td className="border px-4 py-2">
                       {
                         report.inventory[
-                          key as keyof IChickyOinkReportInventory
+                          key as keyof IImagawayakiReportInventory
                         ].pull_out
                       }
                     </td>
                     <td className="border px-4 py-2">
                       {
                         report.inventory[
-                          key as keyof IChickyOinkReportInventory
+                          key as keyof IImagawayakiReportInventory
                         ].sales
                       }
                     </td>
                     <td className="border px-4 py-2">
                       {
                         report.inventory[
-                          key as keyof IChickyOinkReportInventory
+                          key as keyof IImagawayakiReportInventory
                         ].remaining_stocks
                       }
                     </td>
                     <td className="border px-4 py-2">
                       {
                         report.inventory[
-                          key as keyof IChickyOinkReportInventory
+                          key as keyof IImagawayakiReportInventory
                         ].notes
                       }
                     </td>

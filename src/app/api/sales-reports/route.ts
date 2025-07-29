@@ -14,6 +14,7 @@ export async function GET(req: NextRequest) {
   const limitParam = searchParams.get('limit');
   const branchId = searchParams.get('branchId');
   const dates = searchParams.get('dates');
+  const type = searchParams.get('type');
 
   let query = getSupabase()
     .from('sales_reports')
@@ -31,12 +32,14 @@ export async function GET(req: NextRequest) {
     query = query.eq('branch_id', branchId);
   }
 
+  if (type) {
+    query = query.eq('type', type);
+  }
+
   if (dates) {
     const [start, end] = dates
       .split(',')
       .map((date) => new Date(date).toISOString().split('T')[0]);
-
-    console.log({ start, end });
 
     query = query.gte('report_date', start).lte('report_date', end);
   }
