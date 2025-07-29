@@ -23,6 +23,7 @@ export const IMAGAWAYAKI_INVENTORY_DISPLAY_ORDER = [
   'straws',
   'blue_lemon',
   'lemon_fruit',
+  'sugar',
   'cucumber',
   'cucumber_fruit',
   'straws',
