@@ -68,6 +68,12 @@ export default function Sidebar({ isOpen, setIsOpen }: SidebarProps) {
         >
           Imagawayaki Reports
         </Link>
+        <Link
+          href="/admin/collection-reports"
+          className={linkClasses('/admin/collection-reports')}
+        >
+          Collection Reports
+        </Link>
         <Link href="/admin/timelogs" className={linkClasses('/admin/timelogs')}>
           Time Logs
         </Link>
