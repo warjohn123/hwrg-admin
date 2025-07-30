@@ -12,6 +12,8 @@ import { ICompanyExpense } from '@/types/CompanyExpenses';
 import { fetchCompanyExpenses } from '@/services/company_expenses.service';
 import { IAssignment } from '@/types/User';
 import SaveCompanyExpenseModal from './modals/SaveCompanyExpense';
+import { IBranch } from '@/types/Branch';
+import { fetchBranches } from '@/services/branch.service';
 
 interface Props {
   type: IAssignment;
@@ -25,21 +27,33 @@ export default function ExpensesTable({ type }: Props) {
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [selectedReportId, setSelectedReportId] = useState<number | null>(null);
   const [isSaveModalOpen, setIsSaveModalOpen] = useState(false);
+  const [selectedBranch, setSelectedBranch] = useState<string>('');
+  const [branches, setBranches] = useState<IBranch[]>([]);
 
   useEffect(() => {
-    init();
-  }, []);
+    const fetchAllData = () => {
+      setLoading(true);
+      Promise.all([fetchExpenses(), getBranches()]).then(() => {
+        setLoading(false);
+      });
+    };
+
+    if (dates.length === 2) fetchAllData();
+  }, [page, selectedBranch, dates]);
 
   async function handleDelete() {
     if (!selectedReportId) return;
     await deleteCollectionReport(selectedReportId);
     setShowDeleteModal(false);
     setSelectedReportId(null);
-    init();
   }
 
-  async function init() {
-    setLoading(true);
+  async function getBranches() {
+    const res = await fetchBranches(type);
+    setBranches(res.branches);
+  }
+
+  async function fetchExpenses() {
     try {
       const formattedDates = dates.map((date) => date.format('YYYY-MM-DD'));
       const res = await fetchCompanyExpenses(
@@ -47,6 +61,7 @@ export default function ExpensesTable({ type }: Props) {
         pageSize,
         formattedDates,
         type,
+        selectedBranch,
       );
       setTotal(res.total ?? 0);
       setCompanyExpenses(res.company_expenses ?? []);
@@ -62,16 +77,36 @@ export default function ExpensesTable({ type }: Props) {
   return (
     <div>
       <div className="flex justify-between items-center mb-4">
-        <div>
-          <label>Select dates</label>
+        <div className="flex gap-5">
           <div>
-            <DatePicker
-              style={{ zIndex: 9999, height: '38px', width: '200px' }}
-              value={dates}
-              onChange={setDates}
-              format="YYYY-MM-DD"
-              range
-            />
+            <label>Select a branch</label>
+            <div>
+              <select
+                name="branch"
+                value={selectedBranch}
+                onChange={(e) => setSelectedBranch(e.target.value)}
+                className="px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              >
+                <option value="">All Branches</option>
+                {branches?.map((branch) => (
+                  <option key={branch.id} value={branch.id}>
+                    {branch.branch_name}
+                  </option>
+                ))}
+              </select>
+            </div>
+          </div>
+          <div>
+            <label>Select dates</label>
+            <div>
+              <DatePicker
+                style={{ zIndex: 9999, height: '38px', width: '200px' }}
+                value={dates}
+                onChange={setDates}
+                format="YYYY-MM-DD"
+                range
+              />
+            </div>
           </div>
         </div>
         <button
@@ -134,7 +169,7 @@ export default function ExpensesTable({ type }: Props) {
         expense={undefined}
         isOpen={isSaveModalOpen}
         type={type}
-        fetchExpenses={init}
+        fetchExpenses={fetchExpenses}
         setIsOpen={setIsSaveModalOpen}
       />
       {/* <SaveModal

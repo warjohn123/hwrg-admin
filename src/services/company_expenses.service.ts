@@ -6,6 +6,7 @@ export async function fetchCompanyExpenses(
   limit: number,
   dates: string[],
   type: IAssignment,
+  branchId?: string,
 ) {
   const params = new URLSearchParams();
 
@@ -15,6 +16,9 @@ export async function fetchCompanyExpenses(
     params.set('dates', dates.join(','));
   }
   params.set('type', type);
+  if (branchId) {
+    params.set('branch_id', branchId);
+  }
   const res = await fetch(`/api/company_expenses?${params.toString()}`);
   return res.json();
 }
