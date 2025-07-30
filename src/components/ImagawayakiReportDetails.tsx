@@ -6,23 +6,10 @@ import {
   IImagawayakiReportInventory,
   ImagawayakiSales,
 } from '@/types/ImagawayakiReport';
+import { getImagawayakiTotalSales } from '@/lib/getImagawayakiTotalSales';
 
 interface Props {
   report: IImagawayakiReport;
-}
-
-function getTotalSales(sales: ImagawayakiSales) {
-  const totalSales =
-    sales.chocolate * IMAGAWAYAKI_PRODUCTS.CHOCOLATE.price +
-    sales.oreo * IMAGAWAYAKI_PRODUCTS.OREO.price +
-    sales.cheese * IMAGAWAYAKI_PRODUCTS.CHEESE.price +
-    sales.custard * IMAGAWAYAKI_PRODUCTS.CUSTARD.price +
-    sales.plain * IMAGAWAYAKI_PRODUCTS.PLAIN.price +
-    sales.juice * IMAGAWAYAKI_PRODUCTS.JUICE.price +
-    sales.mineral_water * IMAGAWAYAKI_PRODUCTS.MINERAL_WATER.price +
-    sales.minute_maid * IMAGAWAYAKI_PRODUCTS.MINUTE_MAID.price;
-
-  return totalSales;
 }
 
 export default function ImagawayakiReportDetails({ report }: Props) {
@@ -31,7 +18,7 @@ export default function ImagawayakiReportDetails({ report }: Props) {
     0,
   );
 
-  const totalRemit = getTotalSales(report.sales) - totalExpenses;
+  const totalRemit = getImagawayakiTotalSales(report.sales) - totalExpenses;
   const cash = report.cash;
 
   return (
@@ -65,7 +52,8 @@ export default function ImagawayakiReportDetails({ report }: Props) {
 
         <div className="mt-5">
           <h5 className="font-bold text-3xl">
-            Total Sales: {getTotalSales(report.sales).toLocaleString()}
+            Total Sales:{' '}
+            {getImagawayakiTotalSales(report.sales).toLocaleString()}
           </h5>
         </div>
       </div>

@@ -3,6 +3,7 @@
 import ConfirmModal from '@/components/modals/ConfirmationModal';
 import Pagination from '@/components/Pagination';
 import { usePagination } from '@/hooks/usePagination';
+import { getChickyOinkTotalSales } from '@/lib/getChickyOinkTotalSales';
 import { fetchBranches } from '@/services/branch.service';
 import {
   deleteSalesReport,
@@ -84,6 +85,10 @@ export default function ReportsPage() {
     return acc + report.cash;
   }, 0);
 
+  const totalSales = salesReports.reduce((acc, report) => {
+    return acc + getChickyOinkTotalSales(report.sales);
+  }, 0);
+
   const totalPosoSales = salesReports.reduce((acc, report) => {
     return acc + report.inventory.poso.sales * 8;
   }, 0);
@@ -133,6 +138,7 @@ export default function ReportsPage() {
         </div>
       </div>
       <div className="mt-5 mb-5">
+        <p className="font-bold">Total Sales: {totalSales.toLocaleString()}</p>
         <p className="font-bold">Total Remit: {totalRemit.toLocaleString()}</p>
         <p className="font-bold">
           Total POSO Sales: {totalPosoSales.toLocaleString()}
@@ -149,6 +155,7 @@ export default function ReportsPage() {
             <tr>
               <th className="px-6 py-3 text-sm font-medium">Title</th>
               <th className="px-6 py-3 text-sm font-medium">Date</th>
+              <th className="px-6 py-3 text-sm font-medium">Sales</th>
               <th className="px-6 py-3 text-sm font-medium">Remit</th>
               <th className="px-6 py-3 text-sm font-medium">Actions</th>
             </tr>
@@ -161,6 +168,9 @@ export default function ReportsPage() {
               >
                 <td className="px-6 py-4">{report.title}</td>
                 <td className="px-6 py-4">{report.report_date}</td>
+                <td className="px-6 py-4">
+                  {getChickyOinkTotalSales(report.sales).toLocaleString()}
+                </td>
                 <td className="px-6 py-4">{report.cash.toLocaleString()}</td>
                 <td className="px-6 py-4 flex gap-10">
                   <Link

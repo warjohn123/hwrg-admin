@@ -6,24 +6,10 @@ import {
   IChickyOinkReport,
   IChickyOinkReportInventory,
 } from '@/types/ChickyOinkReport';
+import { getChickyOinkTotalSales } from '@/lib/getChickyOinkTotalSales';
 
 interface Props {
   report: IChickyOinkReport;
-}
-
-function getTotalSales(sales: ChickyOinkSales) {
-  const totalSales =
-    sales.regular_chicken * CHICKY_OINK_INVENTORY.REGULAR_CHICKEN.price +
-    sales.spicy_chicken * CHICKY_OINK_INVENTORY.SPICY_CHICKEN.price +
-    sales.regular_liempo * CHICKY_OINK_INVENTORY.REGULAR_LIEMPO.price +
-    sales.spicy_liempo * CHICKY_OINK_INVENTORY.SPICY_LIEMPO.price +
-    sales.liog * CHICKY_OINK_INVENTORY.LIOG.price +
-    sales.spicy_liog * CHICKY_OINK_INVENTORY.SPICY_LIOG.price +
-    sales.poso * CHICKY_OINK_INVENTORY.POSO.price +
-    sales.atchara_small * CHICKY_OINK_INVENTORY.ATCHARA_SMALL.price +
-    sales.atchara_big * CHICKY_OINK_INVENTORY.ATCHARA_BIG.price;
-
-  return totalSales;
 }
 
 export default function ChickyOinkReportDetails({ report }: Props) {
@@ -32,7 +18,7 @@ export default function ChickyOinkReportDetails({ report }: Props) {
     0,
   );
 
-  const totalRemit = getTotalSales(report.sales) - totalExpenses;
+  const totalRemit = getChickyOinkTotalSales(report.sales) - totalExpenses;
   const cash = report.cash;
 
   return (
@@ -64,7 +50,8 @@ export default function ChickyOinkReportDetails({ report }: Props) {
 
         <div className="mt-5">
           <h5 className="font-bold text-3xl">
-            Total Sales: {getTotalSales(report.sales).toLocaleString()}
+            Total Sales:{' '}
+            {getChickyOinkTotalSales(report.sales).toLocaleString()}
           </h5>
         </div>
       </div>
