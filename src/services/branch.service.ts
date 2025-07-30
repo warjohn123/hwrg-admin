@@ -1,4 +1,5 @@
 import { IBranch } from '@/types/Branch';
+import { IAssignment } from '@/types/User';
 
 export async function createBranch(branch: IBranch) {
   try {
@@ -43,9 +44,9 @@ export async function getBranchDetails(id: string) {
   }
 }
 
-export async function fetchAllBranches() {
+export async function fetchBranches(assignment?: IAssignment) {
   try {
-    const res = await fetch(`/api/branches`);
+    const res = await fetch(`/api/branches?assignment=${assignment}`);
     return res.json();
   } catch (e) {
     console.error(e);

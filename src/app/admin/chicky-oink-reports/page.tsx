@@ -3,7 +3,7 @@
 import ConfirmModal from '@/components/modals/ConfirmationModal';
 import Pagination from '@/components/Pagination';
 import { usePagination } from '@/hooks/usePagination';
-import { fetchAllBranches } from '@/services/branch.service';
+import { fetchBranches } from '@/services/branch.service';
 import {
   deleteSalesReport,
   fetchSalesReports,
@@ -65,7 +65,7 @@ export default function ReportsPage() {
   }
 
   async function getBranches() {
-    const res = await fetchAllBranches();
+    const res = await fetchBranches(IAssignment.CHICKY_OINK);
     setBranches(res.branches);
   }
 
