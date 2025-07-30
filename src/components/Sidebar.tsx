@@ -63,17 +63,29 @@ export default function Sidebar({ isOpen, setIsOpen }: SidebarProps) {
           Chicky Oink Reports
         </Link>
         <Link
+          href="/admin/chicky-oink-expenses"
+          className={linkClasses('/admin/chicky-oink-expenses')}
+        >
+          Chicky Oink Expenses
+        </Link>
+        <Link
           href="/admin/imagawayaki-reports"
           className={linkClasses('/admin/imagawayaki-reports')}
         >
           Imagawayaki Reports
         </Link>
         <Link
+          href="/admin/imagawayaki-expenses"
+          className={linkClasses('/admin/imagawayaki-expenses')}
+        >
+          Imagawayaki Expenses
+        </Link>
+        {/* <Link
           href="/admin/collection-reports"
           className={linkClasses('/admin/collection-reports')}
         >
           Collection Reports
-        </Link>
+        </Link> */}
         <Link href="/admin/timelogs" className={linkClasses('/admin/timelogs')}>
           Time Logs
         </Link>
