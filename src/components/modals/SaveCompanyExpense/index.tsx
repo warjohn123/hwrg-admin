@@ -18,14 +18,16 @@ interface SaveCompanyExpenseModalProps {
   expense: ICompanyExpense | undefined;
   fetchExpenses: () => void;
   setIsOpen: (val: boolean) => void;
+  setSelectedExpense: (expense: ICompanyExpense | null) => void;
 }
 
 export default function SaveCompanyExpenseModal({
   isOpen,
   type,
-  fetchExpenses,
   expense,
+  fetchExpenses,
   setIsOpen,
+  setSelectedExpense,
 }: SaveCompanyExpenseModalProps) {
   const [branches, setBranches] = useState<IBranch[]>([]);
   const [isLoadingBranches, setIsLoadingBranches] = useState<boolean>(true);
@@ -49,6 +51,7 @@ export default function SaveCompanyExpenseModal({
 
   const closeModal = () => {
     setIsOpen(false);
+    setSelectedExpense(null);
   };
 
   const handleSubmit = async (

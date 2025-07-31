@@ -186,6 +186,7 @@ export default function ExpensesTable({ type }: Props) {
 
       <Pagination setPage={setPage} page={page} totalPages={totalPages} />
       <SaveCompanyExpenseModal
+        setSelectedExpense={setSelectedExpense}
         expense={selectedExpense ?? undefined}
         isOpen={isSaveModalOpen}
         type={type}
