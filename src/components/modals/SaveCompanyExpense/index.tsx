@@ -6,7 +6,10 @@ import { Formik, Form, Field, ErrorMessage } from 'formik';
 import { formSchema } from './form.schema';
 import { IBranch } from '@/types/Branch';
 import { fetchBranches } from '@/services/branch.service';
-import { createCompanyExpense } from '@/services/company_expenses.service';
+import {
+  createCompanyExpense,
+  updateCompanyExpense,
+} from '@/services/company_expenses.service';
 import { toast } from 'react-toastify';
 
 interface SaveCompanyExpenseModalProps {
@@ -39,7 +42,7 @@ export default function SaveCompanyExpenseModal({
   }
 
   const initialValues = {
-    branch_id: expense?.branch_id ?? '',
+    branch_id: expense?.branches?.id ?? '',
     name: expense?.name ?? '',
     amount: expense?.amount ?? '',
   };
@@ -48,14 +51,24 @@ export default function SaveCompanyExpenseModal({
     setIsOpen(false);
   };
 
-  const handleSubmit = async (values: ICompanyExpense) => {
+  const handleSubmit = async (
+    values: ICompanyExpense,
+    setSubmitting: (isSubmitting: boolean) => void,
+  ) => {
+    setSubmitting(true);
     try {
-      await createCompanyExpense(values);
+      if (expense) {
+        await updateCompanyExpense(expense.id, values);
+      } else {
+        await createCompanyExpense(values);
+      }
       fetchExpenses();
       closeModal();
     } catch (e) {
       toast.error('Failed to create expense');
       console.error(`Failed to create expense:`, e);
+    } finally {
+      setSubmitting(false);
     }
   };
 
@@ -77,10 +90,8 @@ export default function SaveCompanyExpenseModal({
         <Formik
           initialValues={initialValues}
           validationSchema={formSchema}
-          onSubmit={(values, { resetForm }) => {
-            console.log('Submitted values:', values);
-            resetForm();
-            handleSubmit(values as ICompanyExpense);
+          onSubmit={(values, { setSubmitting }) => {
+            handleSubmit(values as unknown as ICompanyExpense, setSubmitting);
           }}
         >
           {({ isSubmitting }) => (

@@ -30,16 +30,17 @@ export default function ReportsPage() {
   useEffect(() => {
     const fetchAllData = () => {
       setLoading(true);
-      Promise.all([
-        getSalesReports(page, selectedBranch, dates),
-        getBranches(),
-      ]).then(() => {
+      Promise.all([getSalesReports(page, selectedBranch, dates)]).then(() => {
         setLoading(false);
       });
     };
 
     if (dates.length === 2) fetchAllData();
   }, [page, selectedBranch, dates]);
+
+  useEffect(() => {
+    getBranches();
+  }, []);
 
   async function getSalesReports(
     pageNumber = 1,

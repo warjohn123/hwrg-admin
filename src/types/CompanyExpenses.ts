@@ -1,3 +1,5 @@
+import { IBranch } from './Branch';
+
 export type CompanyName = 'Chicky Oink' | 'Imagawayaki' | 'PotatoFry';
 
 export interface ICompanyExpense {
@@ -8,4 +10,5 @@ export interface ICompanyExpense {
   name: string;
   amount: number;
   created_at?: string;
+  branches?: IBranch;
 }

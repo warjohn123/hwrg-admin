@@ -37,3 +37,14 @@ export async function createCompanyExpense(expense: ICompanyExpense) {
   });
   return res.json();
 }
+
+export async function updateCompanyExpense(
+  id: number,
+  expense: ICompanyExpense,
+) {
+  const res = await fetch(`/api/company_expenses/${id}`, {
+    method: 'PUT',
+    body: JSON.stringify(expense),
+  });
+  return res.json();
+}

@@ -16,7 +16,7 @@ export async function GET(req: NextRequest) {
 
   let query = getSupabase()
     .from('company_expenses')
-    .select('id, date, name, amount', {
+    .select('id, date, name, amount, branches(id, branch_name)', {
       count: 'exact',
       head: false,
     })

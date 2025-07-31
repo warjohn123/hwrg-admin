@@ -3,17 +3,19 @@
 import { useEffect, useState } from 'react';
 import DatePicker, { DateObject } from 'react-multi-date-picker';
 import { usePagination } from '@/hooks/usePagination';
-import { deleteCollectionReport } from '@/services/collection_reports.service';
-import Link from 'next/link';
-import { FaArrowRight, FaTrash } from 'react-icons/fa6';
+import { FaTrash } from 'react-icons/fa6';
 import ConfirmModal from '@/components/modals/ConfirmationModal';
 import Pagination from '@/components/Pagination';
 import { ICompanyExpense } from '@/types/CompanyExpenses';
-import { fetchCompanyExpenses } from '@/services/company_expenses.service';
+import {
+  deleteCompanyExpense,
+  fetchCompanyExpenses,
+} from '@/services/company_expenses.service';
 import { IAssignment } from '@/types/User';
 import SaveCompanyExpenseModal from './modals/SaveCompanyExpense';
 import { IBranch } from '@/types/Branch';
 import { fetchBranches } from '@/services/branch.service';
+import { FaEdit } from 'react-icons/fa';
 
 interface Props {
   type: IAssignment;
@@ -29,23 +31,28 @@ export default function ExpensesTable({ type }: Props) {
   const [isSaveModalOpen, setIsSaveModalOpen] = useState(false);
   const [selectedBranch, setSelectedBranch] = useState<string>('');
   const [branches, setBranches] = useState<IBranch[]>([]);
+  const [selectedExpense, setSelectedExpense] =
+    useState<ICompanyExpense | null>(null);
 
   useEffect(() => {
-    const fetchAllData = () => {
+    const fetchAllData = async () => {
       setLoading(true);
-      Promise.all([fetchExpenses(), getBranches()]).then(() => {
-        setLoading(false);
-      });
+      await fetchExpenses();
     };
 
     if (dates.length === 2) fetchAllData();
   }, [page, selectedBranch, dates]);
 
+  useEffect(() => {
+    getBranches();
+  }, []);
+
   async function handleDelete() {
     if (!selectedReportId) return;
-    await deleteCollectionReport(selectedReportId);
+    await deleteCompanyExpense(selectedReportId);
     setShowDeleteModal(false);
     setSelectedReportId(null);
+    fetchExpenses();
   }
 
   async function getBranches() {
@@ -72,10 +79,20 @@ export default function ExpensesTable({ type }: Props) {
     }
   }
 
+  const totalExpenses = companyExpenses.reduce(
+    (acc, curr) => acc + curr.amount,
+    0,
+  );
+
   if (loading) return <p>Loading {type} expenses...</p>;
 
   return (
     <div>
+      <div className="mt-5 mb-5">
+        <p className="font-bold">
+          Total Expenses: {totalExpenses.toLocaleString()}
+        </p>
+      </div>
       <div className="flex justify-between items-center mb-4">
         <div className="flex gap-5">
           <div>
@@ -123,30 +140,33 @@ export default function ExpensesTable({ type }: Props) {
               <th className="px-6 py-3 text-sm font-medium">Date</th>
               <th className="px-6 py-3 text-sm font-medium">Name</th>
               <th className="px-6 py-3 text-sm font-medium">Amount</th>
+              <th className="px-6 py-3 text-sm font-medium">Branch</th>
               <th className="px-6 py-3 text-sm font-medium">Actions</th>
             </tr>
           </thead>
           <tbody>
-            {companyExpenses.map((report) => (
+            {companyExpenses.map((expense) => (
               <tr
-                key={report.id}
+                key={expense.id}
                 className="border-b hover:bg-gray-50 cursor-pointer"
               >
-                <td className="px-6 py-4">{report.date}</td>
-                <td className="px-6 py-4">{report.name}</td>
-                <td className="px-6 py-4">{report.amount}</td>
+                <td className="px-6 py-4">{expense.date}</td>
+                <td className="px-6 py-4">{expense.name}</td>
+                <td className="px-6 py-4">{expense.amount}</td>
+                <td className="px-6 py-4">{expense.branches?.branch_name}</td>
                 <td className="px-6 py-4 flex gap-10">
-                  <Link
-                    target="_blank"
-                    href={`/admin/collection-reports/${report.id}`}
-                  >
-                    <FaArrowRight className="cursor-pointer" />
-                  </Link>
+                  <FaEdit
+                    className="cursor-pointer"
+                    onClick={() => {
+                      setIsSaveModalOpen(true);
+                      setSelectedExpense(expense ?? null);
+                    }}
+                  />
                   <FaTrash
                     className="cursor-pointer text-red-500"
                     onClick={() => {
                       setShowDeleteModal(true);
-                      setSelectedReportId(report.id ?? null);
+                      setSelectedReportId(expense.id ?? null);
                     }}
                   />
                 </td>
@@ -158,25 +178,20 @@ export default function ExpensesTable({ type }: Props) {
           isOpen={showDeleteModal}
           onClose={() => setShowDeleteModal(false)}
           onConfirm={handleDelete}
-          title="Delete Sales Report?"
-          description="Are you sure you want to delete this report? This cannot be undone."
+          title="Delete Expense?"
+          description="Are you sure you want to delete this expense? This cannot be undone."
           confirmText="Delete"
         />
       </div>
 
       <Pagination setPage={setPage} page={page} totalPages={totalPages} />
       <SaveCompanyExpenseModal
-        expense={undefined}
+        expense={selectedExpense ?? undefined}
         isOpen={isSaveModalOpen}
         type={type}
         fetchExpenses={fetchExpenses}
         setIsOpen={setIsSaveModalOpen}
       />
-      {/* <SaveModal
-        isOpen={isSaveModalOpen}
-        onClose={() => setIsSaveModalOpen(false)}
-        onSave={handleSave}
-      /> */}
     </div>
   );
 }
