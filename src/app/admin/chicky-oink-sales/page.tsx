@@ -3,17 +3,14 @@
 import ConfirmModal from '@/components/modals/ConfirmationModal';
 import Pagination from '@/components/Pagination';
 import { usePagination } from '@/hooks/usePagination';
-import { getImagawayakiTotalSales } from '@/lib/getImagawayakiTotalSales';
+import { getChickyOinkTotalSales } from '@/lib/getChickyOinkTotalSales';
 import { fetchBranches } from '@/services/branch.service';
 import {
   deleteSalesReport,
   fetchSalesReports,
 } from '@/services/sales_reports.service';
 import { IBranch } from '@/types/Branch';
-import {
-  IImagawayakiReport,
-  ImagawayakiSales,
-} from '@/types/ImagawayakiReport';
+import { IChickyOinkReport } from '@/types/ChickyOinkReport';
 import { IAssignment } from '@/types/User';
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
@@ -21,7 +18,7 @@ import { FaArrowRight, FaTrash } from 'react-icons/fa6';
 import DatePicker, { DateObject } from 'react-multi-date-picker';
 
 export default function ReportsPage() {
-  const [salesReports, setSalesReports] = useState<IImagawayakiReport[]>([]);
+  const [salesReports, setSalesReports] = useState<IChickyOinkReport[]>([]);
   const [loading, setLoading] = useState(true);
   const [branches, setBranches] = useState<IBranch[]>([]);
   const [selectedBranch, setSelectedBranch] = useState<string>('');
@@ -58,7 +55,7 @@ export default function ReportsPage() {
         pageSize,
         branchId,
         formattedDates,
-        IAssignment.IMAGAWAYAKI,
+        IAssignment.CHICKY_OINK,
       );
       setTotal(res.total ?? 0);
       setSalesReports(res.sales_reports ?? []);
@@ -70,7 +67,7 @@ export default function ReportsPage() {
   }
 
   async function getBranches() {
-    const res = await fetchBranches(IAssignment.IMAGAWAYAKI);
+    const res = await fetchBranches(IAssignment.CHICKY_OINK);
     setBranches(res.branches);
   }
 
@@ -90,7 +87,11 @@ export default function ReportsPage() {
   }, 0);
 
   const totalSales = salesReports.reduce((acc, report) => {
-    return acc + getImagawayakiTotalSales(report.sales);
+    return acc + getChickyOinkTotalSales(report.sales);
+  }, 0);
+
+  const totalPosoSales = salesReports.reduce((acc, report) => {
+    return acc + report.inventory.poso.sales * 8;
   }, 0);
 
   async function handleDelete() {
@@ -140,6 +141,9 @@ export default function ReportsPage() {
       <div className="mt-5 mb-5">
         <p className="font-bold">Total Sales: {totalSales.toLocaleString()}</p>
         <p className="font-bold">Total Remit: {totalRemit.toLocaleString()}</p>
+        <p className="font-bold">
+          Total POSO Sales: {totalPosoSales.toLocaleString()}
+        </p>
         <div className="flex gap-10">
           <div className="font-bold">Grab: {getExpenses('Grab')}</div>
           <div className="font-bold">FoodPanda: {getExpenses('FoodPanda')}</div>
@@ -166,15 +170,13 @@ export default function ReportsPage() {
                 <td className="px-6 py-4">{report.title}</td>
                 <td className="px-6 py-4">{report.report_date}</td>
                 <td className="px-6 py-4">
-                  {getImagawayakiTotalSales(
-                    report.sales as ImagawayakiSales,
-                  ).toLocaleString()}
+                  {getChickyOinkTotalSales(report.sales).toLocaleString()}
                 </td>
                 <td className="px-6 py-4">{report.cash.toLocaleString()}</td>
                 <td className="px-6 py-4 flex gap-10">
                   <Link
                     target="_blank"
-                    href={`/admin/imagawayaki-reports/${report.id}`}
+                    href={`/admin/chicky-oink-sales/${report.id}`}
                   >
                     <FaArrowRight className="cursor-pointer" />
                   </Link>
