@@ -63,6 +63,29 @@ export async function POST(req: Request) {
             value: exp.value,
           },
         ]);
+
+      if (
+        !(
+          exp.name === 'Grab' ||
+          exp.name === 'FoodPanda' ||
+          exp.name === 'GCash'
+        ) &&
+        exp.value > 0
+      ) {
+        // Insert into 'company_expenses' table
+        await getSupabase()
+          .from('company_expenses')
+          .insert([
+            {
+              name: exp.name,
+              amount: exp.value,
+              branch_id,
+              type,
+              date: new Date().toISOString(),
+            },
+          ])
+          .select('id'); //Ensure your table has a UUID 'id' column
+      }
     }
 
     return NextResponse.json(
