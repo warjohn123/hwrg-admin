@@ -1,3 +1,5 @@
+'use client';
+
 import { CHICKY_OINK_INVENTORY_DISPLAY_ORDER } from '@/constants/displayOrder';
 import Divider from './UI/Divider';
 import { CHICKY_OINK_INVENTORY } from '@/constants/ChickyOinkInventory';
@@ -7,12 +9,37 @@ import {
   IChickyOinkReportInventory,
 } from '@/types/ChickyOinkReport';
 import { getChickyOinkTotalSales } from '@/lib/getChickyOinkTotalSales';
+import { LOW_STOCK_THRESHOLD } from '@/constants/LowStock';
+import { useEffect, useState } from 'react';
+import { getSalesReportDetails } from '@/services/sales_reports.service';
 
 interface Props {
-  report: IChickyOinkReport;
+  reportId: string;
 }
 
-export default function ChickyOinkReportDetails({ report }: Props) {
+export default function ChickyOinkReportDetails({ reportId }: Props) {
+  const [report, setReport] = useState<IChickyOinkReport | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  async function fetchReport() {
+    try {
+      const res = await getSalesReportDetails(reportId || '');
+      setReport(res);
+    } catch (error) {
+      console.error('Failed to fetch report:', error);
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  useEffect(() => {
+    fetchReport();
+  }, []);
+
+  if (loading) return <>Loading report....</>;
+
+  if (!report) return <>Report not found</>;
+
   const totalExpenses = report.expenses.reduce(
     (partialSum, a) => partialSum + (a.value || 0),
     0,
@@ -166,7 +193,15 @@ export default function ChickyOinkReportDetails({ report }: Props) {
                         ].sales
                       }
                     </td>
-                    <td className="border px-4 py-2">
+                    <td
+                      className={`border px-4 py-2 ${
+                        report.inventory[
+                          key as keyof IChickyOinkReportInventory
+                        ].remaining_stocks <= LOW_STOCK_THRESHOLD
+                          ? 'text-red-500'
+                          : ''
+                      }`}
+                    >
                       {
                         report.inventory[
                           key as keyof IChickyOinkReportInventory

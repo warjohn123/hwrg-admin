@@ -1,3 +1,5 @@
+'use client';
+
 import { IMAGAWAYAKI_INVENTORY_DISPLAY_ORDER } from '@/constants/displayOrder';
 import Divider from './UI/Divider';
 import { IMAGAWAYAKI_PRODUCTS } from '@/constants/ImagawayakiProduct';
@@ -7,12 +9,36 @@ import {
   ImagawayakiSales,
 } from '@/types/ImagawayakiReport';
 import { getImagawayakiTotalSales } from '@/lib/getImagawayakiTotalSales';
+import { useEffect, useState } from 'react';
+import { getSalesReportDetails } from '@/services/sales_reports.service';
 
 interface Props {
-  report: IImagawayakiReport;
+  reportId: string;
 }
 
-export default function ImagawayakiReportDetails({ report }: Props) {
+export default function ImagawayakiReportDetails({ reportId }: Props) {
+  const [report, setReport] = useState<IImagawayakiReport | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  async function fetchReport() {
+    try {
+      const res = await getSalesReportDetails(reportId || '');
+      setReport(res);
+    } catch (error) {
+      console.error('Failed to fetch report:', error);
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  useEffect(() => {
+    fetchReport();
+  }, []);
+
+  if (loading) return <>Loading report....</>;
+
+  if (!report) return <>Report not found</>;
+
   const totalExpenses = report.expenses.reduce(
     (partialSum, a) => partialSum + (a.value || 0),
     0,
