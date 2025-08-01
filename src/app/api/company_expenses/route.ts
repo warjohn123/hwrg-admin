@@ -14,6 +14,7 @@ export async function GET(req: NextRequest) {
   const limitParam = searchParams.get('limit');
   const dates = searchParams.get('dates');
   const type = searchParams.get('type');
+  const branchId = searchParams.get('branch_id');
 
   let query = getSupabase()
     .from('company_expenses')
@@ -33,6 +34,10 @@ export async function GET(req: NextRequest) {
 
   if (type) {
     query = query.eq('type', type);
+  }
+
+  if (branchId) {
+    query = query.eq('branch_id', branchId);
   }
 
   // Optional pagination
