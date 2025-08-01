@@ -34,6 +34,8 @@ export default function ExpensesTable({ type }: Props) {
   const [selectedExpense, setSelectedExpense] =
     useState<ICompanyExpense | null>(null);
 
+  console.log('type', type);
+
   useEffect(() => {
     const fetchAllData = async () => {
       setLoading(true);

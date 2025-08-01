@@ -13,6 +13,7 @@ export async function GET(req: NextRequest) {
   const pageParam = searchParams.get('page');
   const limitParam = searchParams.get('limit');
   const dates = searchParams.get('dates');
+  const type = searchParams.get('type');
 
   let query = getSupabase()
     .from('company_expenses')
@@ -28,6 +29,10 @@ export async function GET(req: NextRequest) {
       .map((date) => new Date(date).toISOString().split('T')[0]);
 
     query = query.gte('date', start).lte('date', end);
+  }
+
+  if (type) {
+    query = query.eq('type', type);
   }
 
   // Optional pagination
