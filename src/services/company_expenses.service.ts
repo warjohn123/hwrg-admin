@@ -31,11 +31,20 @@ export async function deleteCompanyExpense(id: number) {
 }
 
 export async function createCompanyExpense(expense: ICompanyExpense) {
-  const res = await fetch(`/api/company_expenses/add`, {
-    method: 'POST',
-    body: JSON.stringify(expense),
-  });
-  return res.json();
+  try {
+    const res = await fetch(`/api/company_expenses/add`, {
+      method: 'POST',
+      body: JSON.stringify(expense),
+    });
+
+    if (!res.ok) {
+      throw new Error('Failed to create expense');
+    }
+    return res.json();
+  } catch (e) {
+    console.error(e);
+    throw new Error('Failed to create expense');
+  }
 }
 
 export async function updateCompanyExpense(

@@ -1,4 +1,4 @@
-import { ICompanyExpense } from '@/types/CompanyExpenses';
+import { CompanyName, ICompanyExpense } from '@/types/CompanyExpenses';
 import { IAssignment } from '@/types/User';
 import { Dialog } from '@headlessui/react';
 import { useEffect, useState } from 'react';
@@ -63,8 +63,12 @@ export default function SaveCompanyExpenseModal({
       if (expense) {
         await updateCompanyExpense(expense.id, values);
       } else {
-        await createCompanyExpense(values);
+        await createCompanyExpense({
+          ...values,
+          type: type as CompanyName,
+        });
       }
+      toast.success('Expense created successfully');
       fetchExpenses();
       closeModal();
     } catch (e) {

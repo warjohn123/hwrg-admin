@@ -34,15 +34,8 @@ export default function ExpensesTable({ type }: Props) {
   const [selectedExpense, setSelectedExpense] =
     useState<ICompanyExpense | null>(null);
 
-  console.log('type', type);
-
   useEffect(() => {
-    const fetchAllData = async () => {
-      setLoading(true);
-      await fetchExpenses();
-    };
-
-    if (dates.length === 2) fetchAllData();
+    if (dates.length === 2) fetchExpenses();
   }, [page, selectedBranch, dates]);
 
   useEffect(() => {
@@ -63,6 +56,7 @@ export default function ExpensesTable({ type }: Props) {
   }
 
   async function fetchExpenses() {
+    setLoading(true);
     try {
       const formattedDates = dates.map((date) => date.format('YYYY-MM-DD'));
       const res = await fetchCompanyExpenses(
