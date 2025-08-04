@@ -113,7 +113,10 @@ export default function ReportsPage() {
             <select
               name="branch"
               value={selectedBranch}
-              onChange={(e) => setSelectedBranch(e.target.value)}
+              onChange={(e) => {
+                setPage(1);
+                setSelectedBranch(e.target.value);
+              }}
               className="px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
             >
               <option value="">All Branches</option>
@@ -131,7 +134,10 @@ export default function ReportsPage() {
             <DatePicker
               style={{ zIndex: 9999, height: '38px', width: '200px' }}
               value={dates}
-              onChange={setDates}
+              onChange={(e) => {
+                setPage(1);
+                setDates(e);
+              }}
               format="YYYY-MM-DD"
               range
             />
