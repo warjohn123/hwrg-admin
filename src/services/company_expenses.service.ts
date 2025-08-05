@@ -2,16 +2,16 @@ import { ICompanyExpense } from '@/types/CompanyExpenses';
 import { IAssignment } from '@/types/User';
 
 export async function fetchCompanyExpenses(
-  page: number,
-  limit: number,
   dates: string[],
   type: IAssignment,
   branchId?: string,
+  page?: number,
+  limit?: number,
 ) {
   const params = new URLSearchParams();
 
-  params.set('page', page.toString());
-  params.set('limit', limit.toString());
+  if (page) params.set('page', page.toString());
+  if (limit) params.set('limit', limit.toString());
   if (dates?.length === 2) {
     params.set('dates', dates.join(','));
   }

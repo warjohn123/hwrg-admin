@@ -10,16 +10,16 @@ export async function getSalesReportDetails(id: string) {
 }
 
 export async function fetchSalesReports(
-  page: number,
-  limit: number,
   branchId = '',
   dates: string[],
-  type: IAssignment,
+  type?: IAssignment,
+  page?: number,
+  limit?: number,
 ) {
   const params = new URLSearchParams();
 
-  params.set('page', page.toString());
-  params.set('limit', limit.toString());
+  if (page) params.set('page', page.toString());
+  if (limit) params.set('limit', limit.toString());
   if (branchId) params.set('branchId', branchId);
   if (dates?.length === 2) {
     params.set('dates', dates.join(','));

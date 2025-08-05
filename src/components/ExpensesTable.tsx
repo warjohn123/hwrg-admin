@@ -23,7 +23,7 @@ interface Props {
 
 export default function ExpensesTable({ type }: Props) {
   const [companyExpenses, setCompanyExpenses] = useState<ICompanyExpense[]>([]);
-  const { page, setPage, totalPages, setTotal, pageSize } = usePagination();
+  const { page, setPage, totalPages, setTotal } = usePagination();
   const [dates, setDates] = useState([new DateObject(), new DateObject()]);
   const [loading, setLoading] = useState(true);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
@@ -60,8 +60,6 @@ export default function ExpensesTable({ type }: Props) {
     try {
       const formattedDates = dates.map((date) => date.format('YYYY-MM-DD'));
       const res = await fetchCompanyExpenses(
-        page,
-        pageSize,
         formattedDates,
         type,
         selectedBranch,

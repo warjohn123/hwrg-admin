@@ -51,11 +51,11 @@ export default function ReportsPage() {
     try {
       const formattedDates = dates.map((date) => date.format('YYYY-MM-DD'));
       const res = await fetchSalesReports(
-        pageNumber,
-        pageSize,
         branchId,
         formattedDates,
         IAssignment.CHICKY_OINK,
+        pageNumber,
+        pageSize,
       );
       setTotal(res.total ?? 0);
       setSalesReports(res.sales_reports ?? []);
