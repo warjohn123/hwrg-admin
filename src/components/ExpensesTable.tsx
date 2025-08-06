@@ -23,7 +23,7 @@ interface Props {
 
 export default function ExpensesTable({ type }: Props) {
   const [companyExpenses, setCompanyExpenses] = useState<ICompanyExpense[]>([]);
-  const { page, setPage, totalPages, setTotal } = usePagination();
+  const { page, setPage, totalPages, setTotal, pageSize } = usePagination();
   const [dates, setDates] = useState([new DateObject(), new DateObject()]);
   const [loading, setLoading] = useState(true);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
@@ -63,6 +63,8 @@ export default function ExpensesTable({ type }: Props) {
         formattedDates,
         type,
         selectedBranch,
+        page,
+        pageSize,
       );
       setTotal(res.total ?? 0);
       setCompanyExpenses(res.company_expenses ?? []);
