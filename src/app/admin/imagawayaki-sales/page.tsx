@@ -158,6 +158,7 @@ export default function ReportsPage() {
             <tr>
               <th className="px-6 py-3 text-sm font-medium">Title</th>
               <th className="px-6 py-3 text-sm font-medium">Date</th>
+              <th className="px-6 py-3 text-sm font-medium">Batter used</th>
               <th className="px-6 py-3 text-sm font-medium">Sales</th>
               <th className="px-6 py-3 text-sm font-medium">Remit</th>
               <th className="px-6 py-3 text-sm font-medium">Actions</th>
@@ -171,6 +172,9 @@ export default function ReportsPage() {
               >
                 <td className="px-6 py-4">{report.title}</td>
                 <td className="px-6 py-4">{report.report_date}</td>
+                <td className="px-6 py-4">
+                  {report.inventory['batter'].sales}
+                </td>
                 <td className="px-6 py-4">
                   {getImagawayakiTotalSales(
                     report.sales as ImagawayakiSales,
