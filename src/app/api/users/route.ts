@@ -6,12 +6,17 @@ export async function GET(req: NextRequest) {
 
   const pageParam = searchParams.get('page');
   const limitParam = searchParams.get('limit');
+  const search = searchParams.get('search');
 
   let query = getSupabase()
     .from('users')
     .select('id, name, email, assignment', { count: 'exact', head: false })
     .order('created_at', { ascending: false })
     .eq('type', 'employee');
+
+  if (search) {
+    query = query.like('name', `%${search}%`);
+  }
 
   // Optional pagination
   if (pageParam && limitParam) {
