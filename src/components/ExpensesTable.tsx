@@ -93,8 +93,6 @@ export default function ExpensesTable({ type }: Props) {
     0,
   );
 
-  if (loading) return <p>Loading {type} expenses...</p>;
-
   return (
     <div>
       <div className="mt-5 mb-5">
