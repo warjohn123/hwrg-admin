@@ -41,7 +41,93 @@ export default function Sidebar({ isOpen, setIsOpen }: SidebarProps) {
 
       <h1 className="text-xl font-bold mb-6 hidden md:block">HWRG</h1>
       <nav className="flex flex-col space-y-4">
-        <Link
+        {/* Chicky Oink Section */}
+        <div>
+          <h4 className="text-sm font-semibold text-gray-500 uppercase px-2">
+            Chicky Oink
+          </h4>
+          <div className="flex flex-col space-y-1 pl-4">
+            <Link
+              href="/admin/chicky-dashboard"
+              className={linkClasses('/admin/chicky-dashboard')}
+            >
+              Dashboard
+            </Link>
+            <Link
+              href="/admin/chicky-oink-sales"
+              className={linkClasses('/admin/chicky-oink-sales')}
+            >
+              Sales
+            </Link>
+            <Link
+              href="/admin/chicky-oink-expenses"
+              className={linkClasses('/admin/chicky-oink-expenses')}
+            >
+              Expenses
+            </Link>
+          </div>
+        </div>
+
+        {/* Imagawayaki Section */}
+        <div>
+          <h4 className="text-sm font-semibold text-gray-500 uppercase px-2">
+            Imagawayaki
+          </h4>
+          <div className="flex flex-col space-y-1 pl-4">
+            <Link
+              href="/admin/imagawayaki-dashboard"
+              className={linkClasses('/admin/imagawayaki-dashboard')}
+            >
+              Dashboard
+            </Link>
+            <Link
+              href="/admin/imagawayaki-sales"
+              className={linkClasses('/admin/imagawayaki-sales')}
+            >
+              Sales
+            </Link>
+            <Link
+              href="/admin/imagawayaki-expenses"
+              className={linkClasses('/admin/imagawayaki-expenses')}
+            >
+              Expenses
+            </Link>
+          </div>
+        </div>
+
+        {/* General Section */}
+        <div className="mt-2">
+          <h4 className="text-sm font-semibold text-gray-500 uppercase px-2">
+            General
+          </h4>
+          <div className="flex flex-col space-y-1 pl-4">
+            <Link
+              href="/admin/employees"
+              className={linkClasses('/admin/employees')}
+            >
+              Employees
+            </Link>
+            <Link
+              href="/admin/branches"
+              className={linkClasses('/admin/branches')}
+            >
+              Branches
+            </Link>
+            <Link
+              href="/admin/timelogs"
+              className={linkClasses('/admin/timelogs')}
+            >
+              Time Logs
+            </Link>
+            <div
+              onClick={logout}
+              className="hover:text-yellow-400 cursor-pointer"
+            >
+              Logout
+            </div>
+          </div>
+        </div>
+        {/* <Link
           href="/admin/chicky-dashboard"
           className={linkClasses('/admin/chicky-dashboard')}
         >
@@ -86,18 +172,12 @@ export default function Sidebar({ isOpen, setIsOpen }: SidebarProps) {
         >
           Imagawayaki Expenses
         </Link>
-        {/* <Link
-          href="/admin/collection-reports"
-          className={linkClasses('/admin/collection-reports')}
-        >
-          Collection Reports
-        </Link> */}
         <Link href="/admin/timelogs" className={linkClasses('/admin/timelogs')}>
           Time Logs
         </Link>
         <div onClick={logout} className="hover:text-yellow-400 cursor-pointer">
           Logout
-        </div>
+        </div> */}
       </nav>
     </aside>
   );
