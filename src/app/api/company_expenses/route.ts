@@ -15,6 +15,7 @@ export async function GET(req: NextRequest) {
   const dates = searchParams.get('dates');
   const type = searchParams.get('type');
   const branchId = searchParams.get('branch_id');
+  const search = searchParams.get('search');
 
   let query = getSupabase()
     .from('company_expenses')
@@ -34,6 +35,10 @@ export async function GET(req: NextRequest) {
 
   if (type) {
     query = query.eq('type', type);
+  }
+
+  if (search) {
+    query = query.like('name', `%${search}%`);
   }
 
   if (branchId) {

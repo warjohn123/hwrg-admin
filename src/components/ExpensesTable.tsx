@@ -33,10 +33,22 @@ export default function ExpensesTable({ type }: Props) {
   const [branches, setBranches] = useState<IBranch[]>([]);
   const [selectedExpense, setSelectedExpense] =
     useState<ICompanyExpense | null>(null);
+  const [search, setSearch] = useState<string>('');
+  const [debouncedSearch, setDebouncedSearch] = useState('');
 
   useEffect(() => {
-    if (dates.length === 2) fetchExpenses();
-  }, [page, selectedBranch, dates]);
+    if (dates.length === 2 && debouncedSearch !== undefined) fetchExpenses();
+  }, [page, selectedBranch, dates, debouncedSearch]);
+
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      setDebouncedSearch(search);
+    }, 500); // Debounce delay in ms
+
+    return () => {
+      clearTimeout(handler); // Cleanup if value changes
+    };
+  }, [search]);
 
   useEffect(() => {
     getBranches();
@@ -65,6 +77,7 @@ export default function ExpensesTable({ type }: Props) {
         selectedBranch,
         page,
         pageSize,
+        search,
       );
       setTotal(res.total ?? 0);
       setCompanyExpenses(res.company_expenses ?? []);
@@ -89,6 +102,7 @@ export default function ExpensesTable({ type }: Props) {
           Total Expenses: {totalExpenses.toLocaleString()}
         </p>
       </div>
+
       <div className="flex justify-between items-center mb-4">
         <div className="flex gap-5">
           <div>
@@ -127,6 +141,16 @@ export default function ExpensesTable({ type }: Props) {
               />
             </div>
           </div>
+          <div>
+            <label>Search</label>
+            <div>
+              <input
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                className="px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              />
+            </div>
+          </div>
         </div>
         <button
           onClick={() => setIsSaveModalOpen(true)}
@@ -135,66 +159,74 @@ export default function ExpensesTable({ type }: Props) {
           Add Expense
         </button>
       </div>
-      <div className="overflow-x-auto bg-white rounded shadow">
-        <table className="min-w-full table-auto">
-          <thead className="bg-gray-100 text-left">
-            <tr>
-              <th className="px-6 py-3 text-sm font-medium">Date</th>
-              <th className="px-6 py-3 text-sm font-medium">Name</th>
-              <th className="px-6 py-3 text-sm font-medium">Amount</th>
-              <th className="px-6 py-3 text-sm font-medium">Branch</th>
-              <th className="px-6 py-3 text-sm font-medium">Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            {companyExpenses.map((expense) => (
-              <tr
-                key={expense.id}
-                className="border-b hover:bg-gray-50 cursor-pointer"
-              >
-                <td className="px-6 py-4">{expense.date}</td>
-                <td className="px-6 py-4">{expense.name}</td>
-                <td className="px-6 py-4">{expense.amount}</td>
-                <td className="px-6 py-4">{expense.branches?.branch_name}</td>
-                <td className="px-6 py-4 flex gap-10">
-                  <FaEdit
-                    className="cursor-pointer"
-                    onClick={() => {
-                      setIsSaveModalOpen(true);
-                      setSelectedExpense(expense ?? null);
-                    }}
-                  />
-                  <FaTrash
-                    className="cursor-pointer text-red-500"
-                    onClick={() => {
-                      setShowDeleteModal(true);
-                      setSelectedReportId(expense.id ?? null);
-                    }}
-                  />
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-        <ConfirmModal
-          isOpen={showDeleteModal}
-          onClose={() => setShowDeleteModal(false)}
-          onConfirm={handleDelete}
-          title="Delete Expense?"
-          description="Are you sure you want to delete this expense? This cannot be undone."
-          confirmText="Delete"
-        />
-      </div>
 
-      <Pagination setPage={setPage} page={page} totalPages={totalPages} />
-      <SaveCompanyExpenseModal
-        setSelectedExpense={setSelectedExpense}
-        expense={selectedExpense ?? undefined}
-        isOpen={isSaveModalOpen}
-        type={type}
-        fetchExpenses={fetchExpenses}
-        setIsOpen={setIsSaveModalOpen}
-      />
+      {loading && <p>Loading {type} expenses...</p>}
+      {!loading && (
+        <>
+          <div className="overflow-x-auto bg-white rounded shadow">
+            <table className="min-w-full table-auto">
+              <thead className="bg-gray-100 text-left">
+                <tr>
+                  <th className="px-6 py-3 text-sm font-medium">Date</th>
+                  <th className="px-6 py-3 text-sm font-medium">Name</th>
+                  <th className="px-6 py-3 text-sm font-medium">Amount</th>
+                  <th className="px-6 py-3 text-sm font-medium">Branch</th>
+                  <th className="px-6 py-3 text-sm font-medium">Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                {companyExpenses.map((expense) => (
+                  <tr
+                    key={expense.id}
+                    className="border-b hover:bg-gray-50 cursor-pointer"
+                  >
+                    <td className="px-6 py-4">{expense.date}</td>
+                    <td className="px-6 py-4">{expense.name}</td>
+                    <td className="px-6 py-4">{expense.amount}</td>
+                    <td className="px-6 py-4">
+                      {expense.branches?.branch_name}
+                    </td>
+                    <td className="px-6 py-4 flex gap-10">
+                      <FaEdit
+                        className="cursor-pointer"
+                        onClick={() => {
+                          setIsSaveModalOpen(true);
+                          setSelectedExpense(expense ?? null);
+                        }}
+                      />
+                      <FaTrash
+                        className="cursor-pointer text-red-500"
+                        onClick={() => {
+                          setShowDeleteModal(true);
+                          setSelectedReportId(expense.id ?? null);
+                        }}
+                      />
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+            <ConfirmModal
+              isOpen={showDeleteModal}
+              onClose={() => setShowDeleteModal(false)}
+              onConfirm={handleDelete}
+              title="Delete Expense?"
+              description="Are you sure you want to delete this expense? This cannot be undone."
+              confirmText="Delete"
+            />
+          </div>
+
+          <Pagination setPage={setPage} page={page} totalPages={totalPages} />
+          <SaveCompanyExpenseModal
+            setSelectedExpense={setSelectedExpense}
+            expense={selectedExpense ?? undefined}
+            isOpen={isSaveModalOpen}
+            type={type}
+            fetchExpenses={fetchExpenses}
+            setIsOpen={setIsSaveModalOpen}
+          />
+        </>
+      )}
     </div>
   );
 }

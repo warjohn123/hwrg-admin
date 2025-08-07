@@ -7,6 +7,7 @@ export async function fetchCompanyExpenses(
   branchId?: string,
   page?: number,
   limit?: number,
+  search?: string,
 ) {
   const params = new URLSearchParams();
 
@@ -19,6 +20,10 @@ export async function fetchCompanyExpenses(
   if (branchId) {
     params.set('branch_id', branchId);
   }
+  if (search) {
+    params.set('search', search);
+  }
+
   const res = await fetch(`/api/company_expenses?${params.toString()}`);
   return res.json();
 }
