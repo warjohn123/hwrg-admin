@@ -47,6 +47,8 @@ export default function ChickyOinkReportDetails({ reportId }: Props) {
 
   const totalRemit = getChickyOinkTotalSales(report.sales) - totalExpenses;
   const cash = report.cash;
+  const totalShort = totalRemit - cash;
+  const totalOver = cash - totalRemit;
 
   return (
     <>
@@ -127,11 +129,11 @@ export default function ChickyOinkReportDetails({ reportId }: Props) {
           </div>
         </div>
         <div className="mt-5">
-          {totalRemit - cash > 0 && (
-            <h1 className="text-red-500">SHORT: Php {totalRemit - cash}</h1>
+          {totalShort > 0 && (
+            <h1 className="text-red-500">SHORT: Php {totalShort}</h1>
           )}
-          {cash - totalRemit > 0 && (
-            <h1 className="text-green-500">OVER: Php {cash - totalRemit}</h1>
+          {totalOver > 0 && (
+            <h1 className="text-green-500">OVER: Php {totalOver}</h1>
           )}
         </div>
       </div>

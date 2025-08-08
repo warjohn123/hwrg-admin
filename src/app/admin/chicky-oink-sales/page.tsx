@@ -102,6 +102,19 @@ export default function ReportsPage() {
     getSalesReports(page, selectedBranch, dates);
   }
 
+  function getShortAndOver(report: IChickyOinkReport) {
+    const totalExpenses = report.expenses.reduce(
+      (partialSum, a) => partialSum + (a.value || 0),
+      0,
+    );
+
+    const totalRemit = getChickyOinkTotalSales(report.sales) - totalExpenses;
+    const cash = report.cash;
+    const totalShort = totalRemit - cash;
+    const totalOver = cash - totalRemit;
+    return { totalShort, totalOver };
+  }
+
   if (loading) return <p>Loading sales reports...</p>;
 
   return (
@@ -165,6 +178,7 @@ export default function ReportsPage() {
               <th className="px-6 py-3 text-sm font-medium">Uling Used</th>
               <th className="px-6 py-3 text-sm font-medium">Sales</th>
               <th className="px-6 py-3 text-sm font-medium">Remit</th>
+              <th className="px-6 py-3 text-sm font-medium">Short/Over</th>
               <th className="px-6 py-3 text-sm font-medium">Actions</th>
             </tr>
           </thead>
@@ -181,6 +195,18 @@ export default function ReportsPage() {
                   {getChickyOinkTotalSales(report.sales).toLocaleString()}
                 </td>
                 <td className="px-6 py-4">{report.cash.toLocaleString()}</td>
+                <td className="px-6 py-4">
+                  {getShortAndOver(report).totalShort > 0 && (
+                    <div className="text-red-500">
+                      Short: {getShortAndOver(report).totalShort}
+                    </div>
+                  )}
+                  {getShortAndOver(report).totalOver > 0 && (
+                    <div className="text-green-500">
+                      Over: {getShortAndOver(report).totalOver}
+                    </div>
+                  )}
+                </td>
                 <td className="px-6 py-4 flex gap-10">
                   <Link
                     target="_blank"
