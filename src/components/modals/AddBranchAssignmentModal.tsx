@@ -5,31 +5,34 @@ import { Dialog } from '@headlessui/react';
 import { useEffect, useState } from 'react';
 import { toast } from 'react-toastify';
 import EmployeeAssignmentInput from '../EmployeeAssignmentInput';
+import { fetchAssignedEmployeesByBranch } from '@/services/branch.service';
+import { IBranchAssignment } from '@/types/BranchAssignment';
 
 interface Props {
   isOpen: boolean;
   branchId: string;
-  selectedEmployeesList: IUser[];
-  fetchAssignedEmployees: () => void;
+  fetchAssignedEmployees?: () => void;
   setIsOpen: (val: boolean) => void;
 }
 
 export default function AddBranchAssignmentModal({
   isOpen,
   branchId,
-  selectedEmployeesList,
   fetchAssignedEmployees,
   setIsOpen,
 }: Props) {
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [employees, setEmployees] = useState<IUser[]>([]);
+  const [isLoadingEmployees, setIsLoadingEmployees] = useState<boolean>(true);
+  const [assignedEmployees, setAssignedEmployees] = useState<IUser[]>([]);
+  const [currentAssignedEmployees, setCurrentAssignedEmployees] = useState<
+    IUser[]
+  >([]);
+
   const closeModal = () => {
     setIsLoading(false);
     setIsOpen(false);
   };
-  const [newSelectedEmployees, setNewSelectedEmployees] = useState<IUser[]>(
-    selectedEmployeesList,
-  );
 
   const fetchAllEmployees = async () => {
     try {
@@ -40,27 +43,38 @@ export default function AddBranchAssignmentModal({
     }
   };
 
+  async function fetchAssignments() {
+    const res = await fetchAssignedEmployeesByBranch(branchId);
+    const branchAssignments: IBranchAssignment[] = res.branch_assignments;
+
+    const assigned = branchAssignments.map((assignment) => assignment.users);
+
+    setAssignedEmployees(assigned);
+    setCurrentAssignedEmployees(assigned);
+  }
+
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
     setIsLoading(true);
 
-    const beforeIds = new Set(selectedEmployeesList.map((e) => e.id));
-    const nowIds = new Set(newSelectedEmployees.map((e) => e.id));
+    const beforeIds = new Set(currentAssignedEmployees.map((e) => e.id));
+    const nowIds = new Set(assignedEmployees.map((e) => e.id));
 
-    const added = newSelectedEmployees.filter((e) => !beforeIds.has(e.id));
-    const removed = selectedEmployeesList.filter((e) => !nowIds.has(e.id));
+    const added = assignedEmployees.filter((e) => !beforeIds.has(e.id));
+    const removed = currentAssignedEmployees.filter((e) => !nowIds.has(e.id));
 
     try {
       for (const employee of added) {
         await assignBranch(employee.id, branchId, 'add');
       }
 
-      for (const employee of removed) {
+      for (const employee of removed || []) {
         await assignBranch(employee.id, branchId, 'remove');
       }
 
-      fetchAssignedEmployees();
+      fetchAssignedEmployees?.();
+      toast.success('Employees assigned successfully');
       closeModal();
     } catch (e) {
       toast.error('Something went wrong. Please try again');
@@ -71,7 +85,14 @@ export default function AddBranchAssignmentModal({
   };
 
   useEffect(() => {
-    fetchAllEmployees();
+    const init = async () => {
+      await fetchAllEmployees();
+      await fetchAssignments();
+
+      setIsLoadingEmployees(false);
+    };
+
+    init();
   }, []);
 
   if (!isOpen || !branchId) return <></>;
@@ -88,11 +109,17 @@ export default function AddBranchAssignmentModal({
         </Dialog.Title>
 
         <form onSubmit={handleSubmit} className="space-y-4">
-          <EmployeeAssignmentInput
-            allEmployees={employees}
-            selectedEmployees={newSelectedEmployees}
-            setSelectedEmployees={setNewSelectedEmployees}
-          />
+          {isLoadingEmployees && (
+            <p className="text-center text-gray-500">Loading employees...</p>
+          )}
+
+          {!isLoadingEmployees && (
+            <EmployeeAssignmentInput
+              allEmployees={employees}
+              selectedEmployees={assignedEmployees}
+              setSelectedEmployees={setAssignedEmployees}
+            />
+          )}
 
           <div className="flex justify-end gap-2">
             <button

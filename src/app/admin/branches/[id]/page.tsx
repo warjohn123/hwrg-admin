@@ -84,7 +84,6 @@ export default function BranchDetailsPage() {
         <AddBranchAssignmentModal
           branchId={id?.toString() || ''}
           isOpen={isSaveModalOpen}
-          selectedEmployeesList={assignedEmployees}
           fetchAssignedEmployees={fetchAssignments}
           setIsOpen={setIsSaveModalOpen}
         />

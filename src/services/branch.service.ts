@@ -61,3 +61,15 @@ export async function fetchAssignedEmployeesByBranch(branchId: string) {
     console.error(e);
   }
 }
+
+export async function deleteBranch(id: string) {
+  try {
+    const res = await fetch(`/api/branches/${id}`, {
+      method: 'DELETE',
+    });
+
+    return res;
+  } catch (e) {
+    console.error(e);
+  }
+}

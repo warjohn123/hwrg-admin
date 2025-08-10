@@ -5,18 +5,24 @@ import Pagination from '@/components/Pagination';
 import { usePagination } from '@/hooks/usePagination';
 import { IBranch } from '@/types/Branch';
 import { useEffect, useState } from 'react';
-import { FaPencil } from 'react-icons/fa6';
+import { FaPencil, FaPerson, FaTrash } from 'react-icons/fa6';
 import { FaArrowRight } from 'react-icons/fa';
 import { redirect } from 'next/navigation';
+import AddBranchAssignmentModal from '@/components/modals/AddBranchAssignmentModal';
+import ConfirmModal from '@/components/modals/ConfirmationModal';
+import { deleteBranch } from '@/services/branch.service';
 
 export default function BranchesPage() {
   const [branches, setBranches] = useState<IBranch[]>([]);
   const [isSaveModalOpen, setIsSaveModalOpen] = useState<boolean>(false);
+  const [isAssignedModalOpen, setIsAssignedModalOpen] =
+    useState<boolean>(false);
   const [loading, setLoading] = useState(true);
   const { page, setPage, totalPages, setTotal, pageSize } = usePagination();
   const [selectedBranch, setSelectedBranch] = useState<IBranch | undefined>(
     undefined,
   );
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
 
   useEffect(() => {
     fetchBranches(page);
@@ -34,6 +40,17 @@ export default function BranchesPage() {
         console.error('Failed to fetch branches:', err);
         setLoading(false);
       });
+  }
+
+  async function handleDelete() {
+    try {
+      await deleteBranch(selectedBranch?.id || '');
+      setShowDeleteModal(false);
+      setSelectedBranch(undefined);
+      fetchBranches(page);
+    } catch (e) {
+      console.error('Failed to delete branch:', e);
+    }
   }
 
   if (loading) return <p>Loading branches...</p>;
@@ -76,17 +93,53 @@ export default function BranchesPage() {
                     className="cursor-pointer"
                     onClick={() => redirect(`/admin/branches/${branch.id}`)}
                   />
+
+                  <FaPerson
+                    className="cursor-pointer"
+                    onClick={() => {
+                      setSelectedBranch(branch);
+                      setIsAssignedModalOpen(true);
+                    }}
+                  />
+                  <FaTrash
+                    className="cursor-pointer text-red-500"
+                    onClick={() => {
+                      setShowDeleteModal(true);
+                      setSelectedBranch(
+                        branch.id !== undefined ? branch : undefined,
+                      );
+                    }}
+                  />
                 </td>
               </tr>
             ))}
           </tbody>
         </table>
-        <SaveBranchModal
-          branch={selectedBranch}
-          isOpen={isSaveModalOpen}
-          fetchBranches={fetchBranches}
-          setIsOpen={setIsSaveModalOpen}
-        />
+        {isSaveModalOpen && (
+          <SaveBranchModal
+            branch={selectedBranch}
+            isOpen={isSaveModalOpen}
+            fetchBranches={fetchBranches}
+            setIsOpen={setIsSaveModalOpen}
+          />
+        )}
+        {isAssignedModalOpen && selectedBranch && (
+          <AddBranchAssignmentModal
+            branchId={selectedBranch?.id?.toString() || ''}
+            isOpen={isAssignedModalOpen}
+            setIsOpen={setIsAssignedModalOpen}
+          />
+        )}
+        {showDeleteModal && (
+          <ConfirmModal
+            isOpen={showDeleteModal}
+            onClose={() => setShowDeleteModal(false)}
+            onConfirm={handleDelete}
+            title="Delete Sales Report?"
+            description="Are you sure you want to delete this report? This cannot be undone."
+            confirmText="Delete"
+          />
+        )}
       </div>
 
       <Pagination setPage={setPage} page={page} totalPages={totalPages} />
