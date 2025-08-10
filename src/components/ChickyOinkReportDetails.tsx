@@ -61,7 +61,7 @@ export default function ChickyOinkReportDetails({
 
   return (
     <div className="fixed inset-0 z-50 p-5 overflow-auto items-center justify-center bg-white">
-      <div className="flex justify-between items-center">
+      <div className="flex gap-3 justify-between items-center">
         <h1 className="font-bold text-2xl">{report.title}</h1>
         <FaX className="cursor-pointer" onClick={() => setIsOpen(false)} />
       </div>

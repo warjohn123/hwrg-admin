@@ -188,6 +188,10 @@ export default function ReportsPage() {
               <tr
                 key={report.id}
                 className="border-b hover:bg-gray-50 cursor-pointer"
+                onClick={() => {
+                  setIsReportDetailsOpen(true);
+                  setSelectedReportId(report.id ?? '');
+                }}
               >
                 <td className="px-6 py-4">{report.title}</td>
                 <td className="px-6 py-4">{report.report_date}</td>
@@ -223,7 +227,8 @@ export default function ReportsPage() {
                   {/* </Link> */}
                   <FaTrash
                     className="cursor-pointer text-red-500"
-                    onClick={() => {
+                    onClick={(e) => {
+                      e.preventDefault();
                       setShowDeleteModal(true);
                       setSelectedReportId(report.id ?? null);
                     }}
