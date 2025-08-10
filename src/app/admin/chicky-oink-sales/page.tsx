@@ -241,11 +241,14 @@ export default function ReportsPage() {
           description="Are you sure you want to delete this report? This cannot be undone."
           confirmText="Delete"
         />
-        <ChickyOinkReportDetails
-          isOpen={isReportDetailsOpen}
-          setIsOpen={setIsReportDetailsOpen}
-          reportId={selectedReportId ?? ''}
-        />
+
+        {isReportDetailsOpen && (
+          <ChickyOinkReportDetails
+            isOpen={isReportDetailsOpen}
+            setIsOpen={setIsReportDetailsOpen}
+            reportId={selectedReportId ?? ''}
+          />
+        )}
       </div>
 
       <Pagination setPage={setPage} page={page} totalPages={totalPages} />
