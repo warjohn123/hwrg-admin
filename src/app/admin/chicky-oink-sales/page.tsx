@@ -1,5 +1,6 @@
 'use client';
 
+import ChickyOinkReportDetails from '@/components/ChickyOinkReportDetails';
 import ConfirmModal from '@/components/modals/ConfirmationModal';
 import Pagination from '@/components/Pagination';
 import { usePagination } from '@/hooks/usePagination';
@@ -12,7 +13,6 @@ import {
 import { IBranch } from '@/types/Branch';
 import { IChickyOinkReport } from '@/types/ChickyOinkReport';
 import { IAssignment } from '@/types/User';
-import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import { FaArrowRight, FaTrash } from 'react-icons/fa6';
 import DatePicker, { DateObject } from 'react-multi-date-picker';
@@ -26,6 +26,7 @@ export default function ReportsPage() {
   const [dates, setDates] = useState([new DateObject(), new DateObject()]);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [selectedReportId, setSelectedReportId] = useState<string | null>(null);
+  const [isReportDetailsOpen, setIsReportDetailsOpen] = useState(false);
 
   useEffect(() => {
     const fetchAllData = () => {
@@ -208,12 +209,18 @@ export default function ReportsPage() {
                   )}
                 </td>
                 <td className="px-6 py-4 flex gap-10">
-                  <Link
+                  {/* <Link
                     target="_blank"
                     href={`/admin/chicky-oink-sales/${report.id}`}
-                  >
-                    <FaArrowRight className="cursor-pointer" />
-                  </Link>
+                  > */}
+                  <FaArrowRight
+                    className="cursor-pointer"
+                    onClick={() => {
+                      setIsReportDetailsOpen(true);
+                      setSelectedReportId(report.id ?? '');
+                    }}
+                  />
+                  {/* </Link> */}
                   <FaTrash
                     className="cursor-pointer text-red-500"
                     onClick={() => {
@@ -233,6 +240,11 @@ export default function ReportsPage() {
           title="Delete Sales Report?"
           description="Are you sure you want to delete this report? This cannot be undone."
           confirmText="Delete"
+        />
+        <ChickyOinkReportDetails
+          isOpen={isReportDetailsOpen}
+          setIsOpen={setIsReportDetailsOpen}
+          reportId={selectedReportId ?? ''}
         />
       </div>
 

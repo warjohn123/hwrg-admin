@@ -12,12 +12,19 @@ import { getChickyOinkTotalSales } from '@/lib/getChickyOinkTotalSales';
 import { LOW_STOCK_THRESHOLD } from '@/constants/LowStock';
 import { useEffect, useState } from 'react';
 import { getSalesReportDetails } from '@/services/sales_reports.service';
+import { FaX } from 'react-icons/fa6';
 
 interface Props {
   reportId: string;
+  isOpen: boolean;
+  setIsOpen: (val: boolean) => void;
 }
 
-export default function ChickyOinkReportDetails({ reportId }: Props) {
+export default function ChickyOinkReportDetails({
+  reportId,
+  isOpen,
+  setIsOpen,
+}: Props) {
   const [report, setReport] = useState<IChickyOinkReport | null>(null);
   const [loading, setLoading] = useState(true);
 
@@ -36,6 +43,8 @@ export default function ChickyOinkReportDetails({ reportId }: Props) {
     fetchReport();
   }, []);
 
+  if (!isOpen) return null;
+
   if (loading) return <>Loading report....</>;
 
   if (!report) return <>Report not found</>;
@@ -51,8 +60,11 @@ export default function ChickyOinkReportDetails({ reportId }: Props) {
   const totalOver = cash - totalRemit;
 
   return (
-    <>
-      <h1 className="font-bold text-2xl mt-5">{report.title}</h1>
+    <div className="fixed inset-0 z-50 p-5 overflow-auto items-center justify-center bg-white">
+      <div className="flex justify-between items-center">
+        <h1 className="font-bold text-2xl">{report.title}</h1>
+        <FaX className="cursor-pointer" onClick={() => setIsOpen(false)} />
+      </div>
 
       {/** Sales Section */}
       <div>
@@ -223,6 +235,6 @@ export default function ChickyOinkReportDetails({ reportId }: Props) {
           </table>
         </div>
       </div>
-    </>
+    </div>
   );
 }
