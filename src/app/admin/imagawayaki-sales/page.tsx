@@ -1,5 +1,6 @@
 'use client';
 
+import ImagawayakiReportDetails from '@/components/ImagawayakiReportDetails';
 import ConfirmModal from '@/components/modals/ConfirmationModal';
 import Pagination from '@/components/Pagination';
 import { usePagination } from '@/hooks/usePagination';
@@ -15,7 +16,6 @@ import {
   ImagawayakiSales,
 } from '@/types/ImagawayakiReport';
 import { IAssignment } from '@/types/User';
-import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import { FaArrowRight, FaTrash } from 'react-icons/fa6';
 import DatePicker, { DateObject } from 'react-multi-date-picker';
@@ -29,6 +29,7 @@ export default function ReportsPage() {
   const [dates, setDates] = useState([new DateObject(), new DateObject()]);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [selectedReportId, setSelectedReportId] = useState<string | null>(null);
+  const [isReportDetailsOpen, setIsReportDetailsOpen] = useState(false);
 
   useEffect(() => {
     const fetchAllData = () => {
@@ -183,6 +184,10 @@ export default function ReportsPage() {
               <tr
                 key={report.id}
                 className="border-b hover:bg-gray-50 cursor-pointer"
+                onClick={() => {
+                  setIsReportDetailsOpen(true);
+                  setSelectedReportId(report.id ?? '');
+                }}
               >
                 <td className="px-6 py-4">{report.title}</td>
                 <td className="px-6 py-4">{report.report_date}</td>
@@ -208,15 +213,17 @@ export default function ReportsPage() {
                   )}
                 </td>
                 <td className="px-6 py-4 flex gap-10">
-                  <Link
-                    target="_blank"
-                    href={`/admin/imagawayaki-sales/${report.id}`}
-                  >
-                    <FaArrowRight className="cursor-pointer" />
-                  </Link>
+                  <FaArrowRight
+                    className="cursor-pointer"
+                    onClick={() => {
+                      setIsReportDetailsOpen(true);
+                      setSelectedReportId(report.id ?? '');
+                    }}
+                  />
                   <FaTrash
                     className="cursor-pointer text-red-500"
-                    onClick={() => {
+                    onClick={(e) => {
+                      e.preventDefault();
                       setShowDeleteModal(true);
                       setSelectedReportId(report.id ?? null);
                     }}
@@ -234,6 +241,13 @@ export default function ReportsPage() {
           description="Are you sure you want to delete this report? This cannot be undone."
           confirmText="Delete"
         />
+        {isReportDetailsOpen && (
+          <ImagawayakiReportDetails
+            isOpen={isReportDetailsOpen}
+            setIsOpen={setIsReportDetailsOpen}
+            reportId={selectedReportId ?? ''}
+          />
+        )}
       </div>
 
       <Pagination setPage={setPage} page={page} totalPages={totalPages} />
