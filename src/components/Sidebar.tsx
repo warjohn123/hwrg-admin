@@ -95,6 +95,33 @@ export default function Sidebar({ isOpen, setIsOpen }: SidebarProps) {
           </div>
         </div>
 
+        {/* PotatoFry Section */}
+        <div>
+          <h4 className="text-sm font-semibold text-gray-500 uppercase px-2">
+            PotatoFry
+          </h4>
+          <div className="flex flex-col space-y-1 pl-4">
+            <Link
+              href="/admin/potatofry-dashboard"
+              className={linkClasses('/admin/potatofry-dashboard')}
+            >
+              Dashboard
+            </Link>
+            <Link
+              href="/admin/potatofry-sales"
+              className={linkClasses('/admin/potatofry-sales')}
+            >
+              Sales
+            </Link>
+            <Link
+              href="/admin/potatofry-expenses"
+              className={linkClasses('/admin/potatofry-expenses')}
+            >
+              Expenses
+            </Link>
+          </div>
+        </div>
+
         {/* General Section */}
         <div className="mt-2">
           <h4 className="text-sm font-semibold text-gray-500 uppercase px-2">

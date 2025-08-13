@@ -2,6 +2,7 @@
 
 import { getChickyOinkTotalSales } from '@/lib/getChickyOinkTotalSales';
 import { getImagawayakiTotalSales } from '@/lib/getImagawayakiTotalSales';
+import { getPotatoFryTotalSales } from '@/lib/getPotatoFryTotalSales';
 import { fetchBranches } from '@/services/branch.service';
 import { fetchCompanyExpenses } from '@/services/company_expenses.service';
 import { fetchSalesReports } from '@/services/sales_reports.service';
@@ -12,6 +13,7 @@ import {
   IImagawayakiReport,
   ImagawayakiSales,
 } from '@/types/ImagawayakiReport';
+import { IPotatoFryReport, PotatoFrySales } from '@/types/PotatoFryReport';
 import { IAssignment } from '@/types/User';
 import { useEffect, useState } from 'react';
 import DatePicker, { DateObject } from 'react-multi-date-picker';
@@ -27,7 +29,7 @@ export default function MonthlySales({ type }: Props) {
   const [dates, setDates] = useState([startOfMonth, today]);
   const [companyExpenses, setCompanyExpenses] = useState<ICompanyExpense[]>([]);
   const [salesReports, setSalesReports] = useState<
-    IChickyOinkReport[] | IImagawayakiReport[]
+    IChickyOinkReport[] | IImagawayakiReport[] | IPotatoFryReport[]
   >([]);
   const [selectedBranch, setSelectedBranch] = useState<string>('');
   const [branches, setBranches] = useState<IBranch[]>([]);
@@ -85,7 +87,9 @@ export default function MonthlySales({ type }: Props) {
       acc +
       (type === IAssignment.CHICKY_OINK
         ? getChickyOinkTotalSales(report.sales as ChickyOinkSales)
-        : getImagawayakiTotalSales(report.sales as ImagawayakiSales))
+        : type === IAssignment.IMAGAWAYAKI
+          ? getImagawayakiTotalSales(report.sales as ImagawayakiSales)
+          : getPotatoFryTotalSales(report.sales as PotatoFrySales))
     );
   }, 0);
 
