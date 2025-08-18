@@ -10,6 +10,7 @@ import {
 import { useEffect, useState } from 'react';
 import { FaX } from 'react-icons/fa6';
 import Divider from './UI/Divider';
+import { useEscClose } from '@/hooks/useEscClose';
 
 interface Props {
   reportId: string;
@@ -39,6 +40,8 @@ export default function PotatoFryReportDetails({
   useEffect(() => {
     fetchReport();
   }, []);
+
+  useEscClose(isOpen, () => setIsOpen(false));
 
   if (!isOpen) return null;
 

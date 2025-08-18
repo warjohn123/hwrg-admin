@@ -13,6 +13,7 @@ import { LOW_STOCK_THRESHOLD } from '@/constants/LowStock';
 import { useEffect, useState } from 'react';
 import { getSalesReportDetails } from '@/services/sales_reports.service';
 import { FaX } from 'react-icons/fa6';
+import { useEscClose } from '@/hooks/useEscClose';
 
 interface Props {
   reportId: string;
@@ -42,6 +43,8 @@ export default function ChickyOinkReportDetails({
   useEffect(() => {
     fetchReport();
   }, []);
+
+  useEscClose(isOpen, () => setIsOpen(false));
 
   if (!isOpen) return null;
 
