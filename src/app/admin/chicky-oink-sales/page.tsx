@@ -3,6 +3,7 @@
 import ChickyOinkReportDetails from '@/components/ChickyOinkReportDetails';
 import ConfirmModal from '@/components/modals/ConfirmationModal';
 import Pagination from '@/components/Pagination';
+import { CHICKY_OINK_INVENTORY_DISPLAY_ORDER } from '@/constants/displayOrder';
 import { usePagination } from '@/hooks/usePagination';
 import { getChickyOinkTotalSales } from '@/lib/getChickyOinkTotalSales';
 import { fetchBranches } from '@/services/branch.service';
@@ -127,6 +128,18 @@ export default function ReportsPage() {
 
     return result;
   }
+
+  function getDelivered(data: IChickyOinkReportInventory) {
+    const result: Record<string, number> = {};
+
+    Object.entries(data).forEach(([key, value]) => {
+      if (key !== 'poso' && value.delivered > 0) {
+        result[key] = value.delivered;
+      }
+    });
+
+    return result;
+  }
   
 
   if (loading) return <p>Loading sales reports...</p>;
@@ -194,6 +207,7 @@ export default function ReportsPage() {
               <th className="px-6 py-3 text-sm font-medium">Sales</th>
               <th className="px-6 py-3 text-sm font-medium">Remit</th>
               <th className="px-6 py-3 text-sm font-medium">Pull Outs</th>
+              <th className="px-6 py-3 text-sm font-medium">Delivered</th>
               <th className="px-6 py-3 text-sm font-medium">Short/Over</th>
               <th className="px-6 py-3 text-sm font-medium">Actions</th>
             </tr>
@@ -215,7 +229,20 @@ export default function ReportsPage() {
                   {getChickyOinkTotalSales(report.sales).toLocaleString()}
                 </td>
                 <td className="px-6 py-4">{report.cash.toLocaleString()}</td>
-                <td className="px-6 py-4">{Object.entries(getPullOuts(report.inventory)).map(([key, value]) => (
+                <td className="px-6 py-4">{Object.entries(getPullOuts(report.inventory)).sort(
+                      (a, b) =>
+                        CHICKY_OINK_INVENTORY_DISPLAY_ORDER.indexOf(a[0]) -
+                        CHICKY_OINK_INVENTORY_DISPLAY_ORDER.indexOf(b[0]),
+                    ).map(([key, value]) => (
+                  <div key={key}>
+                    {key}: {value}
+                  </div>
+                ))}</td>
+                <td className="px-6 py-4">{Object.entries(getDelivered(report.inventory)).sort(
+                  (a, b) =>
+                    CHICKY_OINK_INVENTORY_DISPLAY_ORDER.indexOf(a[0]) -
+                    CHICKY_OINK_INVENTORY_DISPLAY_ORDER.indexOf(b[0]),
+                ).map(([key, value]) => (
                   <div key={key}>
                     {key}: {value}
                   </div>
