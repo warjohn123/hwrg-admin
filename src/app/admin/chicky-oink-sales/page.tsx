@@ -193,7 +193,7 @@ export default function ReportsPage() {
               <th className="px-6 py-3 text-sm font-medium">Uling Used</th>
               <th className="px-6 py-3 text-sm font-medium">Sales</th>
               <th className="px-6 py-3 text-sm font-medium">Remit</th>
-              <th className="px-6 py-3 text-sm font-medium">Pull Out</th>
+              <th className="px-6 py-3 text-sm font-medium">Pull Outs</th>
               <th className="px-6 py-3 text-sm font-medium">Short/Over</th>
               <th className="px-6 py-3 text-sm font-medium">Actions</th>
             </tr>
