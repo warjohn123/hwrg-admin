@@ -11,7 +11,7 @@ import {
   fetchSalesReports,
 } from '@/services/sales_reports.service';
 import { IBranch } from '@/types/Branch';
-import { IChickyOinkReport } from '@/types/ChickyOinkReport';
+import { IChickyOinkReport, IChickyOinkReportInventory } from '@/types/ChickyOinkReport';
 import { IAssignment } from '@/types/User';
 import { useEffect, useState } from 'react';
 import { FaArrowRight, FaTrash } from 'react-icons/fa6';
@@ -116,7 +116,21 @@ export default function ReportsPage() {
     return { totalShort, totalOver };
   }
 
+  function getPullOuts(data: IChickyOinkReportInventory) {
+    const result: Record<string, number> = {};
+
+    Object.entries(data).forEach(([key, value]) => {
+      if (value.pull_out > 0) {
+        result[key] = value.pull_out;
+      }
+    });
+
+    return result;
+  }
+  
+
   if (loading) return <p>Loading sales reports...</p>;
+
 
   return (
     <div>
@@ -179,6 +193,7 @@ export default function ReportsPage() {
               <th className="px-6 py-3 text-sm font-medium">Uling Used</th>
               <th className="px-6 py-3 text-sm font-medium">Sales</th>
               <th className="px-6 py-3 text-sm font-medium">Remit</th>
+              <th className="px-6 py-3 text-sm font-medium">Pull Out</th>
               <th className="px-6 py-3 text-sm font-medium">Short/Over</th>
               <th className="px-6 py-3 text-sm font-medium">Actions</th>
             </tr>
@@ -200,6 +215,11 @@ export default function ReportsPage() {
                   {getChickyOinkTotalSales(report.sales).toLocaleString()}
                 </td>
                 <td className="px-6 py-4">{report.cash.toLocaleString()}</td>
+                <td className="px-6 py-4">{Object.entries(getPullOuts(report.inventory)).map(([key, value]) => (
+                  <div key={key}>
+                    {key}: {value}
+                  </div>
+                ))}</td>
                 <td className="px-6 py-4">
                   {getShortAndOver(report).totalShort > 0 && (
                     <div className="text-red-500">
@@ -213,10 +233,6 @@ export default function ReportsPage() {
                   )}
                 </td>
                 <td className="px-6 py-4 flex gap-10">
-                  {/* <Link
-                    target="_blank"
-                    href={`/admin/chicky-oink-sales/${report.id}`}
-                  > */}
                   <FaArrowRight
                     className="cursor-pointer"
                     onClick={() => {
@@ -224,7 +240,6 @@ export default function ReportsPage() {
                       setSelectedReportId(report.id ?? '');
                     }}
                   />
-                  {/* </Link> */}
                   <FaTrash
                     className="cursor-pointer text-red-500"
                     onClick={(e) => {
