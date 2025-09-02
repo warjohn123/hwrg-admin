@@ -23,7 +23,7 @@ export default function ReportsPage() {
   const [loading, setLoading] = useState(true);
   const [branches, setBranches] = useState<IBranch[]>([]);
   const [selectedBranch, setSelectedBranch] = useState<string>('');
-  const { page, setPage, totalPages, setTotal, pageSize } = usePagination();
+  const { page, setPage, totalPages, setTotal, limit, setLimit } = usePagination();
   const [dates, setDates] = useState([new DateObject(), new DateObject()]);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [selectedReportId, setSelectedReportId] = useState<string | null>(null);
@@ -38,7 +38,7 @@ export default function ReportsPage() {
     };
 
     if (dates.length === 2) fetchAllData();
-  }, [page, selectedBranch, dates]);
+  }, [page, selectedBranch, dates, limit]);
 
   useEffect(() => {
     getBranches();
@@ -57,7 +57,7 @@ export default function ReportsPage() {
         formattedDates,
         IAssignment.CHICKY_OINK,
         pageNumber,
-        pageSize,
+        limit,
       );
       setTotal(res.total ?? 0);
       setSalesReports(res.sales_reports ?? []);
@@ -298,7 +298,7 @@ export default function ReportsPage() {
         )}
       </div>
 
-      <Pagination setPage={setPage} page={page} totalPages={totalPages} />
+      <Pagination setPage={setPage} limit={limit} setLimit={setLimit} page={page} totalPages={totalPages} />
     </div>
   );
 }

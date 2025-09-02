@@ -25,7 +25,7 @@ export default function ReportsPage() {
   const [loading, setLoading] = useState(true);
   const [branches, setBranches] = useState<IBranch[]>([]);
   const [selectedBranch, setSelectedBranch] = useState<string>('');
-  const { page, setPage, totalPages, setTotal, pageSize } = usePagination();
+  const { page, setPage, totalPages, setTotal, limit } = usePagination();
   const [dates, setDates] = useState([new DateObject(), new DateObject()]);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [selectedReportId, setSelectedReportId] = useState<string | null>(null);
@@ -59,7 +59,7 @@ export default function ReportsPage() {
         formattedDates,
         IAssignment.IMAGAWAYAKI,
         pageNumber,
-        pageSize,
+        limit,
       );
       setTotal(res.total ?? 0);
       setSalesReports(res.sales_reports ?? []);

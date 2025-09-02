@@ -17,7 +17,7 @@ export default function CollectionReportsPage() {
   const [collectionReports, setCollectionReports] = useState<
     ICollectionReport[]
   >([]);
-  const { page, setPage, totalPages, setTotal, pageSize } = usePagination();
+  const { page, setPage, totalPages, setTotal, limit } = usePagination();
   const [dates, setDates] = useState([new DateObject(), new DateObject()]);
   const [loading, setLoading] = useState(true);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
@@ -39,7 +39,7 @@ export default function CollectionReportsPage() {
     setLoading(true);
     try {
       const formattedDates = dates.map((date) => date.format('YYYY-MM-DD'));
-      const res = await fetchCollectionReports(page, pageSize, formattedDates);
+      const res = await fetchCollectionReports(page, limit, formattedDates);
       setTotal(res.total ?? 0);
       setCollectionReports(res.collection_reports ?? []);
       setLoading(false);

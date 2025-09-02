@@ -18,7 +18,7 @@ export default function BranchesPage() {
   const [isAssignedModalOpen, setIsAssignedModalOpen] =
     useState<boolean>(false);
   const [loading, setLoading] = useState(true);
-  const { page, setPage, totalPages, setTotal, pageSize } = usePagination();
+  const { page, setPage, totalPages, setTotal, limit } = usePagination();
   const [selectedBranch, setSelectedBranch] = useState<IBranch | undefined>(
     undefined,
   );
@@ -29,7 +29,7 @@ export default function BranchesPage() {
   }, [page]);
 
   function fetchBranches(pageNumber = 1) {
-    fetch(`/api/branches?page=${pageNumber}&limit=${pageSize}`)
+    fetch(`/api/branches?page=${pageNumber}&limit=${limit}`)
       .then((res) => res.json())
       .then((data) => {
         setTotal(data.total);

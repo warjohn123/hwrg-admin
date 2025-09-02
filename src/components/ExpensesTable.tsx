@@ -23,7 +23,7 @@ interface Props {
 
 export default function ExpensesTable({ type }: Props) {
   const [companyExpenses, setCompanyExpenses] = useState<ICompanyExpense[]>([]);
-  const { page, setPage, totalPages, setTotal, pageSize } = usePagination();
+  const { page, setPage, totalPages, setTotal, limit, setLimit } = usePagination();
   const [dates, setDates] = useState([new DateObject(), new DateObject()]);
   const [loading, setLoading] = useState(true);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
@@ -38,7 +38,7 @@ export default function ExpensesTable({ type }: Props) {
 
   useEffect(() => {
     if (dates.length === 2 && debouncedSearch !== undefined) fetchExpenses();
-  }, [page, selectedBranch, dates, debouncedSearch]);
+  }, [page, selectedBranch, dates, debouncedSearch, limit]);
 
   useEffect(() => {
     const handler = setTimeout(() => {
@@ -76,7 +76,7 @@ export default function ExpensesTable({ type }: Props) {
         type,
         selectedBranch,
         page,
-        pageSize,
+        limit,
         search,
       );
       setTotal(res.total ?? 0);
@@ -215,7 +215,7 @@ export default function ExpensesTable({ type }: Props) {
             />
           </div>
 
-          <Pagination setPage={setPage} page={page} totalPages={totalPages} />
+          <Pagination setPage={setPage} page={page} limit={limit} setLimit={setLimit} totalPages={totalPages} />
           <SaveCompanyExpenseModal
             setSelectedExpense={setSelectedExpense}
             expense={selectedExpense ?? undefined}

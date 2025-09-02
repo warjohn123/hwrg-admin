@@ -11,7 +11,7 @@ import { useEffect, useState } from 'react';
 export default function TimeLogsPage() {
   const [timelogs, setTimelogs] = useState<ITimelog[]>([]);
   const [loading, setLoading] = useState(true);
-  const { page, setPage, totalPages, setTotal, pageSize } = usePagination();
+  const { page, setPage, totalPages, setTotal, limit } = usePagination();
   const [selectedTimelog, setSelectedTimelog] = useState<ITimelog | undefined>(
     undefined,
   );
@@ -21,7 +21,7 @@ export default function TimeLogsPage() {
   }, [page]);
 
   function fetchTimelogs(pageNumber = 1) {
-    fetch(`/api/timelogs?page=${pageNumber}&limit=${pageSize}`)
+    fetch(`/api/timelogs?page=${pageNumber}&limit=${limit}`)
       .then((res) => res.json())
       .then((data) => {
         setTotal(data.total);

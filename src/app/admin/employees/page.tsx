@@ -15,7 +15,7 @@ export default function EmployeesPage() {
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState<string>('');
   const [debouncedSearch, setDebouncedSearch] = useState('');
-  const { page, setPage, setTotal, totalPages, pageSize } = usePagination();
+  const { page, setPage, setTotal, totalPages, limit } = usePagination();
 
   useEffect(() => {
     if (debouncedSearch !== undefined) fetchEmployees();
@@ -34,7 +34,7 @@ export default function EmployeesPage() {
   async function fetchEmployees() {
     setLoading(true);
     try {
-      const res = await getEmployees(page, pageSize, search);
+      const res = await getEmployees(page, limit, search);
       setEmployees(res.users);
       setTotal(res.total);
     } catch (e) {
