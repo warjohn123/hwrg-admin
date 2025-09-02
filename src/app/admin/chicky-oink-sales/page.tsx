@@ -96,6 +96,10 @@ export default function ReportsPage() {
     return acc + report.inventory.poso.sales * 8;
   }, 0);
 
+  const totalRemainingMeats = salesReports.reduce((acc, report) => {
+    return acc + report.inventory.spicy_chicken.remaining_stocks + report.inventory.regular_chicken.remaining_stocks + report.inventory.regular_liempo.remaining_stocks + report.inventory.spicy_liempo.remaining_stocks;
+  }, 0);
+
   async function handleDelete() {
     if (!selectedReportId) return;
     await deleteSalesReport(selectedReportId);
@@ -191,6 +195,7 @@ export default function ReportsPage() {
         <p className="font-bold">
           Total POSO Sales: {totalPosoSales.toLocaleString()}
         </p>
+        <p className="font-bold">Total Remaining No. of Meats: {totalRemainingMeats}</p>
         <div className="flex gap-10">
           <div className="font-bold">Grab: {getExpenses('Grab')}</div>
           <div className="font-bold">FoodPanda: {getExpenses('FoodPanda')}</div>
