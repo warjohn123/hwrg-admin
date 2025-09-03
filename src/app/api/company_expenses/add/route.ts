@@ -10,7 +10,7 @@ export async function POST(req: Request) {
   const cors = handleCors(req);
   try {
     const body = await req.json();
-    const { name, amount, branch_id, type } = body;
+    const { name, amount, branch_id, type, expense_date, notes } = body;
 
     // Insert into 'company_expenses' table
     const { data, error: dbError } = await getSupabase()
@@ -22,6 +22,8 @@ export async function POST(req: Request) {
           branch_id,
           type,
           date: new Date().toISOString(),
+          expense_date: expense_date ? expense_date : new Date().toISOString(),
+          notes
         },
       ])
       .select('id'); //Ensure your table has a UUID 'id' column

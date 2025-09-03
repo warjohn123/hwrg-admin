@@ -9,6 +9,8 @@ export interface ICompanyExpense {
   date: string;
   name: string;
   amount: number;
+  expense_date: string;
+  notes: string;
   created_at?: string;
   branches?: IBranch;
 }

@@ -2,7 +2,7 @@ import { CompanyName, ICompanyExpense } from '@/types/CompanyExpenses';
 import { IAssignment } from '@/types/User';
 import { Dialog } from '@headlessui/react';
 import { useEffect, useState } from 'react';
-import { Formik, Form, Field, ErrorMessage } from 'formik';
+import { Formik, Form, Field, ErrorMessage, FieldProps } from 'formik';
 import { formSchema } from './form.schema';
 import { IBranch } from '@/types/Branch';
 import { fetchBranches } from '@/services/branch.service';
@@ -11,6 +11,7 @@ import {
   updateCompanyExpense,
 } from '@/services/company_expenses.service';
 import { toast } from 'react-toastify';
+import DatePicker from "react-datepicker";
 
 interface SaveCompanyExpenseModalProps {
   isOpen: boolean;
@@ -47,6 +48,8 @@ export default function SaveCompanyExpenseModal({
     branch_id: expense?.branches?.id ?? '',
     name: expense?.name ?? '',
     amount: expense?.amount ?? '',
+    expense_date: expense?.expense_date ?? new Date().toISOString().split('T')[0],
+    notes: expense?.notes ?? '',
   };
 
   const closeModal = () => {
@@ -91,7 +94,7 @@ export default function SaveCompanyExpenseModal({
     >
       <Dialog.Panel className="bg-white p-6 rounded-xl w-full max-w-md shadow-lg">
         <Dialog.Title className="text-xl font-bold mb-4 text-center">
-          {!!expense ? 'Edit expense' : 'Add expense'}
+          {!!expense ? 'Edit' : 'Add'} expense
         </Dialog.Title>
 
         <Formik
@@ -134,7 +137,7 @@ export default function SaveCompanyExpenseModal({
                   name="name"
                   type="text"
                   className="w-full border p-2 rounded"
-                  placeholder="e.g. Gas, Supplies"
+                  placeholder="e.g. Stocks, Rent, Utilities"
                 />
                 <ErrorMessage
                   name="name"
@@ -153,6 +156,42 @@ export default function SaveCompanyExpenseModal({
                 />
                 <ErrorMessage
                   name="amount"
+                  component="div"
+                  className="text-red-500 text-sm"
+                />
+              </div>
+
+              <div>
+                <label className="block mb-1 font-medium">Expense Date</label>
+                  
+                <Field name="expense_date">
+                  {({ field, form }: FieldProps) => (
+                    <DatePicker
+                      className="w-full border p-2 rounded"
+                      placeholderText="Select a date"
+                      selected={field.value}
+                      onChange={(date) => form.setFieldValue(field.name, date)}
+                    />
+                  )}
+                  
+                </Field>
+                <ErrorMessage
+                  name="expense_date"
+                  component="div"
+                  className="text-red-500 text-sm"
+                />
+              </div>
+
+              <div>
+                <label className="block mb-1 font-medium">Notes</label>
+                <Field
+                  name="notes"
+                  as="textarea"
+                  className="w-full border p-2 rounded"
+                  placeholder="Add any additional notes here"
+                />
+                <ErrorMessage
+                  name="notes"
                   component="div"
                   className="text-red-500 text-sm"
                 />

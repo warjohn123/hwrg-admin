@@ -170,6 +170,7 @@ export default function ExpensesTable({ type }: Props) {
                   <th className="px-6 py-3 text-sm font-medium">Name</th>
                   <th className="px-6 py-3 text-sm font-medium">Amount</th>
                   <th className="px-6 py-3 text-sm font-medium">Branch</th>
+                  <th className="px-6 py-3 text-sm font-medium">Notes</th>
                   <th className="px-6 py-3 text-sm font-medium">Actions</th>
                 </tr>
               </thead>
@@ -179,12 +180,13 @@ export default function ExpensesTable({ type }: Props) {
                     key={expense.id}
                     className="border-b hover:bg-gray-50 cursor-pointer"
                   >
-                    <td className="px-6 py-4">{expense.date}</td>
+                    <td className="px-6 py-4">{expense.expense_date}</td>
                     <td className="px-6 py-4">{expense.name}</td>
                     <td className="px-6 py-4">{expense.amount}</td>
                     <td className="px-6 py-4">
                       {expense.branches?.branch_name}
                     </td>
+                    <td className="px-6 py-4">{expense.notes}</td>
                     <td className="px-6 py-4 flex gap-10">
                       <FaEdit
                         className="cursor-pointer"

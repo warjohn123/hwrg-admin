@@ -81,6 +81,7 @@ export async function POST(req: Request) {
               amount: exp.value,
               branch_id,
               type,
+              expense_date: new Date().toISOString(),
               date: new Date().toISOString(),
             },
           ])

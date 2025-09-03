@@ -19,18 +19,18 @@ export async function GET(req: NextRequest) {
 
   let query = getSupabase()
     .from('company_expenses')
-    .select('id, date, name, amount, branches(id, branch_name)', {
+    .select('id, expense_date, name, amount, notes, branches(id, branch_name)', {
       count: 'exact',
       head: false,
     })
-    .order('date', { ascending: false });
+    .order('expense_date', { ascending: false });
 
   if (dates) {
     const [start, end] = dates
       .split(',')
       .map((date) => new Date(date).toISOString().split('T')[0]);
 
-    query = query.gte('date', start).lte('date', end);
+    query = query.gte('expense_date', start).lte('expense_date', end);
   }
 
   if (type) {
