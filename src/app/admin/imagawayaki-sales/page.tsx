@@ -223,7 +223,7 @@ export default function ReportsPage() {
                   <FaTrash
                     className="cursor-pointer text-red-500"
                     onClick={(e) => {
-                      e.preventDefault();
+                      e.stopPropagation();
                       setShowDeleteModal(true);
                       setSelectedReportId(report.id ?? null);
                     }}
