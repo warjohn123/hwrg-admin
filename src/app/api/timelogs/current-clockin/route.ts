@@ -1,32 +1,19 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { supabase } from '@/lib/supabaseClient';
+import getUTCDateRangeForToday from '@/lib/getUTCDateRangeForToday';
+import { getSupabase } from '@/lib/supabaseServer';
 
 export async function GET(req: NextRequest) {
   const { searchParams } = new URL(req.url);
   const user_id = searchParams.get('user_id');
 
-  const now = new Date();
-  const startUTC = new Date(
-    Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate()),
-  ).toISOString();
-  const endUTC = new Date(
-    Date.UTC(
-      now.getUTCFullYear(),
-      now.getUTCMonth(),
-      now.getUTCDate(),
-      23,
-      59,
-      59,
-    ),
-  ).toISOString();
+  const { startUTC, endUTC } = getUTCDateRangeForToday('Asia/Manila');
 
-  const { data, error } = await supabase
+  const { data, error } = await getSupabase()
     .from('timelogs')
     .select('*')
     .eq('user_id', user_id)
-    .gte('clock_in', startUTC)
-    .lte('clock_in', endUTC)
-    .is('clock_out', null)
+    .gte('clock_in', startUTC.toISOString())
+    .lte('clock_in', endUTC.toISOString())
     .limit(1);
 
   if (error) {

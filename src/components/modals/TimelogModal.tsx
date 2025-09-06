@@ -46,6 +46,8 @@ export default function TimelogModal({
             </p>
             <Image
               src={clockInImage}
+              width={120}
+              height={120}
               alt="Clock In Photo"
               className="w-full h-48 object-cover rounded-md border"
             />
@@ -58,6 +60,8 @@ export default function TimelogModal({
             </p>
             {clockOutImage ? (
               <Image
+                width={100}
+                height={120}
                 src={clockOutImage}
                 alt="Clock Out Photo"
                 className="w-full h-48 object-cover rounded-md border"
