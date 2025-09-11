@@ -11,6 +11,12 @@ export type IUser = {
   documents: string[];
   rate_per_day: number;
   first_duty_date: string;
+  emergency_contact_name: string;
+  emergency_contact_number: string;
+  sss_no: string;
+  pagibig_no: string;
+  tin_no: string;
+  philhealth_no: string;
 };
 
 export enum IUserType {

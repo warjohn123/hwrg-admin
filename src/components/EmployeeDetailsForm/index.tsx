@@ -111,6 +111,74 @@ export default function EmployeeDetailsForm({
           </option>
         ))}
       </select>
+
+      <h3 className='font-medium text-lg text-gray-800 mt-6'>General Information</h3>
+
+      <label className="block font-medium text-sm text-gray-700 mb-1">
+        Emergency Contact Name
+      </label>
+      <input
+        type="text"
+        name="emergency_contact_name"
+        value={employee.emergency_contact_name}
+        onChange={handleInputChange}
+        className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+      />
+
+      <label className="block font-medium text-sm text-gray-700 mb-1">
+        Emergency Contact Number
+      </label>
+      <input
+        type="text"
+        name="emergency_contact_number"
+        value={employee.emergency_contact_number}
+        onChange={handleInputChange}
+        className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+      />
+
+      <label className="block font-medium text-sm text-gray-700 mb-1">
+        SSS Number
+      </label>
+      <input
+        type="text"
+        name="sss_no"
+        value={employee.sss_no}
+        onChange={handleInputChange}
+        className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+      />
+
+      <label className="block font-medium text-sm text-gray-700 mb-1">
+        PAG-IBIG
+      </label>
+      <input
+        type="text"
+        name="pagibig_no"
+        value={employee.pagibig_no}
+        onChange={handleInputChange}
+        className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+      />
+
+      <label className="block font-medium text-sm text-gray-700 mb-1">
+        TIN Number
+      </label>
+      <input
+        type="text"
+        name="tin_no"
+        value={employee.tin_no}
+        onChange={handleInputChange}
+        className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+      />
+
+      <label className="block font-medium text-sm text-gray-700 mb-1">
+        Philhealth Number
+      </label>
+      <input
+        type="text"
+        name="philhealth_no"
+        value={employee.philhealth_no}
+        onChange={handleInputChange}
+        className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+      />
     </>
   );
 }
