@@ -15,6 +15,10 @@ export interface ChickyOinkSales {
   poso: number;
   atchara_small: number;
   atchara_big: number;
+  coke: number;
+  royal: number;
+  sprite: number;
+  mineral_water: number;
   uling: number;
 }
 
@@ -28,5 +32,9 @@ export interface IChickyOinkReportInventory {
   poso: IInventoryFormat;
   atchara_small: IInventoryFormat;
   atchara_big: IInventoryFormat;
+  coke: IInventoryFormat;
+  royal: IInventoryFormat;
+  sprite: IInventoryFormat;
+  mineral_water: IInventoryFormat;
   uling: IInventoryFormat;
 }

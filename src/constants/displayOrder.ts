@@ -8,6 +8,10 @@ export const CHICKY_OINK_INVENTORY_DISPLAY_ORDER = [
   'poso',
   'atchara_small',
   'atchara_big',
+  "coke",
+  "sprite",
+  "royal",
+  "mineral_water",
   'uling',
 ];
 
@@ -19,6 +23,9 @@ export const IMAGAWAYAKI_INVENTORY_DISPLAY_ORDER = [
   'custard',
   'minute_maid',
   'mineral_water',
+  "coke",
+  "royal",
+  "sprite",
   'cups',
   'straws',
   'blue_lemon',

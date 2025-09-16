@@ -44,5 +44,25 @@ export const CHICKY_OINK_INVENTORY: { [key: string]: IInventoryItem } = {
     attribute: 'atchara_big',
     price: 70,
   },
+  COKE: {
+    name: "Coke",
+    attribute: "coke",
+    price: 20,
+  },
+  SPRITE: {
+    name: "Sprite",
+    attribute: "sprite",
+    price: 20,
+  },
+  ROYAL: {
+    name: "Royal",
+    attribute: "royal",
+    price: 20,
+  },
+  MINERAL_WATER: {
+    name: "Mineral Water",
+    attribute: "mineral_water",
+    price: 20,
+  },
   ULING: { name: 'Uling', attribute: 'uling', price: 0 },
 };
