@@ -1,4 +1,5 @@
 import { ICompanyExpense } from '@/types/CompanyExpenses';
+import { SortType } from '@/types/Sort';
 import { IAssignment } from '@/types/User';
 
 export async function fetchCompanyExpenses(
@@ -8,11 +9,16 @@ export async function fetchCompanyExpenses(
   page?: number,
   limit?: number,
   search?: string,
+  sort?: SortType,
 ) {
   const params = new URLSearchParams();
 
   if (page) params.set('page', page.toString());
   if (limit) params.set('limit', limit.toString());
+  if (sort) {
+    params.set('sort_field', sort.field);
+    params.set('sort_direction', sort.direction);
+  }
   if (dates?.length === 2) {
     params.set('dates', dates.join(','));
   }

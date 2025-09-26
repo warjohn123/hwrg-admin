@@ -16,14 +16,18 @@ export async function GET(req: NextRequest) {
   const type = searchParams.get('type');
   const branchId = searchParams.get('branch_id');
   const search = searchParams.get('search');
+  const sort_field = searchParams.get('sort_field');
+  const sort_direction = searchParams.get('sort_direction');
 
   let query = getSupabase()
     .from('company_expenses')
-    .select('id, expense_date, name, amount, notes, branches(id, branch_name)', {
-      count: 'exact',
-      head: false,
-    })
-    .order('expense_date', { ascending: false });
+    .select(
+      'id, expense_date, name, amount, notes, branches(id, branch_name)',
+      {
+        count: 'exact',
+        head: false,
+      },
+    );
 
   if (dates) {
     const [start, end] = dates
@@ -43,6 +47,10 @@ export async function GET(req: NextRequest) {
 
   if (branchId) {
     query = query.eq('branch_id', branchId);
+  }
+
+  if (sort_field && (sort_direction === 'asc' || sort_direction === 'desc')) {
+    query = query.order(sort_field, { ascending: sort_direction === 'asc' });
   }
 
   // Optional pagination

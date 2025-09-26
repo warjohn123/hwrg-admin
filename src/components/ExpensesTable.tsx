@@ -16,14 +16,33 @@ import SaveCompanyExpenseModal from './modals/SaveCompanyExpense';
 import { IBranch } from '@/types/Branch';
 import { fetchBranches } from '@/services/branch.service';
 import { FaEdit } from 'react-icons/fa';
+import { ChevronDown, ChevronUp } from 'lucide-react';
+import { SortType } from '@/types/Sort';
 
 interface Props {
   type: IAssignment;
 }
 
+function renderSort(field: string, sort: SortType) {
+  return (
+    <div className="flex">
+      <span>
+        {(field.charAt(0).toUpperCase() + field.slice(1)).replace('_', ' ')}
+      </span>
+      {sort.field === field && sort.direction === 'asc' && (
+        <ChevronUp className="text-blue-500" />
+      )}
+      {sort.field === field && sort.direction === 'desc' && (
+        <ChevronDown className="text-blue-500" />
+      )}
+    </div>
+  );
+}
+
 export default function ExpensesTable({ type }: Props) {
   const [companyExpenses, setCompanyExpenses] = useState<ICompanyExpense[]>([]);
-  const { page, setPage, totalPages, setTotal, limit, setLimit } = usePagination();
+  const { page, setPage, totalPages, setTotal, limit, setLimit } =
+    usePagination();
   const [dates, setDates] = useState([new DateObject(), new DateObject()]);
   const [loading, setLoading] = useState(true);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
@@ -35,10 +54,17 @@ export default function ExpensesTable({ type }: Props) {
     useState<ICompanyExpense | null>(null);
   const [search, setSearch] = useState<string>('');
   const [debouncedSearch, setDebouncedSearch] = useState('');
+  const [sort, setSort] = useState<{
+    field: 'expense_date' | 'name' | 'amount';
+    direction: 'asc' | 'desc';
+  }>({
+    field: 'expense_date',
+    direction: 'desc',
+  });
 
   useEffect(() => {
     if (dates.length === 2 && debouncedSearch !== undefined) fetchExpenses();
-  }, [page, selectedBranch, dates, debouncedSearch, limit]);
+  }, [page, selectedBranch, dates, debouncedSearch, limit, sort]);
 
   useEffect(() => {
     const handler = setTimeout(() => {
@@ -78,6 +104,7 @@ export default function ExpensesTable({ type }: Props) {
         page,
         limit,
         search,
+        sort,
       );
       setTotal(res.total ?? 0);
       setCompanyExpenses(res.company_expenses ?? []);
@@ -86,6 +113,14 @@ export default function ExpensesTable({ type }: Props) {
       console.error(`Failed to fetch ${type} expenses:`, e);
       setLoading(false);
     }
+  }
+
+  function onSort(field: 'expense_date' | 'name' | 'amount') {
+    setSort((prev) => ({
+      field,
+      direction:
+        prev.field === field && prev.direction === 'asc' ? 'desc' : 'asc',
+    }));
   }
 
   const totalExpenses = companyExpenses.reduce(
@@ -166,9 +201,24 @@ export default function ExpensesTable({ type }: Props) {
             <table className="min-w-full table-auto">
               <thead className="bg-gray-100 text-left">
                 <tr>
-                  <th className="px-6 py-3 text-sm font-medium">Date</th>
-                  <th className="px-6 py-3 text-sm font-medium">Name</th>
-                  <th className="px-6 py-3 text-sm font-medium">Amount</th>
+                  <th
+                    className="px-6 py-3 text-sm font-medium cursor-pointer"
+                    onClick={() => onSort('expense_date')}
+                  >
+                    {renderSort('expense_date', sort)}
+                  </th>
+                  <th
+                    className="px-6 py-3 text-sm font-medium cursor-pointer"
+                    onClick={() => onSort('name')}
+                  >
+                    {renderSort('name', sort)}
+                  </th>
+                  <th
+                    className="px-6 py-3 text-sm font-medium cursor-pointer"
+                    onClick={() => onSort('amount')}
+                  >
+                    {renderSort('amount', sort)}
+                  </th>
                   <th className="px-6 py-3 text-sm font-medium">Branch</th>
                   <th className="px-6 py-3 text-sm font-medium">Notes</th>
                   <th className="px-6 py-3 text-sm font-medium">Actions</th>
@@ -217,7 +267,13 @@ export default function ExpensesTable({ type }: Props) {
             />
           </div>
 
-          <Pagination setPage={setPage} page={page} limit={limit} setLimit={setLimit} totalPages={totalPages} />
+          <Pagination
+            setPage={setPage}
+            page={page}
+            limit={limit}
+            setLimit={setLimit}
+            totalPages={totalPages}
+          />
           <SaveCompanyExpenseModal
             setSelectedExpense={setSelectedExpense}
             expense={selectedExpense ?? undefined}

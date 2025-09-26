@@ -6,7 +6,13 @@ interface Props {
   setLimit?: (val: number) => void;
 }
 
-export default function Pagination({ setPage, page, totalPages, limit , setLimit }: Props) {
+export default function Pagination({
+  setPage,
+  page,
+  totalPages,
+  limit,
+  setLimit,
+}: Props) {
   if (totalPages <= 1) return <></>;
   return (
     <div className="flex justify-center mt-6 space-x-2">
@@ -31,9 +37,7 @@ export default function Pagination({ setPage, page, totalPages, limit , setLimit
       </div>
       {setLimit && (
         <div>
-          <span className="px-4 py-2 text-sm font-medium">
-            Items per page:
-          </span>
+          <span className="px-4 py-2 text-sm font-medium">Items per page:</span>
           <select
             value={limit}
             onChange={(e) => setLimit(Number(e.target.value))}
@@ -45,7 +49,7 @@ export default function Pagination({ setPage, page, totalPages, limit , setLimit
             <option value={50}>50</option>
             <option value={100}>100</option>
             <option value={200}>200</option>
-            <option value={200}>500</option>
+            <option value={500}>500</option>
           </select>
         </div>
       )}
