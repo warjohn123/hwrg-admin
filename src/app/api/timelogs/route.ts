@@ -1,7 +1,13 @@
+import { handleCors } from '@/lib/cors';
 import { getSupabase } from '@/lib/supabaseServer';
 import { NextRequest, NextResponse } from 'next/server';
 
+export async function OPTIONS(request: Request) {
+  return handleCors(request)!; // handles preflight
+}
+
 export async function GET(req: NextRequest) {
+  const cors = handleCors(req);
   const { searchParams } = new URL(req.url);
   const user_id = searchParams.get('user_id');
   const page = parseInt(searchParams.get('page') || '1');
@@ -19,10 +25,16 @@ export async function GET(req: NextRequest) {
       .range(from, to);
 
     if (error) {
-      return NextResponse.json({ error: error.message }, { status: 500 });
+      return NextResponse.json(
+        { error: error.message },
+        { status: 500, headers: cors?.headers },
+      );
     }
 
-    return NextResponse.json({ timelogs: data, total: count ?? 0 });
+    return NextResponse.json(
+      { timelogs: data, total: count ?? 0 },
+      { headers: cors?.headers },
+    );
   } else {
     const { data, error, count } = await getSupabase()
       .from('timelogs')
@@ -31,9 +43,15 @@ export async function GET(req: NextRequest) {
       .range(from, to);
 
     if (error) {
-      return NextResponse.json({ error: error.message }, { status: 500 });
+      return NextResponse.json(
+        { error: error.message },
+        { status: 500, headers: cors?.headers },
+      );
     }
 
-    return NextResponse.json({ timelogs: data, total: count ?? 0 });
+    return NextResponse.json(
+      { timelogs: data, total: count ?? 0 },
+      { headers: cors?.headers },
+    );
   }
 }

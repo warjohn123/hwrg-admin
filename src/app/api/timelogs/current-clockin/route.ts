@@ -1,9 +1,15 @@
 import { NextRequest, NextResponse } from 'next/server';
 import getUTCDateRangeForToday from '@/lib/getUTCDateRangeForToday';
 import { getSupabase } from '@/lib/supabaseServer';
+import { handleCors } from '@/lib/cors';
+
+export async function OPTIONS(request: Request) {
+  return handleCors(request)!; // handles preflight
+}
 
 export async function GET(req: NextRequest) {
   const { searchParams } = new URL(req.url);
+  const cors = handleCors(req);
   const user_id = searchParams.get('user_id');
 
   const { startUTC, endUTC } = getUTCDateRangeForToday('Asia/Manila');
@@ -17,8 +23,11 @@ export async function GET(req: NextRequest) {
     .limit(1);
 
   if (error) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    return NextResponse.json(
+      { error: error.message },
+      { status: 500, headers: cors?.headers },
+    );
   }
 
-  return NextResponse.json(data);
+  return NextResponse.json(data, { headers: cors?.headers });
 }
