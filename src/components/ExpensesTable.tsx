@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import DatePicker, { DateObject } from 'react-multi-date-picker';
 import { usePagination } from '@/hooks/usePagination';
 import { FaTrash } from 'react-icons/fa6';
@@ -18,6 +18,7 @@ import { fetchBranches } from '@/services/branch.service';
 import { FaEdit } from 'react-icons/fa';
 import { ChevronDown, ChevronUp } from 'lucide-react';
 import { SortType } from '@/types/Sort';
+import { useQueryParams } from '@/hooks/useQueryParams';
 
 interface Props {
   type: IAssignment;
@@ -40,6 +41,8 @@ function renderSort(field: string, sort: SortType) {
 }
 
 export default function ExpensesTable({ type }: Props) {
+  const { searchParams, setQueryParam } = useQueryParams();
+
   const [companyExpenses, setCompanyExpenses] = useState<ICompanyExpense[]>([]);
   const { page, setPage, totalPages, setTotal, limit, setLimit } =
     usePagination();
@@ -48,11 +51,13 @@ export default function ExpensesTable({ type }: Props) {
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [selectedReportId, setSelectedReportId] = useState<number | null>(null);
   const [isSaveModalOpen, setIsSaveModalOpen] = useState(false);
-  const [selectedBranch, setSelectedBranch] = useState<string>('');
+  const [selectedBranch, setSelectedBranch] = useState<string>(
+    searchParams.get('branch') ?? '',
+  );
   const [branches, setBranches] = useState<IBranch[]>([]);
   const [selectedExpense, setSelectedExpense] =
     useState<ICompanyExpense | null>(null);
-  const [search, setSearch] = useState<string>('');
+  const [search, setSearch] = useState<string>(searchParams.get('q') ?? '');
   const [debouncedSearch, setDebouncedSearch] = useState('');
   const [sort, setSort] = useState<{
     field: 'expense_date' | 'name' | 'amount';
@@ -61,10 +66,6 @@ export default function ExpensesTable({ type }: Props) {
     field: 'expense_date',
     direction: 'desc',
   });
-
-  useEffect(() => {
-    if (dates.length === 2 && debouncedSearch !== undefined) fetchExpenses();
-  }, [page, selectedBranch, dates, debouncedSearch, limit, sort]);
 
   useEffect(() => {
     const handler = setTimeout(() => {
@@ -76,24 +77,12 @@ export default function ExpensesTable({ type }: Props) {
     };
   }, [search]);
 
-  useEffect(() => {
-    getBranches();
-  }, []);
-
-  async function handleDelete() {
-    if (!selectedReportId) return;
-    await deleteCompanyExpense(selectedReportId);
-    setShowDeleteModal(false);
-    setSelectedReportId(null);
-    fetchExpenses();
-  }
-
-  async function getBranches() {
+  const getBranches = useCallback(async () => {
     const res = await fetchBranches(type);
     setBranches(res.branches);
-  }
+  }, [type]);
 
-  async function fetchExpenses() {
+  const fetchExpenses = useCallback(async () => {
     setLoading(true);
     try {
       const formattedDates = dates.map((date) => date.format('YYYY-MM-DD'));
@@ -113,6 +102,30 @@ export default function ExpensesTable({ type }: Props) {
       console.error(`Failed to fetch ${type} expenses:`, e);
       setLoading(false);
     }
+  }, [dates, type, selectedBranch, page, limit, setTotal, search, sort]);
+
+  useEffect(() => {
+    getBranches();
+  }, [getBranches]);
+
+  useEffect(() => {
+    if (dates.length === 2 && debouncedSearch !== undefined) fetchExpenses();
+  }, [
+    page,
+    selectedBranch,
+    dates,
+    debouncedSearch,
+    limit,
+    sort,
+    fetchExpenses,
+  ]);
+
+  async function handleDelete() {
+    if (!selectedReportId) return;
+    await deleteCompanyExpense(selectedReportId);
+    setShowDeleteModal(false);
+    setSelectedReportId(null);
+    fetchExpenses();
   }
 
   function onSort(field: 'expense_date' | 'name' | 'amount') {
@@ -147,6 +160,7 @@ export default function ExpensesTable({ type }: Props) {
                 onChange={(e) => {
                   setPage(1);
                   setSelectedBranch(e.target.value);
+                  setQueryParam('branch', e.target.value);
                 }}
                 className="px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
               >
@@ -179,7 +193,10 @@ export default function ExpensesTable({ type }: Props) {
             <div>
               <input
                 value={search}
-                onChange={(e) => setSearch(e.target.value)}
+                onChange={(e) => {
+                  setSearch(e.target.value);
+                  setQueryParam('q', e.target.value);
+                }}
                 placeholder="Search by name"
                 className="px-4 py-2 border border-gray-300 bg-white rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
