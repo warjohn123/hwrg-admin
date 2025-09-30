@@ -7,9 +7,9 @@ export async function OPTIONS(request: Request) {
 }
 
 export async function POST(req: Request) {
+  const cors = handleCors(req);
   try {
     const body = await req.json();
-    const cors = handleCors(req);
     const { clock_in_photo, user_id } = body;
 
     const now = new Date();
@@ -27,7 +27,10 @@ export async function POST(req: Request) {
       .insert([{ clock_in_photo, clock_in: now, user_id, date: now }]);
 
     if (dbError) {
-      return NextResponse.json({ error: dbError.message }, { status: 500 });
+      return NextResponse.json(
+        { error: dbError.message },
+        { status: 500, headers: cors?.headers },
+      );
     }
 
     return NextResponse.json(
@@ -39,6 +42,9 @@ export async function POST(req: Request) {
     );
   } catch (err) {
     console.error(err);
-    return NextResponse.json({ error: 'Server error' }, { status: 500 });
+    return NextResponse.json(
+      { error: 'Server error' },
+      { status: 500, headers: cors?.headers },
+    );
   }
 }
