@@ -12,6 +12,9 @@ export async function GET(req: NextRequest) {
   const user_id = searchParams.get('user_id');
   const page = parseInt(searchParams.get('page') || '1');
   const pageSize = parseInt(searchParams.get('limit') || '10');
+  const dates = searchParams.get('dates');
+
+  console.log('dates', dates);
 
   const from = (page - 1) * pageSize;
   const to = from + pageSize - 1;
@@ -36,11 +39,26 @@ export async function GET(req: NextRequest) {
       { headers: cors?.headers },
     );
   } else {
-    const { data, error, count } = await getSupabase()
+    let query = getSupabase()
       .from('timelogs')
       .select('*, users (id, name)', { count: 'exact', head: false })
-      .order('created_at', { ascending: false }) // descending order
-      .range(from, to);
+      .order('created_at', { ascending: false }); // descending order
+
+    if (dates) {
+      const [start, end] = dates
+        .split(',')
+        .map((date) => new Date(date).toISOString().split('T')[0]);
+
+      query = query.gte('date', start).lte('date', end);
+    }
+
+    if (page && pageSize) {
+      const from = (page - 1) * pageSize;
+      const to = from + pageSize - 1;
+      query = query.range(from, to);
+    }
+
+    const { data, error, count } = await query;
 
     if (error) {
       return NextResponse.json(
