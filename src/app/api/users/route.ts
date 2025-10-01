@@ -12,7 +12,7 @@ export async function GET(req: NextRequest) {
     .from('users')
     .select('id, name, email, assignment', { count: 'exact', head: false })
     .order('created_at', { ascending: false })
-    .eq('type', 'employee');
+    .in('type', ['employee', 'inventory_checker']);
 
   if (search) {
     query = query.like('name', `%${search}%`);
