@@ -20,12 +20,12 @@ export const CHICKY_OINK_INVENTORY: { [key: string]: IInventoryItem } = {
   REGULAR_LIEMPO: {
     name: 'Regular Liempo',
     attribute: 'regular_liempo',
-    price: 260,
+    price: 270,
   },
   SPICY_LIEMPO: {
     name: 'Spicy Liempo',
     attribute: 'spicy_liempo',
-    price: 270,
+    price: 280,
   },
   LIOG: { name: 'Liog', attribute: 'liog', price: 12 },
   SPICY_LIOG: {
@@ -45,23 +45,23 @@ export const CHICKY_OINK_INVENTORY: { [key: string]: IInventoryItem } = {
     price: 70,
   },
   COKE: {
-    name: "Coke",
-    attribute: "coke",
+    name: 'Coke',
+    attribute: 'coke',
     price: 20,
   },
   SPRITE: {
-    name: "Sprite",
-    attribute: "sprite",
+    name: 'Sprite',
+    attribute: 'sprite',
     price: 20,
   },
   ROYAL: {
-    name: "Royal",
-    attribute: "royal",
+    name: 'Royal',
+    attribute: 'royal',
     price: 20,
   },
   MINERAL_WATER: {
-    name: "Mineral Water",
-    attribute: "mineral_water",
+    name: 'Mineral Water',
+    attribute: 'mineral_water',
     price: 20,
   },
   ULING: { name: 'Uling', attribute: 'uling', price: 0 },
