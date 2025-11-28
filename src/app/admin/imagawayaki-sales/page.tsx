@@ -3,6 +3,7 @@
 import ImagawayakiReportDetails from '@/components/ImagawayakiReportDetails';
 import ConfirmModal from '@/components/modals/ConfirmationModal';
 import Pagination from '@/components/Pagination';
+import { IMAGAWAYAKI_INVENTORY_DISPLAY_ORDER } from '@/constants/displayOrder';
 import { usePagination } from '@/hooks/usePagination';
 import { getImagawayakiTotalSales } from '@/lib/getImagawayakiTotalSales';
 import { fetchBranches } from '@/services/branch.service';
@@ -13,6 +14,7 @@ import {
 import { IBranch } from '@/types/Branch';
 import {
   IImagawayakiReport,
+  IImagawayakiReportInventory,
   ImagawayakiSales,
 } from '@/types/ImagawayakiReport';
 import { IAssignment } from '@/types/User';
@@ -115,6 +117,28 @@ export default function ReportsPage() {
     return { totalShort, totalOver };
   }
 
+  function getInventory(
+    data: IImagawayakiReportInventory,
+    inventoryKey: string,
+  ) {
+    const result: Record<string, string | number> = {};
+
+    console.log('data', data);
+
+    Object.entries(data).forEach(([key, value]) => {
+      if (
+        inventoryKey in value &&
+        value[inventoryKey as keyof typeof value] !== undefined
+      ) {
+        result[key] = value[inventoryKey as keyof typeof value] as
+          | string
+          | number;
+      }
+    });
+
+    return result;
+  }
+
   if (loading) return <p>Loading sales reports...</p>;
 
   return (
@@ -172,7 +196,10 @@ export default function ReportsPage() {
             <tr>
               <th className="px-6 py-3 text-sm font-medium">Title</th>
               <th className="px-6 py-3 text-sm font-medium">Date</th>
-              <th className="px-6 py-3 text-sm font-medium">Batter used</th>
+              <th className="px-6 py-3 text-sm font-medium">Initial</th>
+              <th className="px-6 py-3 text-sm font-medium">Used</th>
+              <th className="px-6 py-3 text-sm font-medium">Delivered</th>
+              <th className="px-6 py-3 text-sm font-medium">Remaining</th>
               <th className="px-6 py-3 text-sm font-medium">Sales</th>
               <th className="px-6 py-3 text-sm font-medium">Remit</th>
               <th className="px-6 py-3 text-sm font-medium">Short/Over</th>
@@ -192,7 +219,60 @@ export default function ReportsPage() {
                 <td className="px-6 py-4">{report.title}</td>
                 <td className="px-6 py-4">{report.report_date}</td>
                 <td className="px-6 py-4">
-                  {report.inventory['batter'].sales}
+                  {Object.entries(
+                    getInventory(report.inventory, 'initial_stocks'),
+                  )
+                    .sort(
+                      (a, b) =>
+                        IMAGAWAYAKI_INVENTORY_DISPLAY_ORDER.indexOf(a[0]) -
+                        IMAGAWAYAKI_INVENTORY_DISPLAY_ORDER.indexOf(b[0]),
+                    )
+                    .map(([key, value]) => (
+                      <div key={key}>
+                        {key}: {value}
+                      </div>
+                    ))}
+                </td>
+                <td className="px-6 py-4">
+                  {Object.entries(getInventory(report.inventory, 'sales'))
+                    .sort(
+                      (a, b) =>
+                        IMAGAWAYAKI_INVENTORY_DISPLAY_ORDER.indexOf(a[0]) -
+                        IMAGAWAYAKI_INVENTORY_DISPLAY_ORDER.indexOf(b[0]),
+                    )
+                    .map(([key, value]) => (
+                      <div key={key}>
+                        {key}: {value}
+                      </div>
+                    ))}
+                </td>
+                <td className="px-6 py-4">
+                  {Object.entries(getInventory(report.inventory, 'delivered'))
+                    .sort(
+                      (a, b) =>
+                        IMAGAWAYAKI_INVENTORY_DISPLAY_ORDER.indexOf(a[0]) -
+                        IMAGAWAYAKI_INVENTORY_DISPLAY_ORDER.indexOf(b[0]),
+                    )
+                    .map(([key, value]) => (
+                      <div key={key}>
+                        {key}: {value}
+                      </div>
+                    ))}
+                </td>
+                <td className="px-6 py-4">
+                  {Object.entries(
+                    getInventory(report.inventory, 'remaining_stocks'),
+                  )
+                    .sort(
+                      (a, b) =>
+                        IMAGAWAYAKI_INVENTORY_DISPLAY_ORDER.indexOf(a[0]) -
+                        IMAGAWAYAKI_INVENTORY_DISPLAY_ORDER.indexOf(b[0]),
+                    )
+                    .map(([key, value]) => (
+                      <div key={key}>
+                        {key}: {value}
+                      </div>
+                    ))}
                 </td>
                 <td className="px-6 py-4">
                   {getImagawayakiTotalSales(
