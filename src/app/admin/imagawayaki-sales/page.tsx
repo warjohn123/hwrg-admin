@@ -123,8 +123,6 @@ export default function ReportsPage() {
   ) {
     const result: Record<string, string | number> = {};
 
-    console.log('data', data);
-
     Object.entries(data).forEach(([key, value]) => {
       if (
         inventoryKey in value &&
