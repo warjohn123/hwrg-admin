@@ -102,7 +102,10 @@ export default function AddExpensesModal({
           initialValues={initialValues}
           validationSchema={formSchema}
           onSubmit={(values, { setSubmitting }) => {
-            handleSubmit(values as unknown as ICompanyExpense[], setSubmitting);
+            handleSubmit(
+              values as unknown as { expenses: ICompanyExpense[] },
+              setSubmitting,
+            );
           }}
         >
           {({ values, isSubmitting }) => (
