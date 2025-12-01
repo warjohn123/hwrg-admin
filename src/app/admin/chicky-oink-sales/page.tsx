@@ -12,7 +12,10 @@ import {
   fetchSalesReports,
 } from '@/services/sales_reports.service';
 import { IBranch } from '@/types/Branch';
-import { IChickyOinkReport, IChickyOinkReportInventory } from '@/types/ChickyOinkReport';
+import {
+  IChickyOinkReport,
+  IChickyOinkReportInventory,
+} from '@/types/ChickyOinkReport';
 import { IAssignment } from '@/types/User';
 import { useEffect, useState } from 'react';
 import { FaArrowRight, FaTrash } from 'react-icons/fa6';
@@ -23,7 +26,8 @@ export default function ReportsPage() {
   const [loading, setLoading] = useState(true);
   const [branches, setBranches] = useState<IBranch[]>([]);
   const [selectedBranch, setSelectedBranch] = useState<string>('');
-  const { page, setPage, totalPages, setTotal, limit, setLimit } = usePagination();
+  const { page, setPage, totalPages, setTotal, limit, setLimit } =
+    usePagination();
   const [dates, setDates] = useState([new DateObject(), new DateObject()]);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [selectedReportId, setSelectedReportId] = useState<string | null>(null);
@@ -97,7 +101,13 @@ export default function ReportsPage() {
   }, 0);
 
   const totalRemainingMeats = salesReports.reduce((acc, report) => {
-    return acc + report.inventory.spicy_chicken.remaining_stocks + report.inventory.regular_chicken.remaining_stocks + report.inventory.regular_liempo.remaining_stocks + report.inventory.spicy_liempo.remaining_stocks;
+    return (
+      acc +
+      report.inventory.spicy_chicken.remaining_stocks +
+      report.inventory.regular_chicken.remaining_stocks +
+      report.inventory.regular_liempo.remaining_stocks +
+      report.inventory.spicy_liempo.remaining_stocks
+    );
   }, 0);
 
   async function handleDelete() {
@@ -144,10 +154,8 @@ export default function ReportsPage() {
 
     return result;
   }
-  
 
   if (loading) return <p>Loading sales reports...</p>;
-
 
   return (
     <div>
@@ -195,7 +203,9 @@ export default function ReportsPage() {
         <p className="font-bold">
           Total POSO Sales: {totalPosoSales.toLocaleString()}
         </p>
-        <p className="font-bold">Total Remaining No. of Meats: {totalRemainingMeats}</p>
+        <p className="font-bold">
+          Total Remaining No. of Meats: {totalRemainingMeats}
+        </p>
         <div className="flex gap-10">
           <div className="font-bold">Grab: {getExpenses('Grab')}</div>
           <div className="font-bold">FoodPanda: {getExpenses('FoodPanda')}</div>
@@ -214,6 +224,7 @@ export default function ReportsPage() {
               <th className="px-6 py-3 text-sm font-medium">Pull Outs</th>
               <th className="px-6 py-3 text-sm font-medium">Delivered</th>
               <th className="px-6 py-3 text-sm font-medium">Short/Over</th>
+              <th className="px-6 py-3 text-sm font-medium">On Duty</th>
               <th className="px-6 py-3 text-sm font-medium">Actions</th>
             </tr>
           </thead>
@@ -234,24 +245,32 @@ export default function ReportsPage() {
                   {getChickyOinkTotalSales(report.sales).toLocaleString()}
                 </td>
                 <td className="px-6 py-4">{report.cash.toLocaleString()}</td>
-                <td className="px-6 py-4">{Object.entries(getPullOuts(report.inventory)).sort(
+                <td className="px-6 py-4">
+                  {Object.entries(getPullOuts(report.inventory))
+                    .sort(
                       (a, b) =>
                         CHICKY_OINK_INVENTORY_DISPLAY_ORDER.indexOf(a[0]) -
                         CHICKY_OINK_INVENTORY_DISPLAY_ORDER.indexOf(b[0]),
-                    ).map(([key, value]) => (
-                  <div key={key}>
-                    {key}: {value}
-                  </div>
-                ))}</td>
-                <td className="px-6 py-4">{Object.entries(getDelivered(report.inventory)).sort(
-                  (a, b) =>
-                    CHICKY_OINK_INVENTORY_DISPLAY_ORDER.indexOf(a[0]) -
-                    CHICKY_OINK_INVENTORY_DISPLAY_ORDER.indexOf(b[0]),
-                ).map(([key, value]) => (
-                  <div key={key}>
-                    {key}: {value}
-                  </div>
-                ))}</td>
+                    )
+                    .map(([key, value]) => (
+                      <div key={key}>
+                        {key}: {value}
+                      </div>
+                    ))}
+                </td>
+                <td className="px-6 py-4">
+                  {Object.entries(getDelivered(report.inventory))
+                    .sort(
+                      (a, b) =>
+                        CHICKY_OINK_INVENTORY_DISPLAY_ORDER.indexOf(a[0]) -
+                        CHICKY_OINK_INVENTORY_DISPLAY_ORDER.indexOf(b[0]),
+                    )
+                    .map(([key, value]) => (
+                      <div key={key}>
+                        {key}: {value}
+                      </div>
+                    ))}
+                </td>
                 <td className="px-6 py-4">
                   {getShortAndOver(report).totalShort > 0 && (
                     <div className="text-red-500">
@@ -264,6 +283,7 @@ export default function ReportsPage() {
                     </div>
                   )}
                 </td>
+                <td>{report.on_duty}</td>
                 <td className="px-6 py-4 flex gap-10">
                   <FaArrowRight
                     className="cursor-pointer"
@@ -275,7 +295,7 @@ export default function ReportsPage() {
                   <FaTrash
                     className="cursor-pointer text-red-500"
                     onClick={(e) => {
-                      e.stopPropagation()
+                      e.stopPropagation();
                       setShowDeleteModal(true);
                       setSelectedReportId(report.id ?? null);
                     }}
@@ -303,7 +323,13 @@ export default function ReportsPage() {
         )}
       </div>
 
-      <Pagination setPage={setPage} limit={limit} setLimit={setLimit} page={page} totalPages={totalPages} />
+      <Pagination
+        setPage={setPage}
+        limit={limit}
+        setLimit={setLimit}
+        page={page}
+        totalPages={totalPages}
+      />
     </div>
   );
 }

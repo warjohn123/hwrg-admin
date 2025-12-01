@@ -12,13 +12,14 @@ import {
   fetchCompanyExpenses,
 } from '@/services/company_expenses.service';
 import { IAssignment } from '@/types/User';
-import SaveCompanyExpenseModal from './modals/SaveCompanyExpense';
+import UpdateCompanyExpenseModal from './modals/UpdateCompanyExpense';
 import { IBranch } from '@/types/Branch';
 import { fetchBranches } from '@/services/branch.service';
 import { FaEdit } from 'react-icons/fa';
 import { ChevronDown, ChevronUp } from 'lucide-react';
 import { SortType } from '@/types/Sort';
 import { useQueryParams } from '@/hooks/useQueryParams';
+import AddExpensesModal from './modals/AddExpensesModal';
 
 interface Props {
   type: IAssignment;
@@ -51,6 +52,7 @@ export default function ExpensesTable({ type }: Props) {
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [selectedReportId, setSelectedReportId] = useState<number | null>(null);
   const [isSaveModalOpen, setIsSaveModalOpen] = useState(false);
+  const [isAddExpensesModalOpen, setIsAddExpensesModalOpen] = useState(false);
   const [selectedBranch, setSelectedBranch] = useState<string>(
     searchParams.get('branch') ?? '',
   );
@@ -204,7 +206,7 @@ export default function ExpensesTable({ type }: Props) {
           </div>
         </div>
         <button
-          onClick={() => setIsSaveModalOpen(true)}
+          onClick={() => setIsAddExpensesModalOpen(true)}
           className="bg-blue-600 cursor-pointer text-white px-4 py-2 rounded hover:bg-blue-700 transition"
         >
           Add Expense
@@ -291,13 +293,19 @@ export default function ExpensesTable({ type }: Props) {
             setLimit={setLimit}
             totalPages={totalPages}
           />
-          <SaveCompanyExpenseModal
+          <UpdateCompanyExpenseModal
             setSelectedExpense={setSelectedExpense}
             expense={selectedExpense ?? undefined}
             isOpen={isSaveModalOpen}
             type={type}
             fetchExpenses={fetchExpenses}
             setIsOpen={setIsSaveModalOpen}
+          />
+          <AddExpensesModal
+            isOpen={isAddExpensesModalOpen}
+            type={type}
+            fetchExpenses={fetchExpenses}
+            setIsOpen={setIsAddExpensesModalOpen}
           />
         </>
       )}

@@ -19,7 +19,7 @@ export async function GET(req: NextRequest) {
   let query = getSupabase()
     .from('sales_reports')
     .select(
-      'id, title, report_date, cash, created_at, inventory, cash, sales, expenses(*)',
+      'id, title, report_date, cash, created_at, inventory, cash, sales, on_duty, expenses(*)',
       {
         count: 'exact',
         head: false,

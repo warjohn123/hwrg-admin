@@ -11,9 +11,9 @@ import {
   updateCompanyExpense,
 } from '@/services/company_expenses.service';
 import { toast } from 'react-toastify';
-import DatePicker from "react-datepicker";
+import DatePicker from 'react-datepicker';
 
-interface SaveCompanyExpenseModalProps {
+interface UpdateCompanyExpenseModalProps {
   isOpen: boolean;
   type: IAssignment;
   expense: ICompanyExpense | undefined;
@@ -22,14 +22,14 @@ interface SaveCompanyExpenseModalProps {
   setSelectedExpense: (expense: ICompanyExpense | null) => void;
 }
 
-export default function SaveCompanyExpenseModal({
+export default function UpdateCompanyExpenseModal({
   isOpen,
   type,
   expense,
   fetchExpenses,
   setIsOpen,
   setSelectedExpense,
-}: SaveCompanyExpenseModalProps) {
+}: UpdateCompanyExpenseModalProps) {
   const [branches, setBranches] = useState<IBranch[]>([]);
   const [isLoadingBranches, setIsLoadingBranches] = useState<boolean>(true);
 
@@ -48,7 +48,8 @@ export default function SaveCompanyExpenseModal({
     branch_id: expense?.branches?.id ?? '',
     name: expense?.name ?? '',
     amount: expense?.amount ?? '',
-    expense_date: expense?.expense_date ?? new Date().toISOString().split('T')[0],
+    expense_date:
+      expense?.expense_date ?? new Date().toISOString().split('T')[0],
     notes: expense?.notes ?? '',
   };
 
@@ -163,7 +164,7 @@ export default function SaveCompanyExpenseModal({
 
               <div>
                 <label className="block mb-1 font-medium">Expense Date</label>
-                  
+
                 <Field name="expense_date">
                   {({ field, form }: FieldProps) => (
                     <DatePicker
@@ -173,7 +174,6 @@ export default function SaveCompanyExpenseModal({
                       onChange={(date) => form.setFieldValue(field.name, date)}
                     />
                   )}
-                  
                 </Field>
                 <ErrorMessage
                   name="expense_date"

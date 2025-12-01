@@ -1,6 +1,6 @@
 import * as Yup from 'yup';
 
-export const formSchema = Yup.object({
+export const formSchema = Yup.object().shape({
   branch_id: Yup.string().required('Branch is required'),
   name: Yup.string().required('Name is required'),
   amount: Yup.number()
