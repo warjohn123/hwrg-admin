@@ -7,7 +7,7 @@ import { supabase } from '@/lib/supabaseClient';
 import { uploadFile } from '@/lib/uploadFile';
 import { IUser } from '@/types/User';
 import Image from 'next/image';
-import { useParams } from 'next/navigation';
+import { redirect, useParams } from 'next/navigation';
 import { useEffect, useMemo, useState } from 'react';
 import { toast } from 'react-toastify';
 
@@ -125,6 +125,13 @@ export default function EmployeeDetailsPage() {
 
   return (
     <div className="max-w-3xl mx-auto p-4 space-y-4">
+      <button
+        className="text-blue-500 hover:underline text-sm cursor-pointer"
+        onClick={() => redirect('/admin/employees')}
+      >
+        Back to Employees
+      </button>
+
       <h1 className="text-2xl font-bold">Edit Employee Details</h1>
 
       <label className="block font-medium text-sm text-gray-700 mb-1">
