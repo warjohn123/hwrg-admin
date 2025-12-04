@@ -20,13 +20,14 @@ export type IUser = {
 };
 
 export enum IUserType {
-  EMPLOYEE = "employee",
-  SALES_REPORT = "sales_report",
-  ADMIN = "admin",
+  EMPLOYEE = 'employee',
+  SALES_REPORT = 'sales_report',
+  ADMIN = 'admin',
 }
 
 export enum IAssignment {
-  CHICKY_OINK = "Chicky Oink",
-  IMAGAWAYAKI = "Imagawayaki",
-  POTATO_FRY = "Potato Fry",
+  CHICKY_OINK = 'Chicky Oink',
+  IMAGAWAYAKI = 'Imagawayaki',
+  POTATO_FRY = 'Potato Fry',
+  HWRG_EGGS = 'HWRG Eggs',
 }

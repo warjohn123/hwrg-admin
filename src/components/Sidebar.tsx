@@ -95,8 +95,35 @@ export default function Sidebar({ isOpen, setIsOpen }: SidebarProps) {
           </div>
         </div>
 
-        {/* PotatoFry Section */}
+        {/* HWRG Eggs Section */}
         <div>
+          <h4 className="text-sm font-semibold text-gray-500 uppercase px-2">
+            HWRG Eggs
+          </h4>
+          <div className="flex flex-col space-y-1 pl-4">
+            {/* <Link
+              href="/admin/imagawayaki-dashboard"
+              className={linkClasses('/admin/imagawayaki-dashboard')}
+            >
+              Dashboard
+            </Link> */}
+            <Link
+              href="/admin/hwrg-eggs-sales"
+              className={linkClasses('/admin/hwrg-eggs-sales')}
+            >
+              Sales
+            </Link>
+            {/* <Link
+              href="/admin/imagawayaki-expenses"
+              className={linkClasses('/admin/imagawayaki-expenses')}
+            >
+              Expenses
+            </Link> */}
+          </div>
+        </div>
+
+        {/* PotatoFry Section */}
+        {/* <div>
           <h4 className="text-sm font-semibold text-gray-500 uppercase px-2">
             PotatoFry
           </h4>
@@ -120,7 +147,7 @@ export default function Sidebar({ isOpen, setIsOpen }: SidebarProps) {
               Expenses
             </Link>
           </div>
-        </div>
+        </div> */}
 
         {/* General Section */}
         <div className="mt-2">

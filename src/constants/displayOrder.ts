@@ -8,10 +8,10 @@ export const CHICKY_OINK_INVENTORY_DISPLAY_ORDER = [
   'poso',
   'atchara_small',
   'atchara_big',
-  "coke",
-  "sprite",
-  "royal",
-  "mineral_water",
+  'coke',
+  'sprite',
+  'royal',
+  'mineral_water',
   'uling',
 ];
 
@@ -23,9 +23,9 @@ export const IMAGAWAYAKI_INVENTORY_DISPLAY_ORDER = [
   'custard',
   'minute_maid',
   'mineral_water',
-  "coke",
-  "royal",
-  "sprite",
+  'coke',
+  'royal',
+  'sprite',
   'cups',
   'straws',
   'blue_lemon',
@@ -52,4 +52,13 @@ export const POTATOFRY_INVENTORY_DISPLAY_ORDER = [
   'medium_cups',
   'large_cups',
   'bulsita_3',
+];
+
+export const HWRG_EGGS_INVENTORY_DISPLAY_ORDER = [
+  'pl',
+  'pw',
+  'small',
+  'medium',
+  'large',
+  'xl',
 ];
