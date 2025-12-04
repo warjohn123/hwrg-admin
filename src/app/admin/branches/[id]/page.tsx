@@ -19,20 +19,19 @@ export default function BranchDetailsPage() {
   const [assignedEmployees, setAssignedEmployees] = useState<IUser[]>([]);
 
   useEffect(() => {
+    async function init() {
+      setLoading(true);
+      try {
+        await fetchBranch();
+        await fetchAssignments();
+      } catch (e) {
+        console.error(e);
+      } finally {
+        setLoading(false);
+      }
+    }
     init();
   }, []);
-
-  async function init() {
-    setLoading(true);
-    try {
-      await fetchBranch();
-      await fetchAssignments();
-    } catch (e) {
-      console.error(e);
-    } finally {
-      setLoading(false);
-    }
-  }
 
   async function fetchBranch() {
     const res = await getBranchDetails(id?.toString() || '');

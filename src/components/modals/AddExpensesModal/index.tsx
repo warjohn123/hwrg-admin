@@ -85,7 +85,7 @@ export default function AddExpensesModal({
 
   useEffect(() => {
     getBranches();
-  }, []);
+  }, [getBranches]);
 
   return (
     <Dialog

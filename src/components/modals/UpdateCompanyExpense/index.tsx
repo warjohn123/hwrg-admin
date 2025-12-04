@@ -85,7 +85,7 @@ export default function UpdateCompanyExpenseModal({
 
   useEffect(() => {
     getBranches();
-  }, []);
+  }, [getBranches]);
 
   return (
     <Dialog

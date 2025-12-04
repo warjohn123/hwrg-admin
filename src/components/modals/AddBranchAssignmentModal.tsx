@@ -93,7 +93,7 @@ export default function AddBranchAssignmentModal({
     };
 
     init();
-  }, []);
+  }, [fetchAssignments]);
 
   if (!isOpen || !branchId) return <></>;
 

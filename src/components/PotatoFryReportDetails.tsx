@@ -26,20 +26,19 @@ export default function PotatoFryReportDetails({
   const [report, setReport] = useState<IPotatoFryReport | null>(null);
   const [loading, setLoading] = useState(true);
 
-  async function fetchReport() {
-    try {
-      const res = await getSalesReportDetails(reportId || '');
-      setReport(res);
-    } catch (error) {
-      console.error('Failed to fetch report:', error);
-    } finally {
-      setLoading(false);
-    }
-  }
-
   useEffect(() => {
+    async function fetchReport() {
+      try {
+        const res = await getSalesReportDetails(reportId || '');
+        setReport(res);
+      } catch (error) {
+        console.error('Failed to fetch report:', error);
+      } finally {
+        setLoading(false);
+      }
+    }
     fetchReport();
-  }, []);
+  }, [reportId]);
 
   useEscClose(isOpen, () => setIsOpen(false));
 
