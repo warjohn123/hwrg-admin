@@ -101,24 +101,24 @@ export default function Sidebar({ isOpen, setIsOpen }: SidebarProps) {
             HWRG Eggs
           </h4>
           <div className="flex flex-col space-y-1 pl-4">
-            {/* <Link
-              href="/admin/imagawayaki-dashboard"
-              className={linkClasses('/admin/imagawayaki-dashboard')}
+            <Link
+              href="/admin/hwrg-eggs-dashboard"
+              className={linkClasses('/admin/hwrg-eggs-dashboard')}
             >
               Dashboard
-            </Link> */}
+            </Link>
             <Link
               href="/admin/hwrg-eggs-sales"
               className={linkClasses('/admin/hwrg-eggs-sales')}
             >
               Sales
             </Link>
-            {/* <Link
-              href="/admin/imagawayaki-expenses"
-              className={linkClasses('/admin/imagawayaki-expenses')}
+            <Link
+              href="/admin/hwrg-eggs-expenses"
+              className={linkClasses('/admin/hwrg-eggs-expenses')}
             >
               Expenses
-            </Link> */}
+            </Link>
           </div>
         </div>
 

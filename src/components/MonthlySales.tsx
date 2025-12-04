@@ -1,6 +1,7 @@
 'use client';
 
 import { getChickyOinkTotalSales } from '@/lib/getChickyOinkTotalSales';
+import { getHWRGEggsTotalSales } from '@/lib/getHWRGEggsTotalSales';
 import { getImagawayakiTotalSales } from '@/lib/getImagawayakiTotalSales';
 import { getPotatoFryTotalSales } from '@/lib/getPotatoFryTotalSales';
 import { fetchBranches } from '@/services/branch.service';
@@ -9,6 +10,7 @@ import { fetchSalesReports } from '@/services/sales_reports.service';
 import { IBranch } from '@/types/Branch';
 import { ChickyOinkSales, IChickyOinkReport } from '@/types/ChickyOinkReport';
 import { ICompanyExpense } from '@/types/CompanyExpenses';
+import { IHWRGEggsReport, IHWRGEggsSales } from '@/types/HWRGEggsReport';
 import {
   IImagawayakiReport,
   ImagawayakiSales,
@@ -29,7 +31,10 @@ export default function MonthlySales({ type }: Props) {
   const [dates, setDates] = useState([startOfMonth, today]);
   const [companyExpenses, setCompanyExpenses] = useState<ICompanyExpense[]>([]);
   const [salesReports, setSalesReports] = useState<
-    IChickyOinkReport[] | IImagawayakiReport[] | IPotatoFryReport[]
+    | IChickyOinkReport[]
+    | IImagawayakiReport[]
+    | IPotatoFryReport[]
+    | IHWRGEggsReport[]
   >([]);
   const [selectedBranch, setSelectedBranch] = useState<string>('');
   const [branches, setBranches] = useState<IBranch[]>([]);
@@ -71,7 +76,6 @@ export default function MonthlySales({ type }: Props) {
   }
 
   useEffect(() => {
-    console.log('dates', dates);
     if (dates.length === 2) {
       getSalesReports();
       fetchExpenses();
@@ -89,7 +93,9 @@ export default function MonthlySales({ type }: Props) {
         ? getChickyOinkTotalSales(report.sales as ChickyOinkSales)
         : type === IAssignment.IMAGAWAYAKI
           ? getImagawayakiTotalSales(report.sales as ImagawayakiSales)
-          : getPotatoFryTotalSales(report.sales as PotatoFrySales))
+          : type === IAssignment.HWRG_EGGS
+            ? getHWRGEggsTotalSales(report.sales as IHWRGEggsSales)
+            : getPotatoFryTotalSales(report.sales as PotatoFrySales))
     );
   }, 0);
 
