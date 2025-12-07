@@ -29,6 +29,8 @@ export default function ChipsAutocomplete({
     setSelectedEmployees(selectedEmployees.filter((u) => u.id !== userId));
   };
 
+  console.log('selectedEmployees', selectedEmployees);
+
   return (
     <div className="w-full max-w-md">
       <label className="block mb-1 text-sm font-medium text-gray-700">

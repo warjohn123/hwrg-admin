@@ -43,16 +43,6 @@ export default function AddBranchAssignmentModal({
     }
   };
 
-  async function fetchAssignments() {
-    const res = await fetchAssignedEmployeesByBranch(branchId);
-    const branchAssignments: IBranchAssignment[] = res.branch_assignments;
-
-    const assigned = branchAssignments.map((assignment) => assignment.users);
-
-    setAssignedEmployees(assigned);
-    setCurrentAssignedEmployees(assigned);
-  }
-
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
@@ -85,6 +75,15 @@ export default function AddBranchAssignmentModal({
   };
 
   useEffect(() => {
+    async function fetchAssignments() {
+      const res = await fetchAssignedEmployeesByBranch(branchId);
+      const branchAssignments: IBranchAssignment[] = res.branch_assignments;
+
+      const assigned = branchAssignments.map((assignment) => assignment.users);
+
+      setAssignedEmployees(assigned);
+      setCurrentAssignedEmployees(assigned);
+    }
     const init = async () => {
       await fetchAllEmployees();
       await fetchAssignments();
@@ -93,7 +92,7 @@ export default function AddBranchAssignmentModal({
     };
 
     init();
-  }, [fetchAssignments]);
+  }, [branchId]);
 
   if (!isOpen || !branchId) return <></>;
 
