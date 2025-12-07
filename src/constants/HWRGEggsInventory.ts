@@ -9,19 +9,19 @@ export interface IHWRGEggsProductItem {
 }
 
 export const HWRG_EGGS_PRODUCTS: { [key: string]: IHWRGEggsProductItem } = {
-  PL: {
-    name: 'PL',
-    attribute: 'pl',
+  PW: {
+    name: 'PW',
+    attribute: 'pw',
     pcPrice: 8,
     dozenPrice: 95,
     trayPrice: 236,
   },
-  PW: {
-    name: 'PW',
-    attribute: 'pw',
+  PL: {
+    name: 'PL',
+    attribute: 'pl',
     pcPrice: 8.25,
     dozenPrice: 99,
-    trayPrice: 242,
+    trayPrice: 247,
   },
   SMALL: {
     name: 'Small',
@@ -40,7 +40,7 @@ export const HWRG_EGGS_PRODUCTS: { [key: string]: IHWRGEggsProductItem } = {
   LARGE: {
     name: 'Large',
     attribute: 'large',
-    pcPrice: 9.25,
+    pcPrice: 9.75,
     dozenPrice: 116,
     trayPrice: 290,
   },

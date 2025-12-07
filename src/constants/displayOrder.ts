@@ -55,8 +55,8 @@ export const POTATOFRY_INVENTORY_DISPLAY_ORDER = [
 ];
 
 export const HWRG_EGGS_INVENTORY_DISPLAY_ORDER = [
-  'pl',
   'pw',
+  'pl',
   'small',
   'medium',
   'large',

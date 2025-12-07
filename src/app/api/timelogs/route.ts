@@ -14,8 +14,6 @@ export async function GET(req: NextRequest) {
   const pageSize = parseInt(searchParams.get('limit') || '10');
   const dates = searchParams.get('dates');
 
-  console.log('dates', dates);
-
   const from = (page - 1) * pageSize;
   const to = from + pageSize - 1;
 
