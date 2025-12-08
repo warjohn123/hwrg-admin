@@ -156,6 +156,12 @@ export default function Sidebar({ isOpen, setIsOpen }: SidebarProps) {
           </h4>
           <div className="flex flex-col space-y-1 pl-4">
             <Link
+              href="/admin/remit-reports"
+              className={linkClasses('/admin/remit-reports')}
+            >
+              Remits
+            </Link>
+            <Link
               href="/admin/employees"
               className={linkClasses('/admin/employees')}
             >
