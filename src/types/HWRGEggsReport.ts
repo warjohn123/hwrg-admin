@@ -23,6 +23,7 @@ export interface IHWRGEggsSales {
   medium: SalesType;
   large: SalesType;
   xl: SalesType;
+  jumbo: SalesType;
 }
 
 export interface IHWRGEggsInventoryFormat {

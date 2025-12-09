@@ -112,7 +112,9 @@ export default function ReportsPage() {
       report.inventory.large.remaining_stocks.trays * TRAY_SIZE +
       report.inventory.large.remaining_stocks.pcs +
       report.inventory.xl.remaining_stocks.trays * TRAY_SIZE +
-      report.inventory.xl.remaining_stocks.pcs
+      report.inventory.xl.remaining_stocks.pcs +
+      report.inventory.jumbo.remaining_stocks.trays * TRAY_SIZE +
+      report.inventory.jumbo.remaining_stocks.pcs
     );
   }, 0);
 

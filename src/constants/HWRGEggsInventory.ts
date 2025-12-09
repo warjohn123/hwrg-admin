@@ -51,4 +51,11 @@ export const HWRG_EGGS_PRODUCTS: { [key: string]: IHWRGEggsProductItem } = {
     dozenPrice: 118,
     trayPrice: 295,
   },
+  JUMBO: {
+    name: 'Jumbo',
+    attribute: 'jumbo',
+    pcPrice: 11,
+    dozenPrice: 130,
+    trayPrice: 320,
+  },
 };
