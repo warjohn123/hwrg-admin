@@ -21,9 +21,9 @@ export function getHWRGEggsTotalSales(sales: IHWRGEggsSales) {
     sales.xl.trays * HWRG_EGGS_PRODUCTS.XL.trayPrice +
     sales.xl.dozens * HWRG_EGGS_PRODUCTS.XL.dozenPrice +
     sales.xl.pcs * HWRG_EGGS_PRODUCTS.XL.pcPrice +
-    sales.jumbo.trays * HWRG_EGGS_PRODUCTS.JUMBO.trayPrice +
-    sales.jumbo.dozens * HWRG_EGGS_PRODUCTS.JUMBO.dozenPrice +
-    sales.jumbo.pcs * HWRG_EGGS_PRODUCTS.JUMBO.pcPrice;
+    (sales.jumbo?.trays ?? 0) * HWRG_EGGS_PRODUCTS.JUMBO.trayPrice +
+    (sales.jumbo?.dozens ?? 0) * HWRG_EGGS_PRODUCTS.JUMBO.dozenPrice +
+    (sales.jumbo?.pcs ?? 0) * HWRG_EGGS_PRODUCTS.JUMBO.pcPrice;
 
   return totalSales;
 }
