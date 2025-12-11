@@ -52,43 +52,6 @@ export default function RemitReportsPage() {
     loadRemitReports(page, dates);
   }
 
-  //   function getShortAndOver(report: IChickyOinkReport) {
-  //     const totalExpenses = report.expenses.reduce(
-  //       (partialSum, a) => partialSum + (a.value || 0),
-  //       0,
-  //     );
-
-  //     const totalRemit = getChickyOinkTotalSales(report.sales) - totalExpenses;
-  //     const cash = report.cash;
-  //     const totalShort = totalRemit - cash;
-  //     const totalOver = cash - totalRemit;
-  //     return { totalShort, totalOver };
-  //   }
-
-  //   function getPullOuts(data: IChickyOinkReportInventory) {
-  //     const result: Record<string, number> = {};
-
-  //     Object.entries(data).forEach(([key, value]) => {
-  //       if (value.pull_out > 0) {
-  //         result[key] = value.pull_out;
-  //       }
-  //     });
-
-  //     return result;
-  //   }
-
-  //   function getDelivered(data: IChickyOinkReportInventory) {
-  //     const result: Record<string, number> = {};
-
-  //     Object.entries(data).forEach(([key, value]) => {
-  //       if (key !== 'poso' && value.delivered > 0) {
-  //         result[key] = value.delivered;
-  //       }
-  //     });
-
-  //     return result;
-  //   }
-
   if (loading) return <p>Loading remit reports...</p>;
 
   return (
@@ -119,9 +82,7 @@ export default function RemitReportsPage() {
             <tr>
               <th className="px-6 py-3 text-sm font-medium">Title</th>
               <th className="px-6 py-3 text-sm font-medium">Date</th>
-              <th className="px-6 py-3 text-sm font-medium">Sales</th>
               <th className="px-6 py-3 text-sm font-medium">Remit</th>
-              <th className="px-6 py-3 text-sm font-medium">Short/Over</th>
               <th className="px-6 py-3 text-sm font-medium">Actions</th>
             </tr>
           </thead>
@@ -137,20 +98,9 @@ export default function RemitReportsPage() {
               >
                 <td className="px-6 py-4">{report.title}</td>
                 <td className="px-6 py-4">{report.report_date}</td>
-                <td className="px-6 py-4"></td>
-                {/* <td className="px-6 py-4">{report.cash.toLocaleString()}</td> */}
-                {/* <td className="px-6 py-4">
-                  {getShortAndOver(report).totalShort > 0 && (
-                    <div className="text-red-500">
-                      Short: {getShortAndOver(report).totalShort}
-                    </div>
-                  )}
-                  {getShortAndOver(report).totalOver > 0 && (
-                    <div className="text-green-500">
-                      Over: {getShortAndOver(report).totalOver}
-                    </div>
-                  )}
-                </td> */}
+                <td className="px-6 py-4">
+                  {report.totals?.remit_total.toLocaleString()}
+                </td>
                 <td className="px-6 py-4 flex gap-10">
                   <FaArrowRight
                     className="cursor-pointer"
