@@ -2,9 +2,12 @@
 
 import ConfirmModal from '@/components/modals/ConfirmationModal';
 import Pagination from '@/components/Pagination';
+import RemitReportDetails from '@/components/RemitReportDetails';
 import { usePagination } from '@/hooks/usePagination';
-import { fetchRemitReports } from '@/services/remit_reports.service';
-import { deleteSalesReport } from '@/services/sales_reports.service';
+import {
+  deleteRemitReport,
+  fetchRemitReports,
+} from '@/services/remit_reports.service';
 import { IRemitReport } from '@/types/RemitReport';
 import { useEffect, useState } from 'react';
 import { FaArrowRight, FaTrash } from 'react-icons/fa6';
@@ -18,6 +21,7 @@ export default function RemitReportsPage() {
   const [dates, setDates] = useState([new DateObject(), new DateObject()]);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [selectedReportId, setSelectedReportId] = useState<string | null>(null);
+  const [isReportDetailsOpen, setIsReportDetailsOpen] = useState(false);
 
   useEffect(() => {
     const fetchAllData = () => {
@@ -46,7 +50,7 @@ export default function RemitReportsPage() {
 
   async function handleDelete() {
     if (!selectedReportId) return;
-    await deleteSalesReport(selectedReportId);
+    await deleteRemitReport(selectedReportId);
     setShowDeleteModal(false);
     setSelectedReportId(null);
     loadRemitReports(page, dates);
@@ -92,7 +96,7 @@ export default function RemitReportsPage() {
                 key={report.id}
                 className="border-b hover:bg-gray-50 cursor-pointer"
                 onClick={() => {
-                  //   setIsReportDetailsOpen(true);
+                  setIsReportDetailsOpen(true);
                   setSelectedReportId(report.id ?? '');
                 }}
               >
@@ -105,7 +109,7 @@ export default function RemitReportsPage() {
                   <FaArrowRight
                     className="cursor-pointer"
                     onClick={() => {
-                      //   setIsReportDetailsOpen(true);
+                      setIsReportDetailsOpen(true);
                       setSelectedReportId(report.id ?? '');
                     }}
                   />
@@ -131,13 +135,13 @@ export default function RemitReportsPage() {
           confirmText="Delete"
         />
 
-        {/* {isReportDetailsOpen && (
-          <ChickyOinkReportDetails
+        {isReportDetailsOpen && (
+          <RemitReportDetails
             isOpen={isReportDetailsOpen}
             setIsOpen={setIsReportDetailsOpen}
-            reportId={selectedReportId ?? ''}
+            remitId={selectedReportId ?? ''}
           />
-        )} */}
+        )}
       </div>
 
       <Pagination
