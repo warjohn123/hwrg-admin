@@ -1,7 +1,6 @@
 import { NextResponse } from 'next/server';
 import { getSupabase } from '@/lib/supabaseServer';
 import { handleCors } from '@/lib/cors';
-import { add } from 'date-fns';
 
 export async function OPTIONS(request: Request) {
   return handleCors(request)!; // handles preflight
