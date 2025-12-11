@@ -1,4 +1,6 @@
 import { handleCors } from '@/lib/cors';
+import { sumKeyValueArray } from '@/lib/sumKeyValueArray';
+import { sumSalesRemits } from '@/lib/sumSalesRemits';
 import { getSupabase } from '@/lib/supabaseServer';
 import { NextRequest, NextResponse } from 'next/server';
 
@@ -15,7 +17,7 @@ export async function GET(
 
   const { data, error } = await getSupabase()
     .from('remit_reports')
-    .select('*')
+    .select('*, remit_expenses(*), remit_add_ons(*)')
     .eq('id', id)
     .single();
 
@@ -26,7 +28,21 @@ export async function GET(
     );
   }
 
-  return NextResponse.json(data, { headers: cors?.headers, status: 200 });
+  const salesTotal = sumSalesRemits(data.sales);
+  const expensesTotal = sumKeyValueArray(
+    (data.remit_expenses as [{ [value: string]: number }]) || [],
+  );
+  const addOnsTotal = sumKeyValueArray(
+    (data.remit_add_ons as [{ [value: string]: number }]) || [],
+  );
+
+  return NextResponse.json(
+    {
+      ...data,
+      totals: { remit_total: salesTotal + addOnsTotal - expensesTotal },
+    },
+    { headers: cors?.headers, status: 200 },
+  );
 }
 
 export async function DELETE(

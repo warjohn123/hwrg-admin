@@ -18,7 +18,6 @@ export default function RemitReportsPage() {
   const [dates, setDates] = useState([new DateObject(), new DateObject()]);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [selectedReportId, setSelectedReportId] = useState<string | null>(null);
-  //   const [isReportDetailsOpen, setIsReportDetailsOpen] = useState(false);
 
   useEffect(() => {
     const fetchAllData = () => {
@@ -44,29 +43,6 @@ export default function RemitReportsPage() {
       setLoading(false);
     }
   }
-
-  //   function getExpenses(name: string) {
-  //     return salesReports
-  //       .reduce((acc, report) => {
-  //         const total = report.expenses.reduce((sum, expense) => {
-  //           return sum + (expense.name === name ? Number(expense.value) : 0);
-  //         }, 0);
-  //         return acc + total;
-  //       }, 0)
-  //       .toLocaleString();
-  //   }
-
-  //   const totalRemit = salesReports.reduce((acc, report) => {
-  //     return acc + report.cash;
-  //   }, 0);
-
-  //   const totalSales = salesReports.reduce((acc, report) => {
-  //     return acc + getChickyOinkTotalSales(report.sales);
-  //   }, 0);
-
-  //   const totalPosoSales = salesReports.reduce((acc, report) => {
-  //     return acc + report.inventory.poso.sales * 8;
-  //   }, 0);
 
   async function handleDelete() {
     if (!selectedReportId) return;
