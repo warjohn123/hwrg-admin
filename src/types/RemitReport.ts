@@ -1,3 +1,9 @@
+import { IAssignment } from './User';
+
+export type RemitSalesType = {
+  [K in IAssignment]: Record<string, { branchId: number; amount: number }>;
+};
+
 export interface IRemitReport {
   id: string;
   title: string;

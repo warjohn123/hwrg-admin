@@ -1,4 +1,6 @@
 import { handleCors } from '@/lib/cors';
+import { sumKeyValueArray } from '@/lib/sumKeyValueArray';
+import { sumSalesRemits } from '@/lib/sumSalesRemits';
 import { getSupabase } from '@/lib/supabaseServer';
 import { NextRequest, NextResponse } from 'next/server';
 
@@ -16,10 +18,13 @@ export async function GET(req: NextRequest) {
 
   let query = getSupabase()
     .from('remit_reports')
-    .select('id, title, report_date', {
-      count: 'exact',
-      head: false,
-    })
+    .select(
+      'id, title, report_date, sales, remit_expenses(*), remit_add_ons(*)',
+      {
+        count: 'exact',
+        head: false,
+      },
+    )
     .order('created_at', { ascending: false });
 
   if (dates) {
@@ -48,8 +53,28 @@ export async function GET(req: NextRequest) {
     );
   }
 
+  const enriched = data.map((report) => {
+    const salesTotal = sumSalesRemits(report.sales);
+    const expensesTotal = sumKeyValueArray(
+      (report.remit_expenses as [{ [value: string]: number }]) || [],
+    );
+    const addOnsTotal = sumKeyValueArray(
+      (report.remit_add_ons as [{ [value: string]: number }]) || [],
+    );
+
+    return {
+      ...report,
+      totals: {
+        sales: salesTotal,
+        expenses: expensesTotal,
+        add_ons: addOnsTotal,
+        remit_total: salesTotal + addOnsTotal - expensesTotal,
+      },
+    };
+  });
+
   return NextResponse.json(
-    { remit_reports: data, total: count ?? 0 },
+    { remit_reports: enriched, total: count ?? 0 },
     { headers: cors?.headers, status: 200 },
   );
 }
