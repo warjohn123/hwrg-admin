@@ -39,7 +39,11 @@ export async function GET(
   return NextResponse.json(
     {
       ...data,
-      totals: { remit_total: salesTotal + addOnsTotal - expensesTotal },
+      totals: {
+        remit_total: salesTotal + addOnsTotal - expensesTotal,
+        expenses: expensesTotal,
+        add_ons: addOnsTotal,
+      },
     },
     { headers: cors?.headers, status: 200 },
   );

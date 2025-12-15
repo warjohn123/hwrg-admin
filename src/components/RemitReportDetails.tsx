@@ -29,6 +29,18 @@ export default function RemitReportDetails({
     }
   }
 
+  function computeSalesPerAssignment(key: string) {
+    if (!remit) return 0;
+    let total = 0;
+    const salesData = remit.sales[key as keyof typeof remit.sales];
+    if (!salesData) return 0;
+    Object.entries(salesData).forEach((item) => {
+      const [, data] = item;
+      total += data.amount;
+    });
+    return total;
+  }
+
   useEffect(() => {
     loadReport();
   }, []);
@@ -54,7 +66,7 @@ export default function RemitReportDetails({
       </p>
 
       {Object.keys(remit.sales || {}).map((key: string) => (
-        <div className="mb-2" key={key}>
+        <div className="mb-2 space-y-3" key={key}>
           <strong>
             {(key.charAt(0).toUpperCase() + key.slice(1)) as IAssignment} Sales:
           </strong>{' '}
@@ -62,7 +74,6 @@ export default function RemitReportDetails({
             {Object.entries(
               remit.sales[key as keyof typeof remit.sales] || {},
             ).map((item) => {
-              console.log('item', item);
               const [branchId, data] = item;
               return (
                 <div key={branchId}>
@@ -70,6 +81,12 @@ export default function RemitReportDetails({
                 </div>
               );
             })}
+          </div>
+          <div className="font-bold mt-1 text-2xl">
+            Total {key.charAt(0).toUpperCase() + key.slice(1)} Sales:{' '}
+            {computeSalesPerAssignment(key)
+              ? computeSalesPerAssignment(key).toLocaleString()
+              : '0'}
           </div>
         </div>
       ))}
@@ -90,6 +107,10 @@ export default function RemitReportDetails({
         ) : (
           <p>No add-ons available.</p>
         )}
+        <div className="font-bold mt-2">
+          Total Add-Ons:{' '}
+          {remit.totals?.add_ons ? remit.totals.add_ons.toLocaleString() : '0'}
+        </div>
       </div>
 
       {/** Expenses Section */}
@@ -109,6 +130,13 @@ export default function RemitReportDetails({
         ) : (
           <p>No add-ons available.</p>
         )}
+
+        <div className="font-bold mt-2">
+          Total Expenses:{' '}
+          {remit.totals?.expenses
+            ? remit.totals.expenses.toLocaleString()
+            : '0'}
+        </div>
       </div>
 
       <h1 className="font-bold text-2xl mt-5">
