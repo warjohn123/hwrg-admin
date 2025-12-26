@@ -23,6 +23,10 @@ export default function RemitReportsPage() {
   const [selectedReportId, setSelectedReportId] = useState<string | null>(null);
   const [isReportDetailsOpen, setIsReportDetailsOpen] = useState(false);
 
+  const totalRemits = salesReports.reduce((acc, report) => {
+    return acc + (report.totals?.remit_total || 0);
+  }, 0);
+
   useEffect(() => {
     const fetchAllData = () => {
       setLoading(true);
@@ -78,7 +82,7 @@ export default function RemitReportsPage() {
         </div>
       </div>
       <div className="mt-5 mb-5">
-        {/* <p className="font-bold">Total Remit: {totalRemit.toLocaleString()}</p> */}
+        <p className="font-bold">Total Remit: {totalRemits.toLocaleString()}</p>
       </div>
       <div className="overflow-x-auto bg-white rounded shadow">
         <table className="min-w-full table-auto">
