@@ -17,7 +17,7 @@ import {
 } from '@/types/ImagawayakiReport';
 import { IPotatoFryReport, PotatoFrySales } from '@/types/PotatoFryReport';
 import { IAssignment } from '@/types/User';
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import DatePicker, { DateObject } from 'react-multi-date-picker';
 
 interface Props {
@@ -86,22 +86,29 @@ export default function MonthlySales({ type }: Props) {
     getBranches();
   }, []);
 
-  const totalSales = salesReports.reduce((acc, report) => {
-    return (
-      acc +
-      (type === IAssignment.CHICKY_OINK
-        ? getChickyOinkTotalSales(report.sales as ChickyOinkSales)
-        : type === IAssignment.IMAGAWAYAKI
-          ? getImagawayakiTotalSales(report.sales as ImagawayakiSales)
-          : type === IAssignment.HWRG_EGGS
-            ? getHWRGEggsTotalSales(report.sales as IHWRGEggsSales)
-            : getPotatoFryTotalSales(report.sales as PotatoFrySales))
-    );
-  }, 0);
+  const totalSales = useMemo(() => {
+    return salesReports.reduce((acc, report) => {
+      const sales = report.sales;
 
-  const totalExpenses = companyExpenses.reduce(
-    (acc, curr) => acc + curr.amount,
-    0,
+      switch (type) {
+        case IAssignment.CHICKY_OINK:
+          return acc + getChickyOinkTotalSales(sales as ChickyOinkSales);
+
+        case IAssignment.IMAGAWAYAKI:
+          return acc + getImagawayakiTotalSales(sales as ImagawayakiSales);
+
+        case IAssignment.HWRG_EGGS:
+          return acc + getHWRGEggsTotalSales(sales as IHWRGEggsSales);
+
+        default:
+          return acc + getPotatoFryTotalSales(sales as PotatoFrySales);
+      }
+    }, 0);
+  }, [salesReports, type]);
+
+  const totalExpenses = useMemo(
+    () => companyExpenses.reduce((sum, { amount }) => sum + amount, 0),
+    [companyExpenses],
   );
 
   return (
