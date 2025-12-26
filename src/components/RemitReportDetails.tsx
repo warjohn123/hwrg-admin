@@ -1,5 +1,8 @@
 import { useEscClose } from '@/hooks/useEscClose';
-import { getRemitReportDetails } from '@/services/remit_reports.service';
+import {
+  getRemitReportDetails,
+  getYesterdayRemitReports,
+} from '@/services/remit_reports.service';
 import { IRemitReport } from '@/types/RemitReport';
 import { IAssignment } from '@/types/User';
 import { useEffect, useState } from 'react';
@@ -17,11 +20,23 @@ export default function RemitReportDetails({
   setIsOpen,
 }: Props) {
   const [remit, setRemit] = useState<IRemitReport | null>(null);
+  const [comparison, setComparison] = useState<
+    { branch_id: number; total_cash: number }[]
+  >([]);
   const [loading, setLoading] = useState(true);
+
+  async function init() {
+    setLoading(true);
+    await loadReport();
+    setLoading(false);
+  }
   async function loadReport() {
     try {
       const res = await getRemitReportDetails(remitId || '');
       setRemit(res);
+
+      const res2 = await getYesterdayRemitReports(res.report_date);
+      setComparison(res2.sales);
     } catch (error) {
       console.error('Failed to fetch report:', error);
     } finally {
@@ -41,11 +56,25 @@ export default function RemitReportDetails({
     return total;
   }
 
+  function checkIfMatch(branchId: number, amount: number) {
+    console.log('branch id', branchId, amount);
+    if (!comparison || comparison.length === 0) return false;
+    const record = comparison.find((c) => c.branch_id === branchId);
+    console.log('record', record, amount);
+    if (!record) return false;
+    return record.total_cash === amount;
+  }
+
   useEffect(() => {
-    loadReport();
+    init();
   }, []);
 
+  console.log('comparison', comparison);
+  console.log('remit', remit);
+
   useEscClose(isOpen, () => setIsOpen(false));
+
+  console.log('remit test', remit);
 
   if (!isOpen) return null;
 
@@ -78,6 +107,9 @@ export default function RemitReportDetails({
               return (
                 <div key={branchId}>
                   {item[0]}: {data.amount.toLocaleString()}{' '}
+                  <span>
+                    {checkIfMatch(data.branchId, data.amount) ? '✅' : '❌'}
+                  </span>
                 </div>
               );
             })}

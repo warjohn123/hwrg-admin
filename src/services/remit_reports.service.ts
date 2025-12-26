@@ -7,6 +7,17 @@ export async function getRemitReportDetails(id: string) {
   }
 }
 
+export async function getYesterdayRemitReports(date: string) {
+  try {
+    const res = await fetch(
+      `/api/sales-reports/get_yesterday_sales_by_branch?date=${date}`,
+    );
+    return res.json();
+  } catch (e) {
+    console.error(e);
+  }
+}
+
 export async function fetchRemitReports(
   dates: string[],
   page?: number,
