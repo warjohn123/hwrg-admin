@@ -20,12 +20,11 @@ export async function PUT(req: Request) {
       );
     }
 
-    // Insert into 'users' table
+    // Insert into 'timelogs' table
     const { data, error: dbError } = await getSupabase()
       .from('timelogs')
       .update({ clock_out: new Date(), clock_out_photo })
       .eq('user_id', user_id)
-      .is('clock_out', null)
       .order('clock_in', { ascending: false })
       .limit(1);
 

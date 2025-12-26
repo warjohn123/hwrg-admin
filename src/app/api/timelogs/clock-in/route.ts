@@ -21,7 +21,7 @@ export async function POST(req: Request) {
       );
     }
 
-    // Insert into 'users' table
+    // Insert into 'timelogs' table
     const { data, error: dbError } = await getSupabase()
       .from('timelogs')
       .insert([{ clock_in_photo, clock_in: now, user_id, date: now }]);
