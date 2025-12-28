@@ -18,59 +18,38 @@ import {
   ImagawayakiSales,
 } from '@/types/ImagawayakiReport';
 import { IAssignment } from '@/types/User';
+import { useQuery } from '@tanstack/react-query';
 import { useEffect, useState } from 'react';
 import { FaArrowRight, FaTrash } from 'react-icons/fa6';
 import DatePicker, { DateObject } from 'react-multi-date-picker';
 
 export default function ReportsPage() {
-  const [salesReports, setSalesReports] = useState<IImagawayakiReport[]>([]);
-  const [loading, setLoading] = useState(true);
   const [branches, setBranches] = useState<IBranch[]>([]);
   const [selectedBranch, setSelectedBranch] = useState<string>('');
-  const { page, setPage, totalPages, setTotal, limit } = usePagination();
+  const { page, setPage, limit } = usePagination();
   const [dates, setDates] = useState([new DateObject(), new DateObject()]);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [selectedReportId, setSelectedReportId] = useState<string | null>(null);
   const [isReportDetailsOpen, setIsReportDetailsOpen] = useState(false);
 
-  useEffect(() => {
-    const fetchAllData = () => {
-      setLoading(true);
-      Promise.all([getSalesReports(page, selectedBranch, dates)]).then(() => {
-        setLoading(false);
-      });
-    };
+  const { data, error, refetch } = useQuery({
+    queryKey: ['imagawayaki-sales-reports', page, selectedBranch, dates],
+    queryFn: () =>
+      fetchSalesReports(
+        selectedBranch,
+        dates.map((date) => date.format('YYYY-MM-DD')),
+        IAssignment.IMAGAWAYAKI,
+        page,
+        limit,
+      ),
+    enabled: dates.length === 2,
+  });
 
-    if (dates.length === 2) fetchAllData();
-  }, [page, selectedBranch, dates]);
+  const salesReports: IImagawayakiReport[] = data?.sales_reports ?? [];
 
   useEffect(() => {
     getBranches();
   }, []);
-
-  async function getSalesReports(
-    pageNumber = 1,
-    branchId = '',
-    dates: DateObject[],
-  ) {
-    setLoading(true);
-    try {
-      const formattedDates = dates.map((date) => date.format('YYYY-MM-DD'));
-      const res = await fetchSalesReports(
-        branchId,
-        formattedDates,
-        IAssignment.IMAGAWAYAKI,
-        pageNumber,
-        limit,
-      );
-      setTotal(res.total ?? 0);
-      setSalesReports(res.sales_reports ?? []);
-      setLoading(false);
-    } catch (e) {
-      console.error('Failed to fetch sales reports:', e);
-      setLoading(false);
-    }
-  }
 
   async function getBranches() {
     const res = await fetchBranches(IAssignment.IMAGAWAYAKI);
@@ -101,7 +80,7 @@ export default function ReportsPage() {
     await deleteSalesReport(selectedReportId);
     setShowDeleteModal(false);
     setSelectedReportId(null);
-    getSalesReports(page, selectedBranch, dates);
+    refetch();
   }
 
   function getShortAndOver(report: IImagawayakiReport) {
@@ -137,7 +116,7 @@ export default function ReportsPage() {
     return result;
   }
 
-  if (loading) return <p>Loading sales reports...</p>;
+  if (error) return <p>Error loading sales reports: {error.message}</p>;
 
   return (
     <div>
@@ -328,7 +307,7 @@ export default function ReportsPage() {
         )}
       </div>
 
-      <Pagination setPage={setPage} page={page} totalPages={totalPages} />
+      <Pagination setPage={setPage} page={page} totalPages={data?.total ?? 0} />
     </div>
   );
 }

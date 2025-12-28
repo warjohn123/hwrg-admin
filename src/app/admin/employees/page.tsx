@@ -14,7 +14,7 @@ export default function EmployeesPage() {
   const [search, setSearch] = useState<string>('');
   const [debouncedSearch, setDebouncedSearch] = useState('');
   const { page, setPage, limit } = usePagination();
-  const { data, isPending, refetch } = useQuery({
+  const { data, isPending, error, refetch } = useQuery({
     queryKey: ['employees', page, limit, search],
     queryFn: () => getEmployees(page, limit, search),
   });
@@ -32,6 +32,8 @@ export default function EmployeesPage() {
       clearTimeout(handler); // Cleanup if value changes
     };
   }, [search]);
+
+  if (error) return <p>Error loading employees: {error.message}</p>;
 
   return (
     <div>
