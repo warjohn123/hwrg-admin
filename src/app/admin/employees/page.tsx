@@ -6,19 +6,21 @@ import { useEffect, useState } from 'react';
 import { redirect } from 'next/navigation';
 import Pagination from '@/components/Pagination';
 import { usePagination } from '@/hooks/usePagination';
-import { toast } from 'react-toastify';
 import { getEmployees } from '@/services/employees.service';
+import { useQuery } from '@tanstack/react-query';
 
 export default function EmployeesPage() {
-  const [employees, setEmployees] = useState<IUser[]>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState<string>('');
   const [debouncedSearch, setDebouncedSearch] = useState('');
-  const { page, setPage, setTotal, totalPages, limit } = usePagination();
+  const { page, setPage, limit } = usePagination();
+  const { data, isPending, refetch } = useQuery({
+    queryKey: ['employees', page, limit, search],
+    queryFn: () => getEmployees(page, limit, search),
+  });
 
   useEffect(() => {
-    if (debouncedSearch !== undefined) fetchEmployees();
+    if (debouncedSearch !== undefined) refetch();
   }, [page, debouncedSearch]);
 
   useEffect(() => {
@@ -30,20 +32,6 @@ export default function EmployeesPage() {
       clearTimeout(handler); // Cleanup if value changes
     };
   }, [search]);
-
-  async function fetchEmployees() {
-    setLoading(true);
-    try {
-      const res = await getEmployees(page, limit, search);
-      setEmployees(res.users);
-      setTotal(res.total);
-    } catch (e) {
-      toast.error('Failed to fetch employees');
-      console.error('Failed to fetch users: ', e);
-    } finally {
-      setLoading(false);
-    }
-  }
 
   return (
     <div>
@@ -70,8 +58,8 @@ export default function EmployeesPage() {
         </div>
       </div>
 
-      {loading && <p>Loading employees....</p>}
-      {!loading && (
+      {isPending && <p>Loading employees....</p>}
+      {!isPending && (
         <>
           <div className="overflow-x-auto bg-white rounded shadow">
             <table className="min-w-full table-auto">
@@ -83,7 +71,7 @@ export default function EmployeesPage() {
                 </tr>
               </thead>
               <tbody>
-                {employees.map((emp) => (
+                {data?.users.map((emp: IUser) => (
                   <tr
                     key={emp.id}
                     className="border-b hover:bg-gray-50 cursor-pointer"
@@ -98,12 +86,12 @@ export default function EmployeesPage() {
             </table>
           </div>
 
-          <Pagination setPage={setPage} totalPages={totalPages} page={page} />
+          <Pagination setPage={setPage} totalPages={data.total} page={page} />
 
           {isModalOpen && (
             <SaveEmployeeModal
               setIsModalOpen={setIsModalOpen}
-              fetchEmployees={fetchEmployees}
+              fetchEmployees={refetch}
               isModalOpen={isModalOpen}
             />
           )}
