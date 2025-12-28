@@ -12,6 +12,8 @@ import { fetchTimelogs } from '@/services/timelogs.service';
 
 export default function TimeLogsTable() {
   const [timelogs, setTimelogs] = useState<ITimelog[]>([]);
+  const [search, setSearch] = useState<string>('');
+  const [debouncedSearch, setDebouncedSearch] = useState('');
   const [loading, setLoading] = useState(true);
   const { page, setPage, totalPages, setTotal, limit } = usePagination();
   const [selectedTimelog, setSelectedTimelog] = useState<ITimelog | undefined>(
@@ -23,7 +25,12 @@ export default function TimeLogsTable() {
     setLoading(true);
     try {
       const formattedDates = dates.map((date) => date.format('YYYY-MM-DD'));
-      const res = await fetchTimelogs(formattedDates, page, limit);
+      const res = await fetchTimelogs(
+        formattedDates,
+        page,
+        limit,
+        debouncedSearch,
+      );
       setTotal(res.total ?? 0);
       setTimelogs(res.timelogs ?? []);
       setLoading(false);
@@ -31,7 +38,21 @@ export default function TimeLogsTable() {
       console.error(`Failed to fetch timelogs:`, e);
       setLoading(false);
     }
-  }, [dates, page, limit, setTotal]);
+  }, [dates, page, limit, debouncedSearch, setTotal]);
+
+  useEffect(() => {
+    if (debouncedSearch !== undefined) fetchLogs();
+  }, [page, debouncedSearch]);
+
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      setDebouncedSearch(search);
+    }, 500); // Debounce delay in ms
+
+    return () => {
+      clearTimeout(handler); // Cleanup if value changes
+    };
+  }, [search]);
 
   useEffect(() => {
     if (dates.length === 2) fetchLogs();
@@ -58,6 +79,17 @@ export default function TimeLogsTable() {
                 }}
                 format="YYYY-MM-DD"
                 range
+              />
+            </div>
+          </div>
+          <div className="mb-5">
+            <label>Search</label>
+            <div>
+              <input
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                placeholder="Search employee by name"
+                className="px-4 py-2 border border-gray-300 w-64 bg-white rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
             </div>
           </div>

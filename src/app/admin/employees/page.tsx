@@ -15,8 +15,8 @@ export default function EmployeesPage() {
   const [debouncedSearch, setDebouncedSearch] = useState('');
   const { page, setPage, limit } = usePagination();
   const { data, isPending, error, refetch } = useQuery({
-    queryKey: ['employees', page, limit, search],
-    queryFn: () => getEmployees(page, limit, search),
+    queryKey: ['employees', page, limit, debouncedSearch],
+    queryFn: () => getEmployees(page, limit, debouncedSearch),
   });
 
   useEffect(() => {
