@@ -31,7 +31,7 @@ export default function ReportsPage() {
   const [selectedReportId, setSelectedReportId] = useState<string | null>(null);
   const [isReportDetailsOpen, setIsReportDetailsOpen] = useState(false);
 
-  const { data, error, refetch } = useQuery({
+  const { data, error, isPending, refetch } = useQuery({
     queryKey: ['chicky-oink-sales-reports', page, selectedBranch, dates],
     queryFn: () =>
       fetchSalesReports(
@@ -45,6 +45,8 @@ export default function ReportsPage() {
   });
 
   const salesReports: IChickyOinkReport[] = data?.sales_reports ?? [];
+  const isReady = dates.length === 2;
+  const isLoadingInitial = isReady && isPending;
 
   useEffect(() => {
     getBranches();
@@ -133,6 +135,7 @@ export default function ReportsPage() {
     return result;
   }
 
+  if (isLoadingInitial) return <p>Loading sales reports...</p>;
   if (error) return <p>Error loading sales reports: {error.message}</p>;
 
   return (
