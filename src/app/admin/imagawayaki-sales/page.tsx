@@ -26,14 +26,15 @@ import DatePicker, { DateObject } from 'react-multi-date-picker';
 export default function ReportsPage() {
   const [branches, setBranches] = useState<IBranch[]>([]);
   const [selectedBranch, setSelectedBranch] = useState<string>('');
-  const { page, setPage, limit } = usePagination();
+  const { page, setPage, limit, setLimit, setTotal, totalPages } =
+    usePagination();
   const [dates, setDates] = useState([new DateObject(), new DateObject()]);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [selectedReportId, setSelectedReportId] = useState<string | null>(null);
   const [isReportDetailsOpen, setIsReportDetailsOpen] = useState(false);
 
   const { data, error, isPending, refetch } = useQuery({
-    queryKey: ['imagawayaki-sales-reports', page, selectedBranch, dates],
+    queryKey: ['imagawayaki-sales-reports', page, limit, selectedBranch, dates],
     queryFn: () =>
       fetchSalesReports(
         selectedBranch,
@@ -52,6 +53,12 @@ export default function ReportsPage() {
   useEffect(() => {
     getBranches();
   }, []);
+
+  useEffect(() => {
+    if (data?.total != null) {
+      setTotal(data.total);
+    }
+  }, [data?.total, setTotal]);
 
   async function getBranches() {
     const res = await fetchBranches(IAssignment.IMAGAWAYAKI);
@@ -310,7 +317,13 @@ export default function ReportsPage() {
         )}
       </div>
 
-      <Pagination setPage={setPage} page={page} totalPages={data?.total ?? 0} />
+      <Pagination
+        setPage={setPage}
+        page={page}
+        totalPages={totalPages}
+        limit={limit}
+        setLimit={setLimit}
+      />
     </div>
   );
 }
