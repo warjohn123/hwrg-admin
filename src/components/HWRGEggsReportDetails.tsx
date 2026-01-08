@@ -240,7 +240,7 @@ export default function HWRGEggsReportDetails({
                     <td className="border px-4 py-2">
                       <div>
                         TRAYS:
-                        {report.inventory[key].initial_stocks.trays}
+                        {report.inventory[key].sales.trays}
                       </div>
                       <div>
                         DOZENS:
