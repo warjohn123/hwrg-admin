@@ -39,7 +39,8 @@ export default function LoginForm() {
     }
 
     if (!error) {
-      router.push('/admin/chicky-oink-sales');
+      await new Promise((r) => setTimeout(r, 100));
+      router.replace('/admin/chicky-oink-sales');
       router.refresh(); // 🔑 forces server to read cookies
     } else {
       alert(error);
