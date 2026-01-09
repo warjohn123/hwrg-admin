@@ -38,11 +38,12 @@ export default function LoginForm() {
       return;
     }
 
-    if (error) {
+    if (!error) {
+      router.push('/admin/chicky-oink-sales');
+      router.refresh(); // 🔑 forces server to read cookies
+    } else {
       alert(error);
       setIsSigningIn(false);
-    } else {
-      router.push('/admin/chicky-oink-sales');
     }
   };
 
@@ -51,7 +52,9 @@ export default function LoginForm() {
       onSubmit={handleLogin}
       className="bg-white p-8 rounded-xl shadow-md w-full max-w-md"
     >
-      <h2 className="text-2xl font-bold mb-6 text-center">Admin Login</h2>
+      <h2 className="text-2xl font-bold mb-6 text-center">
+        HWRG Company Admin Login
+      </h2>
 
       <div className="mb-4">
         <label className="block text-sm font-medium text-gray-700 mb-1">

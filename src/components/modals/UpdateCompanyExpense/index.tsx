@@ -33,17 +33,6 @@ export default function UpdateCompanyExpenseModal({
   const [branches, setBranches] = useState<IBranch[]>([]);
   const [isLoadingBranches, setIsLoadingBranches] = useState<boolean>(true);
 
-  async function getBranches() {
-    try {
-      const res = await fetchBranches(type);
-      setBranches(res.branches);
-    } catch (e) {
-      console.error(`Failed to fetch branches:`, e);
-    } finally {
-      setIsLoadingBranches(false);
-    }
-  }
-
   const initialValues = {
     branch_id: expense?.branches?.id ?? '',
     name: expense?.name ?? '',
@@ -84,8 +73,18 @@ export default function UpdateCompanyExpenseModal({
   };
 
   useEffect(() => {
+    async function getBranches() {
+      try {
+        const res = await fetchBranches(type);
+        setBranches(res.branches);
+      } catch (e) {
+        console.error(`Failed to fetch branches:`, e);
+      } finally {
+        setIsLoadingBranches(false);
+      }
+    }
     getBranches();
-  }, [getBranches]);
+  }, [type]);
 
   return (
     <Dialog

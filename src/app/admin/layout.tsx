@@ -1,9 +1,9 @@
-"use client";
+'use client';
 
-import Sidebar from "@/components/Sidebar";
-import { useState } from "react";
-import { Menu } from "lucide-react";
-import ProtectedRoute from "@/components/ProtectedRoute";
+import Sidebar from '@/components/Sidebar';
+import { useState } from 'react';
+import { Menu } from 'lucide-react';
+import ProtectedRoute from '@/components/ProtectedRoute';
 
 export default function AdminLayout({
   children,
