@@ -3,6 +3,7 @@
 import ChickyOinkReportDetails from '@/components/ChickyOinkReportDetails';
 import ConfirmModal from '@/components/modals/ConfirmationModal';
 import Pagination from '@/components/Pagination';
+import { CHICKY_OINK_INVENTORY } from '@/constants/ChickyOinkInventory';
 import { CHICKY_OINK_INVENTORY_DISPLAY_ORDER } from '@/constants/displayOrder';
 import { usePagination } from '@/hooks/usePagination';
 import { getChickyOinkTotalSales } from '@/lib/getChickyOinkTotalSales';
@@ -87,15 +88,28 @@ export default function ReportsPage() {
     return acc + report.inventory.poso.sales * 8;
   }, 0);
 
-  const totalRemainingMeats = salesReports.reduce((acc, report) => {
-    return (
-      acc +
-      report.inventory.spicy_chicken.remaining_stocks +
-      report.inventory.regular_chicken.remaining_stocks +
-      report.inventory.regular_liempo.remaining_stocks +
-      report.inventory.spicy_liempo.remaining_stocks
-    );
-  }, 0);
+  const totalRemainingMeats: {
+    SM: number;
+    RM: number;
+    RL: number;
+    SL: number;
+  } = salesReports.reduce(
+    (acc, report) => {
+      return {
+        SM: acc.SM + report.inventory.spicy_chicken.remaining_stocks,
+        RM: acc.RM + report.inventory.regular_chicken.remaining_stocks,
+        RL: acc.RL + report.inventory.regular_liempo.remaining_stocks,
+        SL: acc.SL + report.inventory.spicy_liempo.remaining_stocks,
+      };
+    },
+    { SM: 0, RM: 0, RL: 0, SL: 0 },
+  );
+
+  const totalRemainingMeatsValue =
+    totalRemainingMeats.SM * CHICKY_OINK_INVENTORY['SPICY_CHICKEN'].price +
+    totalRemainingMeats.RM * CHICKY_OINK_INVENTORY['REGULAR_CHICKEN'].price +
+    totalRemainingMeats.RL * CHICKY_OINK_INVENTORY['REGULAR_LIEMPO'].price +
+    totalRemainingMeats.SL * CHICKY_OINK_INVENTORY['SPICY_LIEMPO'].price;
 
   async function handleDelete() {
     if (!selectedReportId) return;
@@ -192,7 +206,28 @@ export default function ReportsPage() {
           Total POSO Sales: {totalPosoSales.toLocaleString()}
         </p>
         <p className="font-bold">
-          Total Remaining No. of Meats: {totalRemainingMeats}
+          Total Remaining No. of Meats <br />
+          RM: {totalRemainingMeats.RM} - Value:{' '}
+          {(
+            totalRemainingMeats.RM *
+            CHICKY_OINK_INVENTORY['REGULAR_CHICKEN'].price
+          ).toLocaleString()}{' '}
+          <br />
+          SM: {totalRemainingMeats.SM} - Value:{' '}
+          {(
+            totalRemainingMeats.SM *
+            CHICKY_OINK_INVENTORY['SPICY_CHICKEN'].price
+          ).toLocaleString()}
+          <br />
+          RL: {totalRemainingMeats.RL} - Value:{' '}
+          {totalRemainingMeats.RL *
+            CHICKY_OINK_INVENTORY['REGULAR_LIEMPO'].price}{' '}
+          <br />
+          SL: {totalRemainingMeats.SL} - Value:
+          {totalRemainingMeats.SL * CHICKY_OINK_INVENTORY['SPICY_LIEMPO'].price}
+        </p>
+        <p>
+          Total Inventory Value: {totalRemainingMeatsValue.toLocaleString()}
         </p>
         <div className="flex gap-10">
           <div className="font-bold">Grab: {getExpenses('Grab')}</div>
