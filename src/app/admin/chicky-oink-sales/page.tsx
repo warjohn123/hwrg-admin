@@ -205,8 +205,14 @@ export default function ReportsPage() {
         <p className="font-bold">
           Total POSO Sales: {totalPosoSales.toLocaleString()}
         </p>
+        <br />
         <p className="font-bold">
-          Total Remaining No. of Meats <br />
+          Total Remaining No. of Meats:{' '}
+          {totalRemainingMeats.RM +
+            totalRemainingMeats.SM +
+            totalRemainingMeats.RL +
+            totalRemainingMeats.SL}{' '}
+          <br />
           RM: {totalRemainingMeats.RM} - Value:{' '}
           {(
             totalRemainingMeats.RM *
@@ -226,9 +232,10 @@ export default function ReportsPage() {
           SL: {totalRemainingMeats.SL} - Value:
           {totalRemainingMeats.SL * CHICKY_OINK_INVENTORY['SPICY_LIEMPO'].price}
         </p>
-        <p>
+        <p className="font-bold">
           Total Inventory Value: {totalRemainingMeatsValue.toLocaleString()}
         </p>
+        <br />
         <div className="flex gap-10">
           <div className="font-bold">Grab: {getExpenses('Grab')}</div>
           <div className="font-bold">FoodPanda: {getExpenses('FoodPanda')}</div>
