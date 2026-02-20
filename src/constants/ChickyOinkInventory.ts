@@ -20,12 +20,12 @@ export const CHICKY_OINK_INVENTORY: { [key: string]: IInventoryItem } = {
   REGULAR_LIEMPO: {
     name: 'Regular Liempo',
     attribute: 'regular_liempo',
-    price: 270,
+    price: 280,
   },
   SPICY_LIEMPO: {
     name: 'Spicy Liempo',
     attribute: 'spicy_liempo',
-    price: 280,
+    price: 290,
   },
   LIOG: { name: 'Liog', attribute: 'liog', price: 12 },
   SPICY_LIOG: {
