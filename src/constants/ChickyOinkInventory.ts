@@ -10,12 +10,12 @@ export const CHICKY_OINK_INVENTORY: { [key: string]: IInventoryItem } = {
   REGULAR_CHICKEN: {
     name: 'Regular Chicken',
     attribute: 'regular_chicken',
-    price: 310,
+    price: 320,
   },
   SPICY_CHICKEN: {
     name: 'Spicy Chicken',
     attribute: 'spicy_chicken',
-    price: 320,
+    price: 330,
   },
   REGULAR_LIEMPO: {
     name: 'Regular Liempo',
