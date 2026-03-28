@@ -11,11 +11,11 @@ type Employee = {
   type: string;
 };
 
-type Admin = {
-  id: string;
-  name: string;
-  email: string | null;
-};
+// type Admin = {
+//   id: string;
+//   name: string;
+//   email: string | null;
+// };
 
 function isAuthorizedCronRequest(req: NextRequest) {
   const cronSecret = process.env.CRON_SECRET;
@@ -61,6 +61,8 @@ export async function GET(req: NextRequest) {
       .in('type', ['employee', 'inventory_checker']),
     supabase.from('users').select('id, name, email').eq('type', 'admin'),
   ]);
+
+  console.log('admins', admins);
 
   if (employeesError || adminsError) {
     return NextResponse.json(
