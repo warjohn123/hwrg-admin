@@ -1,3 +1,5 @@
+# HWRG Admin
+
 This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
 
 ## Getting Started
@@ -34,3 +36,26 @@ You can check out [the Next.js GitHub repository](https://github.com/vercel/next
 The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
 
 Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+
+## Daily 10:00 AM Missing Clock-In Notification
+
+This project includes a scheduled API job that runs daily at **10:00 AM Asia/Manila** and emails admins a list of employees who have not clocked in yet.
+
+- Endpoint: `/api/notifications/missing-clock-ins`
+- Schedule: `0 2 * * *` (UTC) in `vercel.json`, which is `10:00 AM` in Manila (`UTC+8`)
+- Auth: set `CRON_SECRET` and Vercel will call the endpoint with `Authorization: Bearer <CRON_SECRET>`
+
+Required environment variables:
+
+```bash
+NEXT_PUBLIC_SUPABASE_URL=
+SUPABASE_SERVICE_ROLE_KEY=
+CRON_SECRET=
+SMTP_HOST=
+SMTP_PORT=587
+SMTP_SECURE=false
+SMTP_USER=
+SMTP_PASS=
+MAIL_FROM=
+```
+
