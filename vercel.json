@@ -2,7 +2,7 @@
     "crons": [
         {
             "path": "/api/notifications/missing-clock-ins",
-            "schedule": "10 7 * * *"
+            "schedule": "58 23 * * *"
         }
     ]
 }
