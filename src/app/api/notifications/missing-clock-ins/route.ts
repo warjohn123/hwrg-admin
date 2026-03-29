@@ -20,8 +20,6 @@ type Employee = {
 function isAuthorizedCronRequest(req: NextRequest) {
   const cronSecret = process.env.CRON_SECRET;
 
-  console.log('test');
-
   if (!cronSecret) {
     return process.env.NODE_ENV !== 'production';
   }

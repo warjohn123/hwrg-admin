@@ -74,8 +74,6 @@ export default function RemitReportDetails({
 
   useEscClose(isOpen, () => setIsOpen(false));
 
-  console.log('remit test', remit);
-
   if (!isOpen) return null;
 
   if (loading) return <>Loading report....</>;
