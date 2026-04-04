@@ -9,6 +9,7 @@ type Employee = {
   email: string | null;
   assignment: string | null;
   type: string;
+  is_active: boolean;
 };
 
 // type Admin = {
@@ -57,8 +58,9 @@ export async function GET(req: NextRequest) {
   ] = await Promise.all([
     supabase
       .from('users')
-      .select('id, name, email, assignment, type')
-      .in('type', ['employee', 'inventory_checker']),
+      .select('id, name, email, assignment, type, is_active')
+      .in('type', ['employee', 'inventory_checker'])
+      .eq('is_active', true),
     supabase.from('users').select('id, name, email').eq('type', 'admin'),
   ]);
 

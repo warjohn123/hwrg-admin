@@ -10,7 +10,10 @@ export async function GET(req: NextRequest) {
 
   let query = getSupabase()
     .from('users')
-    .select('id, name, email, assignment', { count: 'exact', head: false })
+    .select('id, name, email, assignment, is_active', {
+      count: 'exact',
+      head: false,
+    })
     .order('created_at', { ascending: false })
     .in('type', ['employee', 'inventory_checker']);
 

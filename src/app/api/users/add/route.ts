@@ -1,5 +1,5 @@
-import { NextResponse } from "next/server";
-import { getSupabase } from "@/lib/supabaseServer";
+import { NextResponse } from 'next/server';
+import { getSupabase } from '@/lib/supabaseServer';
 
 export async function POST(req: Request) {
   try {
@@ -7,7 +7,7 @@ export async function POST(req: Request) {
     const { email, password, name, type, assignment } = body;
 
     if (!email || !password || !name) {
-      return NextResponse.json({ error: "Missing fields" }, { status: 400 });
+      return NextResponse.json({ error: 'Missing fields' }, { status: 400 });
     }
 
     // Create Auth user
@@ -20,26 +20,35 @@ export async function POST(req: Request) {
 
     if (authError || !authUser.user) {
       return NextResponse.json(
-        { error: authError?.message || "Auth creation failed" },
-        { status: 500 }
+        { error: authError?.message || 'Auth creation failed' },
+        { status: 500 },
       );
     }
 
     // Insert into 'users' table
     const { data, error: dbError } = await getSupabase()
-      .from("users")
-      .insert([{ id: authUser.user.id, name, email, type, assignment }]); // Ensure your table has a UUID 'id' column
+      .from('users')
+      .insert([
+        {
+          id: authUser.user.id,
+          name,
+          email,
+          type,
+          assignment,
+          is_active: true,
+        },
+      ]); // Ensure your table has a UUID 'id' column
 
     if (dbError) {
       return NextResponse.json({ error: dbError.message }, { status: 500 });
     }
 
     return NextResponse.json({
-      message: "User created successfully",
+      message: 'User created successfully',
       user: data?.[0],
     });
   } catch (err) {
     console.error(err);
-    return NextResponse.json({ error: "Server error" }, { status: 500 });
+    return NextResponse.json({ error: 'Server error' }, { status: 500 });
   }
 }

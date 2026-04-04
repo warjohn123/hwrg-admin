@@ -37,7 +37,22 @@ export async function PUT(
   const { id } = await params;
   const body = await req.json();
 
-  const { error } = await getSupabase().from('users').update(body).eq('id', id);
+  const payload = {
+    ...body,
+    ...(body.is_active !== undefined
+      ? {
+          is_active:
+            typeof body.is_active === 'string'
+              ? body.is_active === 'true'
+              : Boolean(body.is_active),
+        }
+      : {}),
+  };
+
+  const { error } = await getSupabase()
+    .from('users')
+    .update(payload)
+    .eq('id', id);
 
   if (error) {
     return NextResponse.json(

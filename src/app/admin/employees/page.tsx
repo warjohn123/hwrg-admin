@@ -69,6 +69,7 @@ export default function EmployeesPage() {
                 <tr>
                   <th className="px-6 py-3 text-sm font-medium">Name</th>
                   <th className="px-6 py-3 text-sm font-medium">Email</th>
+                  <th className="px-6 py-3 text-sm font-medium">Status</th>
                   <th className="px-6 py-3 text-sm font-medium">Assignment</th>
                 </tr>
               </thead>
@@ -81,6 +82,17 @@ export default function EmployeesPage() {
                   >
                     <td className="px-6 py-4">{emp.name}</td>
                     <td className="px-6 py-4">{emp.email}</td>
+                    <td className="px-6 py-4">
+                      {emp.is_active ? (
+                        <span className="text-green-600 font-semibold">
+                          Active
+                        </span>
+                      ) : (
+                        <span className="text-red-600 font-semibold">
+                          Inactive
+                        </span>
+                      )}
+                    </td>
                     <td className="px-6 py-4">{emp.assignment}</td>
                   </tr>
                 ))}

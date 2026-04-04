@@ -1,6 +1,7 @@
 export type IUser = {
   id: string;
   name: string;
+  is_active: boolean;
   type: IUserType;
   assignment: IAssignment;
   address: string;
