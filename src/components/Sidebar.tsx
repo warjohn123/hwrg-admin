@@ -179,6 +179,12 @@ export default function Sidebar({ isOpen, setIsOpen }: SidebarProps) {
             >
               Time Logs
             </Link>
+            <Link
+              href="/admin/assistant"
+              className={linkClasses('/admin/assistant')}
+            >
+              AI Assistant
+            </Link>
             <div
               onClick={logout}
               className="hover:text-yellow-400 cursor-pointer"

@@ -59,3 +59,10 @@ SMTP_PASS=
 MAIL_FROM=
 ```
 
+Optional environment variables for the Admin AI Assistant:
+
+```bash
+OPENAI_API_KEY=
+OPENAI_MODEL=gpt-4o-mini
+```
+
