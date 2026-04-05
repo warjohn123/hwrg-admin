@@ -65,12 +65,25 @@ export default function ReportsPage() {
     setBranches(res.branches);
   }
 
-  function getExpenses(name: string) {
+  function getExpenses(name?: string) {
+    const excluded = new Set(['grab', 'foodpanda', 'gcash']);
+
     return salesReports
       .reduce((acc, report) => {
         const total = report.expenses.reduce((sum, expense) => {
-          return sum + (expense.name === name ? Number(expense.value) : 0);
+          const expenseName = (expense.name || '').trim().toLowerCase();
+
+          if (!name) {
+            return excluded.has(expenseName)
+              ? sum
+              : sum + Number(expense.value || 0);
+          }
+
+          return expenseName === name.trim().toLowerCase()
+            ? sum + Number(expense.value || 0)
+            : sum;
         }, 0);
+
         return acc + total;
       }, 0)
       .toLocaleString();
@@ -240,6 +253,7 @@ export default function ReportsPage() {
           <div className="font-bold">Grab: {getExpenses('Grab')}</div>
           <div className="font-bold">FoodPanda: {getExpenses('FoodPanda')}</div>
           <div className="font-bold">GCash: {getExpenses('GCash')}</div>
+          <div className="font-bold">Other Expenses: {getExpenses('')}</div>
         </div>
       </div>
       <div className="overflow-x-auto bg-white rounded shadow">
