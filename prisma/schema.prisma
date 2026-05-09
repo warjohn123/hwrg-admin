@@ -1,0 +1,167 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+/// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
+model branch_assignments {
+  id         Int       @id @default(autoincrement())
+  user_id    String    @db.Uuid
+  branch_id  Int
+  created_at DateTime? @default(now()) @db.Timestamp(6)
+  updated_at DateTime? @default(now()) @db.Timestamp(6)
+  branches   branches  @relation(fields: [branch_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_branch")
+  users      users     @relation(fields: [user_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_user")
+
+  @@unique([user_id, branch_id], map: "unique_user_branch")
+}
+
+/// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
+model branches {
+  id                 Int                  @id @default(autoincrement())
+  assignment         String               @db.VarChar(255)
+  branch_name        String               @unique
+  created_at         DateTime?            @default(now()) @db.Timestamp(6)
+  branch_assignments branch_assignments[]
+  company_expenses   company_expenses[]
+  sales_reports      sales_reports[]
+}
+
+/// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
+model collection_reports {
+  id           Int       @id @default(autoincrement())
+  date         DateTime  @db.Date
+  branch_sales Json
+  add_ons      Json
+  expenses     Json
+  created_at   DateTime? @default(now()) @db.Timestamp(6)
+}
+
+/// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
+model company_expenses {
+  id           String        @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  branch_id    Int
+  type         expense_type?
+  date         DateTime      @db.Date
+  name         String
+  amount       Decimal       @db.Decimal(10, 2)
+  created_at   DateTime?     @default(now()) @db.Timestamptz(6)
+  notes        String?
+  expense_date DateTime?     @db.Date
+  branches     branches      @relation(fields: [branch_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+}
+
+/// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
+model expenses {
+  id              Int            @id @default(autoincrement())
+  sales_report_id Int?
+  name            String
+  value           Decimal        @db.Decimal
+  created_at      DateTime?      @default(now()) @db.Timestamp(6)
+  sales_reports   sales_reports? @relation(fields: [sales_report_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+}
+
+/// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
+model remit_add_ons {
+  id            BigInt         @id @default(autoincrement())
+  created_at    DateTime       @default(now()) @db.Timestamptz(6)
+  remit_id      BigInt?
+  name          String?
+  value         Decimal?       @db.Decimal
+  remit_reports remit_reports? @relation(fields: [remit_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+}
+
+/// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
+model remit_expenses {
+  id            Int           @id @default(autoincrement())
+  created_at    DateTime      @default(now()) @db.Timestamptz(6)
+  remit_id      BigInt
+  name          String?
+  value         Decimal?      @db.Decimal
+  remit_reports remit_reports @relation(fields: [remit_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+}
+
+/// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
+model remit_reports {
+  id             BigInt           @id @default(autoincrement())
+  created_at     DateTime         @default(now()) @db.Timestamptz(6)
+  title          String?
+  report_date    DateTime?        @db.Date
+  sales          Json?
+  remit_add_ons  remit_add_ons[]
+  remit_expenses remit_expenses[]
+}
+
+/// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
+model sales_reports {
+  id          Int        @id @default(autoincrement())
+  title       String     @db.VarChar(255)
+  report_date DateTime   @db.Date
+  cash        Decimal    @db.Decimal(10, 2)
+  cash_fund   Decimal    @db.Decimal(10, 2)
+  sales       Json?
+  inventory   Json?
+  on_duty     String?    @db.VarChar(255)
+  prepared_by String?    @db.VarChar(255)
+  branch_id   Int
+  type        String?    @db.VarChar(255)
+  created_at  DateTime?  @default(now()) @db.Timestamp(6)
+  updated_at  DateTime?  @default(now()) @db.Timestamp(6)
+  user_id     String     @db.Uuid
+  cashier     String[]   @db.Uuid
+  cook        String[]   @db.Uuid
+  expenses    expenses[]
+  branches    branches   @relation(fields: [branch_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  users       users      @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+}
+
+/// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
+model timelogs {
+  id              String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  created_at      DateTime  @default(now()) @db.Timestamptz(6)
+  user_id         String?   @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  clock_in_photo  String?
+  clock_in        DateTime? @db.Timestamptz(6)
+  clock_out       DateTime? @db.Timestamptz(6)
+  date            DateTime? @db.Date
+  clock_out_photo String?
+  users           users?    @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+}
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+/// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
+model users {
+  created_at               DateTime             @default(now()) @db.Timestamptz(6)
+  type                     String?
+  assignment               String?
+  address                  String?
+  bday                     String?
+  contact                  String?
+  email                    String?              @unique
+  name                     String?
+  id                       String               @id @unique @db.Uuid
+  rate_per_day             Decimal?             @db.Decimal
+  first_duty_date          String?
+  documents                String[]
+  picture                  String?
+  emergency_contact_name   String?
+  emergency_contact_number String?
+  sss_no                   String?
+  pagibig_no               String?
+  tin_no                   String?
+  philhealth_no            String?
+  is_active                Boolean              @default(true)
+  branch_assignments       branch_assignments[]
+  sales_reports            sales_reports[]
+  timelogs                 timelogs[]
+}
+
+enum expense_type {
+  Chicky_Oink @map("Chicky Oink")
+  Imagawayaki
+  Potato_Fry  @map("Potato Fry")
+  HWRG_Eggs   @map("HWRG Eggs")
+}
