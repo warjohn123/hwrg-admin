@@ -16,6 +16,7 @@
   },
   "dependencies": {
     "@headlessui/react": "^2.2.4",
+    "@prisma/adapter-pg": "^7.8.0",
     "@prisma/client": "^7.8.0",
     "@supabase/auth-helpers-nextjs": "^0.10.0",
     "@supabase/auth-helpers-shared": "^0.7.0",
