@@ -1,14 +1,20 @@
 export async function fetchLeaveRequests(
   page?: number,
   limit?: number,
-  userId?: string,
+  name?: string,
   status?: string,
+  leaveType?: string,
+  sortField?: string,
+  sortDirection?: string,
 ) {
   const params = new URLSearchParams();
   if (page) params.set('page', page.toString());
   if (limit) params.set('limit', limit.toString());
-  if (userId) params.set('user_id', userId);
+  if (name) params.set('name', name);
   if (status) params.set('status', status);
+  if (leaveType) params.set('leave_type', leaveType);
+  if (sortField) params.set('sort_field', sortField);
+  if (sortDirection) params.set('sort_direction', sortDirection);
 
   const res = await fetch(`/api/leave-requests?${params.toString()}`);
   return res.json();

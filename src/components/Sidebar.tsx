@@ -180,6 +180,12 @@ export default function Sidebar({ isOpen, setIsOpen }: SidebarProps) {
               Time Logs
             </Link>
             <Link
+              href="/admin/leave-requests"
+              className={linkClasses('/admin/leave-requests')}
+            >
+              Leave Requests
+            </Link>
+            <Link
               href="/admin/assistant"
               className={linkClasses('/admin/assistant')}
             >

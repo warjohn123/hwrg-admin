@@ -14,21 +14,40 @@ export async function GET(req: NextRequest) {
   const limitParam = searchParams.get('limit');
   const userId = searchParams.get('user_id');
   const status = searchParams.get('status');
+  const leaveType = searchParams.get('leave_type');
+  const name = searchParams.get('name');
+  const sortField = searchParams.get('sort_field') ?? 'created_at';
+  const sortDirection = (searchParams.get('sort_direction') ?? 'desc') as
+    | 'asc'
+    | 'desc';
 
   const page = parseInt(pageParam ?? '1');
   const limit = parseInt(limitParam ?? '10');
   const skip = (page - 1) * limit;
 
+  const allowedSortFields = [
+    'created_at',
+    'date_from',
+    'date_to',
+    'status',
+    'leave_type',
+  ];
+  const safeField = allowedSortFields.includes(sortField)
+    ? sortField
+    : 'created_at';
+
   const where: Record<string, unknown> = {};
   if (userId) where.user_id = userId;
   if (status) where.status = status.toUpperCase();
+  if (leaveType) where.leave_type = leaveType.toUpperCase();
+  if (name) where.users = { name: { contains: name, mode: 'insensitive' } };
 
   try {
     const [data, total] = await Promise.all([
       prisma.leave_requests.findMany({
         where,
         include: { users: { select: { id: true, name: true } } },
-        orderBy: { created_at: 'desc' },
+        orderBy: { [safeField]: sortDirection },
         skip,
         take: limit,
       }),
