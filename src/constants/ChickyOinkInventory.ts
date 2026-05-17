@@ -27,11 +27,11 @@ export const CHICKY_OINK_INVENTORY: { [key: string]: IInventoryItem } = {
     attribute: 'spicy_liempo',
     price: 290,
   },
-  LIOG: { name: 'Liog', attribute: 'liog', price: 15 },
+  LIOG: { name: 'Liog', attribute: 'liog', price: 13 },
   SPICY_LIOG: {
     name: 'Spicy Liog',
     attribute: 'spicy_liog',
-    price: 15,
+    price: 13,
   },
   POSO: { name: 'Poso', attribute: 'poso', price: 8 },
   ATCHARA_SMALL: {
