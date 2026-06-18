@@ -26,26 +26,28 @@ export default function LoginForm() {
       password,
     });
 
+    if (error) {
+      alert(error.message);
+      setIsSigningIn(false);
+      return;
+    }
+
     const { data: userData, error: userError } = await supabase
       .from('users')
       .select('type')
-      .eq('id', data.user?.id)
+      .eq('id', data.user.id)
       .maybeSingle();
 
     if (userError || userData?.type !== IUserType.ADMIN) {
+      await supabase.auth.signOut();
       alert('Access denied');
       setIsSigningIn(false);
       return;
     }
 
-    if (!error) {
-      await new Promise((r) => setTimeout(r, 100));
-      router.replace('/admin/chicky-oink-sales');
-      router.refresh(); // 🔑 forces server to read cookies
-    } else {
-      alert(error);
-      setIsSigningIn(false);
-    }
+    await new Promise((r) => setTimeout(r, 100));
+    router.replace('/admin/chicky-oink-sales');
+    router.refresh();
   };
 
   return (
