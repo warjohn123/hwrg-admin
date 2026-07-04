@@ -1,5 +1,7 @@
 import { handleCors } from '@/lib/cors';
-import { getSupabase } from '@/lib/supabaseServer';
+import { prisma } from '@/lib/prisma';
+import { serialize } from '@/lib/serialize';
+import { Prisma } from '@prisma/client';
 import { NextRequest, NextResponse } from 'next/server';
 
 export async function OPTIONS(request: Request) {
@@ -14,42 +16,42 @@ export async function GET(req: NextRequest) {
   const limitParam = searchParams.get('limit');
   const dates = searchParams.get('dates');
 
-  let query = getSupabase()
-    .from('collection_reports')
-    .select('id, date, branch_sales', {
-      count: 'exact',
-      head: false,
-    })
-    .order('date', { ascending: false });
-
+  const where: Prisma.collection_reportsWhereInput = {};
   if (dates) {
     const [start, end] = dates
       .split(',')
       .map((date) => new Date(date).toISOString().split('T')[0]);
-
-    query = query.gte('date', start).lte('date', end);
+    where.date = { gte: new Date(start), lte: new Date(end) };
   }
 
-  // Optional pagination
+  const args: Prisma.collection_reportsFindManyArgs = {
+    where,
+    select: { id: true, date: true, branch_sales: true },
+    orderBy: { date: 'desc' },
+  };
+
   if (pageParam && limitParam) {
     const page = parseInt(pageParam);
     const pageSize = parseInt(limitParam);
-    const from = (page - 1) * pageSize;
-    const to = from + pageSize - 1;
-    query = query.range(from, to);
+    args.skip = (page - 1) * pageSize;
+    args.take = pageSize;
   }
 
-  const { data, error, count } = await query;
+  try {
+    const [data, total] = await Promise.all([
+      prisma.collection_reports.findMany(args),
+      prisma.collection_reports.count({ where }),
+    ]);
 
-  if (error) {
     return NextResponse.json(
-      { error: error.message },
+      { collection_reports: serialize(data), total },
+      { headers: cors?.headers, status: 200 },
+    );
+  } catch (error) {
+    const message = error instanceof Error ? error.message : 'Server error';
+    return NextResponse.json(
+      { error: message },
       { status: 500, headers: cors?.headers },
     );
   }
-
-  return NextResponse.json(
-    { collection_reports: data, total: count ?? 0 },
-    { headers: cors?.headers, status: 200 },
-  );
 }

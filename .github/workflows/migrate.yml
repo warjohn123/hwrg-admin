@@ -1,0 +1,53 @@
+name: Migrate database
+
+# Applies pending Prisma migrations to the database on merge to `main`.
+# Runs independently of the Vercel deploy. Keep migrations backwards-compatible
+# so the currently-deployed app keeps working while/after they apply.
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'prisma/migrations/**'
+      - 'prisma/schema.prisma'
+      - 'prisma.config.ts'
+      - '.github/workflows/migrate.yml'
+  workflow_dispatch: {}
+
+# Never run two migration jobs at once — queue them, and don't cancel a run
+# that may be mid-migration.
+concurrency:
+  group: prisma-migrate
+  cancel-in-progress: false
+
+jobs:
+  migrate:
+    runs-on: ubuntu-latest
+    env:
+      # The Prisma CLI reads the datasource url from prisma.config.ts, which is
+      # env('DIRECT_URL') — the direct :5432 connection (migrations must not use
+      # the pgbouncer pooler). DATABASE_URL is provided too so postinstall
+      # `prisma generate` and any tooling that reads it don't fail.
+      DIRECT_URL: ${{ secrets.DIRECT_URL }}
+      DATABASE_URL: ${{ secrets.DATABASE_URL }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      # Informational only. `migrate status` exits non-zero whenever there are
+      # unapplied migrations (i.e. exactly when this workflow has work to do),
+      # so it must not gate the deploy — it just prints current state to logs.
+      - name: Migration status (informational)
+        run: npx prisma migrate status
+        continue-on-error: true
+
+      - name: Apply pending migrations
+        run: npx prisma migrate deploy

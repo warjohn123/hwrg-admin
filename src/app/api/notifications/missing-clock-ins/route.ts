@@ -1,22 +1,7 @@
-import { getSupabase } from '@/lib/supabaseServer';
+import { prisma } from '@/lib/prisma';
 import { sendEmail } from '@/lib/sendEmail';
 import { DateTime } from 'luxon';
 import { NextRequest, NextResponse } from 'next/server';
-
-type Employee = {
-  id: string;
-  name: string;
-  email: string | null;
-  assignment: string | null;
-  type: string;
-  is_active: boolean;
-};
-
-// type Admin = {
-//   id: string;
-//   name: string;
-//   email: string | null;
-// };
 
 function isAuthorizedCronRequest(req: NextRequest) {
   const cronSecret = process.env.CRON_SECRET;
@@ -42,7 +27,6 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
-  const supabase = getSupabase();
   const { startUtcISO, endUtcISO, dateLabel } = getTodayUtcRangeForManila();
 
   if (!startUtcISO || !endUtcISO) {
@@ -52,47 +36,38 @@ export async function GET(req: NextRequest) {
     );
   }
 
-  const [
-    { data: employees, error: employeesError },
-    { data: admins, error: adminsError },
-  ] = await Promise.all([
-    supabase
-      .from('users')
-      .select('id, name, email, assignment, type, is_active')
-      .in('type', ['employee', 'inventory_checker'])
-      .eq('is_active', true),
-    supabase.from('users').select('id, name, email').eq('type', 'admin'),
-  ]);
-
-  console.log('admins', admins);
-
-  if (employeesError || adminsError) {
-    return NextResponse.json(
-      {
-        error:
-          employeesError?.message ??
-          adminsError?.message ??
-          'Failed to fetch users',
-      },
-      { status: 500 },
-    );
-  }
-
-  const { data: todayTimelogs, error: timelogError } = await supabase
-    .from('timelogs')
-    .select('user_id')
-    .gte('clock_in', startUtcISO)
-    .lte('clock_in', endUtcISO);
-
-  if (timelogError) {
-    return NextResponse.json({ error: timelogError.message }, { status: 500 });
+  let employees;
+  let todayTimelogs;
+  try {
+    [employees, todayTimelogs] = await Promise.all([
+      prisma.users.findMany({
+        where: {
+          type: { in: ['employee', 'inventory_checker'] },
+          is_active: true,
+        },
+        select: {
+          id: true,
+          name: true,
+          email: true,
+          assignment: true,
+          type: true,
+          is_active: true,
+        },
+      }),
+      prisma.timelogs.findMany({
+        where: {
+          clock_in: { gte: new Date(startUtcISO), lte: new Date(endUtcISO) },
+        },
+        select: { user_id: true },
+      }),
+    ]);
+  } catch (error) {
+    const message =
+      error instanceof Error ? error.message : 'Failed to fetch users';
+    return NextResponse.json({ error: message }, { status: 500 });
   }
 
   const adminEmails = ['warrencaruana1@gmail.com', 'hescosar@gmail.com'];
-
-  //   const adminEmails = (admins as Admin[])
-  //     .map((admin) => admin.email)
-  //     .filter((email): email is string => Boolean(email));
 
   if (adminEmails.length === 0) {
     return NextResponse.json(
@@ -101,10 +76,8 @@ export async function GET(req: NextRequest) {
     );
   }
 
-  const clockedInUserIds = new Set(
-    (todayTimelogs ?? []).map((log) => log.user_id),
-  );
-  const missingClockIns = (employees as Employee[]).filter(
+  const clockedInUserIds = new Set(todayTimelogs.map((log) => log.user_id));
+  const missingClockIns = employees.filter(
     (employee) => !clockedInUserIds.has(employee.id),
   );
 
@@ -149,7 +122,7 @@ export async function GET(req: NextRequest) {
 
   return NextResponse.json({
     sent: true,
-    totalEmployees: (employees as Employee[]).length,
+    totalEmployees: employees.length,
     missingCount: missingClockIns.length,
     missingEmployees: missingClockIns.map(({ id, name, assignment }) => ({
       id,

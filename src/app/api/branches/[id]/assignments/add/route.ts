@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
-import { getSupabase } from '@/lib/supabaseServer';
+import { prisma } from '@/lib/prisma';
+import { serialize } from '@/lib/serialize';
 
 export async function POST(req: Request) {
   try {
@@ -10,24 +11,20 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: 'Missing fields' }, { status: 400 });
     }
 
-    // Insert into 'branches' table
-    const { data, error: dbError } = await getSupabase()
-      .from('branch_assignments')
-      .insert({
+    const assignment = await prisma.branch_assignments.create({
+      data: {
         user_id,
         branch_id: parseInt(branch_id),
-      });
-
-    if (dbError) {
-      return NextResponse.json({ error: dbError.message }, { status: 500 });
-    }
+      },
+    });
 
     return NextResponse.json({
       message: 'Branch assignment created successfully',
-      branch: data?.[0],
+      branch: serialize(assignment),
     });
   } catch (err) {
     console.error(err);
-    return NextResponse.json({ error: 'Server error' }, { status: 500 });
+    const message = err instanceof Error ? err.message : 'Server error';
+    return NextResponse.json({ error: message }, { status: 500 });
   }
 }

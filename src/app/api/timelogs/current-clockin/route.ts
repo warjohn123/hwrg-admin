@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import getUTCDateRangeForToday from '@/lib/getUTCDateRangeForToday';
-import { getSupabase } from '@/lib/supabaseServer';
+import { prisma } from '@/lib/prisma';
+import { serialize } from '@/lib/serialize';
 import { handleCors } from '@/lib/cors';
 
 export async function OPTIONS(request: Request) {
@@ -14,20 +15,21 @@ export async function GET(req: NextRequest) {
 
   const { startUTC, endUTC } = getUTCDateRangeForToday('Asia/Manila');
 
-  const { data, error } = await getSupabase()
-    .from('timelogs')
-    .select('*')
-    .eq('user_id', user_id)
-    .gte('clock_in', startUTC.toISOString())
-    .lte('clock_in', endUTC.toISOString())
-    .limit(1);
+  try {
+    const data = await prisma.timelogs.findMany({
+      where: {
+        user_id,
+        clock_in: { gte: startUTC, lte: endUTC },
+      },
+      take: 1,
+    });
 
-  if (error) {
+    return NextResponse.json(serialize(data), { headers: cors?.headers });
+  } catch (error) {
+    const message = error instanceof Error ? error.message : 'Server error';
     return NextResponse.json(
-      { error: error.message },
+      { error: message },
       { status: 500, headers: cors?.headers },
     );
   }
-
-  return NextResponse.json(data, { headers: cors?.headers });
 }

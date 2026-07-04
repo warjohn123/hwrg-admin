@@ -1,5 +1,8 @@
 import { handleCors } from '@/lib/cors';
-import { getSupabase } from '@/lib/supabaseServer';
+import { prisma } from '@/lib/prisma';
+import { serialize } from '@/lib/serialize';
+import { toExpenseType } from '@/lib/expenseType';
+import { Prisma } from '@prisma/client';
 import { NextRequest, NextResponse } from 'next/server';
 
 export async function OPTIONS(request: Request) {
@@ -19,60 +22,57 @@ export async function GET(req: NextRequest) {
   const sort_field = searchParams.get('sort_field');
   const sort_direction = searchParams.get('sort_direction');
 
-  let query = getSupabase()
-    .from('company_expenses')
-    .select(
-      'id, expense_date, name, amount, notes, branches(id, branch_name)',
-      {
-        count: 'exact',
-        head: false,
-      },
-    );
-
+  const where: Prisma.company_expensesWhereInput = {};
   if (dates) {
     const [start, end] = dates
       .split(',')
       .map((date) => new Date(date).toISOString().split('T')[0]);
-
-    query = query.gte('expense_date', start).lte('expense_date', end);
+    where.expense_date = { gte: new Date(start), lte: new Date(end) };
   }
+  if (type) where.type = toExpenseType(type);
+  if (search) where.name = { contains: search };
+  if (branchId) where.branch_id = Number(branchId);
 
-  if (type) {
-    query = query.eq('type', type);
-  }
-
-  if (search) {
-    query = query.like('name', `%${search}%`);
-  }
-
-  if (branchId) {
-    query = query.eq('branch_id', branchId);
-  }
+  const args: Prisma.company_expensesFindManyArgs = {
+    where,
+    select: {
+      id: true,
+      expense_date: true,
+      name: true,
+      amount: true,
+      notes: true,
+      branches: { select: { id: true, branch_name: true } },
+    },
+  };
 
   if (sort_field && (sort_direction === 'asc' || sort_direction === 'desc')) {
-    query = query.order(sort_field, { ascending: sort_direction === 'asc' });
+    args.orderBy = {
+      [sort_field]: sort_direction,
+    } as Prisma.company_expensesOrderByWithRelationInput;
   }
 
-  // Optional pagination
   if (pageParam && limitParam) {
     const page = parseInt(pageParam);
     const pageSize = parseInt(limitParam);
-    const from = (page - 1) * pageSize;
-    const to = from + pageSize - 1;
-    query = query.range(from, to);
+    args.skip = (page - 1) * pageSize;
+    args.take = pageSize;
   }
 
-  const { data, error, count } = await query;
+  try {
+    const [data, total] = await Promise.all([
+      prisma.company_expenses.findMany(args),
+      prisma.company_expenses.count({ where }),
+    ]);
 
-  if (error) {
     return NextResponse.json(
-      { error: error.message },
+      { company_expenses: serialize(data), total },
+      { headers: cors?.headers, status: 200 },
+    );
+  } catch (error) {
+    const message = error instanceof Error ? error.message : 'Server error';
+    return NextResponse.json(
+      { error: message },
       { status: 500, headers: cors?.headers },
     );
   }
-
-  return NextResponse.json(
-    { company_expenses: data, total: count ?? 0 },
-    { headers: cors?.headers, status: 200 },
-  );
 }

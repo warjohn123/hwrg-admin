@@ -1,5 +1,6 @@
 import { handleCors } from '@/lib/cors';
-import { getSupabase } from '@/lib/supabaseServer';
+import { prisma } from '@/lib/prisma';
+import { serialize } from '@/lib/serialize';
 import { NextRequest, NextResponse } from 'next/server';
 
 export async function OPTIONS(request: Request) {
@@ -11,22 +12,21 @@ export async function GET(req: NextRequest) {
   const { searchParams } = new URL(req.url);
   const date = searchParams.get('date');
 
-  const { data, error } = await getSupabase().rpc(
-    'get_sales_by_branch_previous_date',
-    {
-      p_date: date,
-    },
-  );
+  try {
+    // Calls the existing Postgres function (managed outside Prisma migrations).
+    const sales = await prisma.$queryRaw`
+      SELECT * FROM get_sales_by_branch_previous_date(${date}::date)
+    `;
 
-  if (error) {
     return NextResponse.json(
-      { error: error.message },
+      { sales: serialize(sales) },
+      { headers: cors?.headers, status: 200 },
+    );
+  } catch (error) {
+    const message = error instanceof Error ? error.message : 'Server error';
+    return NextResponse.json(
+      { error: message },
       { status: 500, headers: cors?.headers },
     );
   }
-
-  return NextResponse.json(
-    { sales: data },
-    { headers: cors?.headers, status: 200 },
-  );
 }

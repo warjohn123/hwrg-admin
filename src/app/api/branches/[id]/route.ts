@@ -1,5 +1,6 @@
 import { handleCors } from '@/lib/cors';
-import { getSupabase } from '@/lib/supabaseServer';
+import { prisma } from '@/lib/prisma';
+import { serialize } from '@/lib/serialize';
 import { NextRequest, NextResponse } from 'next/server';
 
 export async function PUT(
@@ -9,16 +10,17 @@ export async function PUT(
   const { id } = await params;
   const body = await req.json();
 
-  const { error } = await getSupabase()
-    .from('branches')
-    .update(body)
-    .eq('id', id);
+  try {
+    await prisma.branches.updateMany({
+      where: { id: Number(id) },
+      data: { branch_name: body.branch_name, assignment: body.assignment },
+    });
 
-  if (error) {
-    return NextResponse.json({ error: error.message }, { status: 400 });
+    return NextResponse.json({ message: 'User updated successfully' });
+  } catch (error) {
+    const message = error instanceof Error ? error.message : 'Update failed';
+    return NextResponse.json({ error: message }, { status: 400 });
   }
-
-  return NextResponse.json({ message: 'User updated successfully' });
 }
 
 export async function GET(
@@ -27,17 +29,15 @@ export async function GET(
 ) {
   const { id } = await params;
 
-  const { data, error } = await getSupabase()
-    .from('branches')
-    .select('*')
-    .eq('id', id)
-    .single();
+  const branch = await prisma.branches.findUnique({
+    where: { id: Number(id) },
+  });
 
-  if (error) {
-    return NextResponse.json({ error: error.message }, { status: 404 });
+  if (!branch) {
+    return NextResponse.json({ error: 'Branch not found' }, { status: 404 });
   }
 
-  return NextResponse.json(data);
+  return NextResponse.json(serialize(branch));
 }
 
 export async function DELETE(
@@ -47,11 +47,12 @@ export async function DELETE(
   const cors = handleCors(req);
   const { id } = await params;
 
-  const { error } = await getSupabase().from('branches').delete().eq('id', id);
-
-  if (error) {
+  try {
+    await prisma.branches.deleteMany({ where: { id: Number(id) } });
+  } catch (error) {
+    const message = error instanceof Error ? error.message : 'Delete failed';
     return NextResponse.json(
-      { error: error.message },
+      { error: message },
       { status: 500, headers: cors?.headers },
     );
   }

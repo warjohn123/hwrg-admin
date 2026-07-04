@@ -1,5 +1,6 @@
 import { handleCors } from '@/lib/cors';
-import { getSupabase } from '@/lib/supabaseServer';
+import { prisma } from '@/lib/prisma';
+import { serialize } from '@/lib/serialize';
 import { NextResponse } from 'next/server';
 
 export async function OPTIONS(request: Request) {
@@ -20,32 +21,33 @@ export async function PUT(req: Request) {
       );
     }
 
-    // Insert into 'timelogs' table
-    const { data, error: dbError } = await getSupabase()
-      .from('timelogs')
-      .update({ clock_out: new Date(), clock_out_photo })
-      .eq('user_id', user_id)
-      .order('clock_in', { ascending: false })
-      .limit(1);
+    // Update the user's most recent timelog (Supabase did this with
+    // update().order().limit(1); Prisma has no direct equivalent).
+    const latest = await prisma.timelogs.findFirst({
+      where: { user_id },
+      orderBy: { clock_in: 'desc' },
+    });
 
-    if (dbError) {
-      return NextResponse.json(
-        { error: dbError.message },
-        { status: 500, headers: cors?.headers },
-      );
+    let user = null;
+    if (latest) {
+      user = await prisma.timelogs.update({
+        where: { id: latest.id },
+        data: { clock_out: new Date(), clock_out_photo },
+      });
     }
 
     return NextResponse.json(
       {
         message: 'Clock out successful',
-        user: data?.[0],
+        user: serialize(user),
       },
       { headers: cors?.headers },
     );
   } catch (err) {
     console.error(err);
+    const message = err instanceof Error ? err.message : 'Server error';
     return NextResponse.json(
-      { error: 'Server error' },
+      { error: message },
       { status: 500, headers: cors?.headers },
     );
   }

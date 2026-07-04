@@ -1,5 +1,7 @@
 import { NextResponse } from 'next/server';
 import { getSupabase } from '@/lib/supabaseServer';
+import { prisma } from '@/lib/prisma';
+import { serialize } from '@/lib/serialize';
 
 export async function POST(req: Request) {
   try {
@@ -10,7 +12,7 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: 'Missing fields' }, { status: 400 });
     }
 
-    // Create Auth user
+    // Create Auth user (stays on Supabase Auth)
     const { data: authUser, error: authError } =
       await getSupabase().auth.admin.createUser({
         email,
@@ -25,30 +27,24 @@ export async function POST(req: Request) {
       );
     }
 
-    // Insert into 'users' table
-    const { data, error: dbError } = await getSupabase()
-      .from('users')
-      .insert([
-        {
-          id: authUser.user.id,
-          name,
-          email,
-          type,
-          assignment,
-          is_active: true,
-        },
-      ]); // Ensure your table has a UUID 'id' column
-
-    if (dbError) {
-      return NextResponse.json({ error: dbError.message }, { status: 500 });
-    }
+    const user = await prisma.users.create({
+      data: {
+        id: authUser.user.id,
+        name,
+        email,
+        type,
+        assignment,
+        is_active: true,
+      },
+    });
 
     return NextResponse.json({
       message: 'User created successfully',
-      user: data?.[0],
+      user: serialize(user),
     });
   } catch (err) {
     console.error(err);
-    return NextResponse.json({ error: 'Server error' }, { status: 500 });
+    const message = err instanceof Error ? err.message : 'Server error';
+    return NextResponse.json({ error: message }, { status: 500 });
   }
 }

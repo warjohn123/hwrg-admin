@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
-import { getSupabase } from '@/lib/supabaseServer';
+import { prisma } from '@/lib/prisma';
+import { serialize } from '@/lib/serialize';
 import { handleCors } from '@/lib/cors';
 
 export async function OPTIONS(request: Request) {
@@ -12,30 +13,20 @@ export async function POST(req: Request) {
     const body = await req.json();
     const { branch_sales, add_ons, expenses } = body;
 
-    // Insert into 'collection_reports' table
-    const { data, error: dbError } = await getSupabase()
-      .from('collection_reports')
-      .insert([
-        {
-          branch_sales,
-          add_ons,
-          expenses,
-          date: new Date().toISOString(),
-        },
-      ])
-      .select('id'); //Ensure your table has a UUID 'id' column
-
-    if (dbError) {
-      return NextResponse.json(
-        { error: dbError.message },
-        { status: 500, headers: cors?.headers },
-      );
-    }
+    const report = await prisma.collection_reports.create({
+      data: {
+        branch_sales,
+        add_ons,
+        expenses,
+        date: new Date(),
+      },
+      select: { id: true },
+    });
 
     return NextResponse.json(
       {
         message: 'Collection report created successfully',
-        report: data?.[0],
+        report: serialize(report),
       },
       {
         status: 200,
@@ -44,8 +35,9 @@ export async function POST(req: Request) {
     );
   } catch (err) {
     console.error(err);
+    const message = err instanceof Error ? err.message : 'Server error';
     return NextResponse.json(
-      { error: 'Server error' },
+      { error: message },
       { status: 500, headers: cors?.headers },
     );
   }

@@ -1,5 +1,6 @@
 import { handleCors } from '@/lib/cors';
-import { getSupabase } from '@/lib/supabaseServer';
+import { prisma } from '@/lib/prisma';
+import { serialize } from '@/lib/serialize';
 import { NextResponse } from 'next/server';
 
 export async function OPTIONS(request: Request) {
@@ -21,29 +22,22 @@ export async function POST(req: Request) {
       );
     }
 
-    // Insert into 'timelogs' table
-    const { data, error: dbError } = await getSupabase()
-      .from('timelogs')
-      .insert([{ clock_in_photo, clock_in: now, user_id, date: now }]);
-
-    if (dbError) {
-      return NextResponse.json(
-        { error: dbError.message },
-        { status: 500, headers: cors?.headers },
-      );
-    }
+    const data = await prisma.timelogs.create({
+      data: { clock_in_photo, clock_in: now, user_id, date: now },
+    });
 
     return NextResponse.json(
       {
         message: 'Clocked in successfully',
-        data: data,
+        data: serialize(data),
       },
       { headers: cors?.headers },
     );
   } catch (err) {
     console.error(err);
+    const message = err instanceof Error ? err.message : 'Server error';
     return NextResponse.json(
-      { error: 'Server error' },
+      { error: message },
       { status: 500, headers: cors?.headers },
     );
   }

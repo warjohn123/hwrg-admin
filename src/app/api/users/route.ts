@@ -1,4 +1,6 @@
-import { getSupabase } from '@/lib/supabaseServer';
+import { prisma } from '@/lib/prisma';
+import { serialize } from '@/lib/serialize';
+import { Prisma } from '@prisma/client';
 import { NextRequest, NextResponse } from 'next/server';
 
 export async function GET(req: NextRequest) {
@@ -8,33 +10,41 @@ export async function GET(req: NextRequest) {
   const limitParam = searchParams.get('limit');
   const search = searchParams.get('search');
 
-  let query = getSupabase()
-    .from('users')
-    .select('id, name, email, assignment, is_active', {
-      count: 'exact',
-      head: false,
-    })
-    .order('created_at', { ascending: false })
-    .in('type', ['employee', 'inventory_checker']);
-
+  const where: Prisma.usersWhereInput = {
+    type: { in: ['employee', 'inventory_checker'] },
+  };
   if (search) {
-    query = query.like('name', `%${search}%`);
+    where.name = { contains: search };
   }
 
-  // Optional pagination
+  const args: Prisma.usersFindManyArgs = {
+    where,
+    select: {
+      id: true,
+      name: true,
+      email: true,
+      assignment: true,
+      is_active: true,
+    },
+    orderBy: { created_at: 'desc' },
+  };
+
   if (pageParam && limitParam) {
     const page = parseInt(pageParam);
     const pageSize = parseInt(limitParam);
-    const from = (page - 1) * pageSize;
-    const to = from + pageSize - 1;
-    query = query.range(from, to);
+    args.skip = (page - 1) * pageSize;
+    args.take = pageSize;
   }
 
-  const { data, error, count } = await query;
+  try {
+    const [data, total] = await Promise.all([
+      prisma.users.findMany(args),
+      prisma.users.count({ where }),
+    ]);
 
-  if (error) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    return NextResponse.json({ users: serialize(data), total });
+  } catch (error) {
+    const message = error instanceof Error ? error.message : 'Server error';
+    return NextResponse.json({ error: message }, { status: 500 });
   }
-
-  return NextResponse.json({ users: data, total: count ?? 0 });
 }

@@ -1,4 +1,5 @@
-import { getSupabase } from '@/lib/supabaseServer';
+import { prisma } from '@/lib/prisma';
+import { serialize } from '@/lib/serialize';
 import { getChickyOinkTotalSales } from '@/lib/getChickyOinkTotalSales';
 import { getHWRGEggsTotalSales } from '@/lib/getHWRGEggsTotalSales';
 import { getImagawayakiTotalSales } from '@/lib/getImagawayakiTotalSales';
@@ -10,15 +11,6 @@ import { PotatoFrySales } from '@/types/PotatoFryReport';
 import { IAssignment } from '@/types/User';
 import { DateTime } from 'luxon';
 import { NextRequest, NextResponse } from 'next/server';
-
-type Employee = {
-  id: string;
-  name: string;
-  email: string | null;
-  assignment: string | null;
-  type: string;
-  is_active: boolean;
-};
 
 type AssistantSnapshot = {
   date: string;
@@ -305,103 +297,106 @@ export async function POST(req: NextRequest) {
     );
   }
 
-  const supabase = getSupabase();
-  let salesSummary: AssistantSnapshot['salesSummary'];
+  try {
+    let salesSummary: AssistantSnapshot['salesSummary'];
 
-  if (requestedSalesPeriod) {
-    let salesQuery = supabase
-      .from('sales_reports')
-      .select('type, sales, cash, report_date')
-      .gte('report_date', requestedSalesPeriod.start.toFormat('yyyy-LL-dd'))
-      .lte('report_date', requestedSalesPeriod.end.toFormat('yyyy-LL-dd'));
+    if (requestedSalesPeriod) {
+      const salesRows = await prisma.sales_reports.findMany({
+        where: {
+          report_date: {
+            gte: new Date(requestedSalesPeriod.start.toFormat('yyyy-LL-dd')),
+            lte: new Date(requestedSalesPeriod.end.toFormat('yyyy-LL-dd')),
+          },
+          ...(typeFilter ? { type: typeFilter } : {}),
+        },
+        select: { type: true, sales: true, cash: true, report_date: true },
+      });
 
-    if (typeFilter) {
-      salesQuery = salesQuery.eq('type', typeFilter);
+      const rows = serialize(salesRows) as unknown as SalesReportRow[];
+
+      const totals = new Map<string, number>();
+      let grandTotal = 0;
+
+      for (const row of rows) {
+        const total = getTotalSalesByType(row);
+        grandTotal += total;
+        totals.set(row.type, (totals.get(row.type) ?? 0) + total);
+      }
+
+      salesSummary = {
+        periodLabel: requestedSalesPeriod.label,
+        startDate: requestedSalesPeriod.start.toFormat('yyyy-LL-dd'),
+        endDate: requestedSalesPeriod.end.toFormat('yyyy-LL-dd'),
+        reportCount: rows.length,
+        totalSales: grandTotal,
+        byType: [...totals.entries()].map(([type, totalSales]) => ({
+          type,
+          totalSales,
+        })),
+      };
     }
 
-    const { data: salesRows, error: salesError } = await salesQuery;
+    const [employees, branches, timelogs] = await Promise.all([
+      prisma.users.findMany({
+        where: { type: { in: ['employee', 'inventory_checker'] } },
+        select: {
+          id: true,
+          name: true,
+          email: true,
+          assignment: true,
+          type: true,
+          is_active: true,
+        },
+      }),
+      prisma.branches.findMany({ select: { id: true, branch_name: true } }),
+      prisma.timelogs.findMany({
+        where: {
+          clock_in: { gte: new Date(startUtcISO), lte: new Date(endUtcISO) },
+        },
+        select: { user_id: true },
+      }),
+    ]);
 
-    if (salesError) {
-      return NextResponse.json({ error: salesError.message }, { status: 500 });
-    }
+    const activeEmployees = employees.filter((employee) => employee.is_active);
+    const clockedInUserIds = new Set(timelogs.map((timelog) => timelog.user_id));
 
-    const totals = new Map<string, number>();
-    let grandTotal = 0;
+    const missingClockInEmployees = activeEmployees
+      .filter((employee) => !clockedInUserIds.has(employee.id))
+      .map(({ id, name, assignment }) => ({
+        id,
+        name: name ?? '',
+        assignment,
+      }));
 
-    for (const row of (salesRows ?? []) as SalesReportRow[]) {
-      const total = getTotalSalesByType(row);
-      grandTotal += total;
-      totals.set(row.type, (totals.get(row.type) ?? 0) + total);
-    }
-
-    salesSummary = {
-      periodLabel: requestedSalesPeriod.label,
-      startDate: requestedSalesPeriod.start.toFormat('yyyy-LL-dd'),
-      endDate: requestedSalesPeriod.end.toFormat('yyyy-LL-dd'),
-      reportCount: (salesRows ?? []).length,
-      totalSales: grandTotal,
-      byType: [...totals.entries()].map(([type, totalSales]) => ({
-        type,
-        totalSales,
-      })),
+    const snapshot: AssistantSnapshot = {
+      date: nowManila.toFormat('yyyy-LL-dd HH:mm'),
+      timeZone: 'Asia/Manila',
+      employees: {
+        total: employees.length,
+        active: activeEmployees.length,
+        inactive: employees.length - activeEmployees.length,
+      },
+      branches: {
+        total: branches.length,
+        names: branches.map((branch) => branch.branch_name),
+      },
+      timelogsToday: {
+        clockedInActiveCount:
+          activeEmployees.length - missingClockInEmployees.length,
+        missingClockInCount: missingClockInEmployees.length,
+        missingClockInEmployees,
+      },
+      ...(salesSummary ? { salesSummary } : {}),
     };
-  }
 
-  const [usersResult, branchesResult, timelogsResult] = await Promise.all([
-    supabase
-      .from('users')
-      .select('id, name, email, assignment, type, is_active')
-      .in('type', ['employee', 'inventory_checker']),
-    supabase.from('branches').select('id, branch_name'),
-    supabase
-      .from('timelogs')
-      .select('user_id')
-      .gte('clock_in', startUtcISO)
-      .lte('clock_in', endUtcISO),
-  ]);
+    const answer = await generateAnswer(question, snapshot);
 
-  if (usersResult.error || branchesResult.error || timelogsResult.error) {
+    return NextResponse.json({ answer, snapshot });
+  } catch (error) {
     const message =
-      usersResult.error?.message ||
-      branchesResult.error?.message ||
-      timelogsResult.error?.message ||
-      'Failed to fetch assistant context.';
-
+      error instanceof Error
+        ? error.message
+        : 'Failed to fetch assistant context.';
     return NextResponse.json({ error: message }, { status: 500 });
   }
-
-  const employees = (usersResult.data ?? []) as Employee[];
-  const activeEmployees = employees.filter((employee) => employee.is_active);
-  const clockedInUserIds = new Set(
-    (timelogsResult.data ?? []).map((timelog) => timelog.user_id),
-  );
-
-  const missingClockInEmployees = activeEmployees
-    .filter((employee) => !clockedInUserIds.has(employee.id))
-    .map(({ id, name, assignment }) => ({ id, name, assignment }));
-
-  const snapshot: AssistantSnapshot = {
-    date: nowManila.toFormat('yyyy-LL-dd HH:mm'),
-    timeZone: 'Asia/Manila',
-    employees: {
-      total: employees.length,
-      active: activeEmployees.length,
-      inactive: employees.length - activeEmployees.length,
-    },
-    branches: {
-      total: (branchesResult.data ?? []).length,
-      names: (branchesResult.data ?? []).map((branch) => branch.branch_name),
-    },
-    timelogsToday: {
-      clockedInActiveCount:
-        activeEmployees.length - missingClockInEmployees.length,
-      missingClockInCount: missingClockInEmployees.length,
-      missingClockInEmployees,
-    },
-    ...(salesSummary ? { salesSummary } : {}),
-  };
-
-  const answer = await generateAnswer(question, snapshot);
-
-  return NextResponse.json({ answer, snapshot });
 }

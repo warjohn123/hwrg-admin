@@ -1,26 +1,28 @@
-import { getSupabase } from '@/lib/supabaseServer';
+import { prisma } from '@/lib/prisma';
+import { serialize } from '@/lib/serialize';
 import { NextRequest, NextResponse } from 'next/server';
 
 export async function GET(req: NextRequest) {
   const { searchParams } = new URL(req.url);
   const branchId = parseInt(searchParams.get('branch_id') || '1');
 
-  const { data: assigned, error: err1 } = await getSupabase()
-    .from('branch_assignments')
-    .select('user_id')
-    .eq('branch_id', branchId);
+  try {
+    const assigned = await prisma.branch_assignments.findMany({
+      where: { branch_id: branchId },
+      select: { user_id: true },
+    });
 
-  if (err1) throw err1;
+    const assignedUserIds = assigned.map((row) => row.user_id);
 
-  const assignedUserIds = assigned?.map((row) => row.user_id) || [];
+    // Fetch users not yet assigned to this branch
+    const users = await prisma.users.findMany({
+      where: { id: { notIn: assignedUserIds } },
+      select: { id: true, name: true },
+    });
 
-  // Step 2: fetch users not yet assigned
-  const { data: users, error: err2 } = await getSupabase()
-    .from('users')
-    .select('id, name') // include other fields like email, role, etc.
-    .not('id', 'in', assignedUserIds);
-
-  if (err2) throw err2;
-
-  return NextResponse.json({ users });
+    return NextResponse.json({ users: serialize(users) });
+  } catch (error) {
+    const message = error instanceof Error ? error.message : 'Server error';
+    return NextResponse.json({ error: message }, { status: 500 });
+  }
 }

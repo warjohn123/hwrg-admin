@@ -1,7 +1,9 @@
 import { handleCors } from '@/lib/cors';
 import { sumKeyValueArray } from '@/lib/sumKeyValueArray';
 import { sumSalesRemits } from '@/lib/sumSalesRemits';
-import { getSupabase } from '@/lib/supabaseServer';
+import { prisma } from '@/lib/prisma';
+import { serialize } from '@/lib/serialize';
+import type { RemitSalesType } from '@/types/RemitReport';
 import { NextRequest, NextResponse } from 'next/server';
 
 export async function OPTIONS(request: Request) {
@@ -15,25 +17,26 @@ export async function GET(
   const cors = handleCors(req);
   const { id } = await params;
 
-  const { data, error } = await getSupabase()
-    .from('remit_reports')
-    .select('*, remit_expenses(*), remit_add_ons(*)')
-    .eq('id', id)
-    .single();
+  const raw = await prisma.remit_reports.findUnique({
+    where: { id: BigInt(id) },
+    include: { remit_expenses: true, remit_add_ons: true },
+  });
 
-  if (error) {
+  if (!raw) {
     return NextResponse.json(
-      { error: error.message },
-      { status: 500, headers: cors?.headers },
+      { error: 'Remit report not found' },
+      { status: 404, headers: cors?.headers },
     );
   }
 
-  const salesTotal = sumSalesRemits(data.sales);
+  const data = serialize(raw);
+
+  const salesTotal = sumSalesRemits(data.sales as RemitSalesType);
   const expensesTotal = sumKeyValueArray(
-    (data.remit_expenses as [{ [value: string]: number }]) || [],
+    (data.remit_expenses as unknown as [{ [value: string]: number }]) || [],
   );
   const addOnsTotal = sumKeyValueArray(
-    (data.remit_add_ons as [{ [value: string]: number }]) || [],
+    (data.remit_add_ons as unknown as [{ [value: string]: number }]) || [],
   );
 
   return NextResponse.json(
@@ -56,14 +59,12 @@ export async function DELETE(
   const cors = handleCors(req);
   const { id } = await params;
 
-  const { error } = await getSupabase()
-    .from('remit_reports')
-    .delete()
-    .eq('id', id);
-
-  if (error) {
+  try {
+    await prisma.remit_reports.deleteMany({ where: { id: BigInt(id) } });
+  } catch (error) {
+    const message = error instanceof Error ? error.message : 'Delete failed';
     return NextResponse.json(
-      { error: error.message },
+      { error: message },
       { status: 500, headers: cors?.headers },
     );
   }

@@ -1,5 +1,6 @@
 import { handleCors } from '@/lib/cors';
-import { getSupabase } from '@/lib/supabaseServer';
+import { prisma } from '@/lib/prisma';
+import { serialize } from '@/lib/serialize';
 import { NextRequest, NextResponse } from 'next/server';
 
 export async function OPTIONS(request: Request) {
@@ -13,22 +14,22 @@ export async function GET(
   const cors = handleCors(req);
   const { id } = await params;
 
-  const { data, error, count } = await getSupabase()
-    .from('sales_reports')
-    .select('*')
-    .eq('branch_id', id)
-    .order('created_at', { ascending: false }) // or 'id' if it's auto-incremented
-    .limit(1);
+  try {
+    const data = await prisma.sales_reports.findMany({
+      where: { branch_id: Number(id) },
+      orderBy: { created_at: 'desc' },
+      take: 1,
+    });
 
-  if (error) {
     return NextResponse.json(
-      { error: error.message },
+      { sales_reports: serialize(data), total: data.length },
+      { headers: cors?.headers, status: 200 },
+    );
+  } catch (error) {
+    const message = error instanceof Error ? error.message : 'Server error';
+    return NextResponse.json(
+      { error: message },
       { status: 500, headers: cors?.headers },
     );
   }
-
-  return NextResponse.json(
-    { sales_reports: data, total: count ?? 0 },
-    { headers: cors?.headers, status: 200 },
-  );
 }

@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { getSupabase } from '@/lib/supabaseServer';
+import { prisma } from '@/lib/prisma';
 
 export async function POST(req: Request) {
   try {
@@ -10,23 +10,19 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: 'Missing fields' }, { status: 400 });
     }
 
-    // Insert into 'branches' table
-    const { data, error: dbError } = await getSupabase()
-      .from('branch_assignments')
-      .delete()
-      .eq('user_id', user_id)
-      .eq('branch_id', branch_id);
-
-    if (dbError) {
-      return NextResponse.json({ error: dbError.message }, { status: 500 });
-    }
+    await prisma.branch_assignments.deleteMany({
+      where: {
+        user_id,
+        branch_id: Number(branch_id),
+      },
+    });
 
     return NextResponse.json({
       message: 'Branch assignment deleted successfully',
-      branch: data?.[0],
     });
   } catch (err) {
     console.error(err);
-    return NextResponse.json({ error: 'Server error' }, { status: 500 });
+    const message = err instanceof Error ? err.message : 'Server error';
+    return NextResponse.json({ error: message }, { status: 500 });
   }
 }
