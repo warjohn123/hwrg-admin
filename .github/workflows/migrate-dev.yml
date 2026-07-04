@@ -1,0 +1,67 @@
+name: Migrate dev branch database
+
+# Applies pending Prisma migrations to the Supabase *dev* branch database on
+# push to the `dev` git branch.
+#
+# Supabase Branching itself does NOT run Prisma migrations — it only runs
+# ./supabase/migrations (which this repo doesn't use). So we fetch the dev
+# branch's connection string at runtime via the Supabase CLI and run
+# `prisma migrate deploy` ourselves (Supabase's documented "custom ORM" flow).
+on:
+  push:
+    branches: [dev]
+    paths:
+      - 'prisma/migrations/**'
+      - 'prisma/schema.prisma'
+      - 'prisma.config.ts'
+      - '.github/workflows/migrate-dev.yml'
+  workflow_dispatch: {}
+
+concurrency:
+  group: prisma-migrate-dev
+  cancel-in-progress: false
+
+jobs:
+  migrate:
+    runs-on: ubuntu-latest
+    env:
+      # Account token + PARENT project ref (the project the dev branch lives
+      # under). The Supabase CLI uses these to resolve branch credentials.
+      SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+      SUPABASE_PROJECT_ID: ${{ secrets.SUPABASE_PROJECT_ID }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Supabase CLI
+        uses: supabase/setup-cli@v1
+        with:
+          version: latest
+
+      - name: Fetch dev branch database credentials
+        run: |
+          supabase --experimental branches get "${{ github.ref_name }}" -o env >> "$GITHUB_ENV"
+
+      - name: Map connection string for Prisma
+        run: |
+          # POSTGRES_URL_NON_POOLING is the direct (:5432) connection — required
+          # for migrations. Mask it so it never surfaces in logs.
+          echo "::add-mask::$POSTGRES_URL_NON_POOLING"
+          echo "DIRECT_URL=$POSTGRES_URL_NON_POOLING" >> "$GITHUB_ENV"
+          echo "DATABASE_URL=$POSTGRES_URL_NON_POOLING" >> "$GITHUB_ENV"
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Migration status (informational)
+        run: npx prisma migrate status
+        continue-on-error: true
+
+      - name: Apply pending migrations
+        run: npx prisma migrate deploy

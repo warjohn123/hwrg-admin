@@ -102,6 +102,28 @@ For a manual approval gate before prod migrations, move the secrets into a
 GitHub **Environment** (e.g. `production`) with required reviewers and add
 `environment: production` to the `migrate` job.
 
+### Auto-migrating the Supabase dev branch
+
+Supabase Branching does **not** run Prisma migrations (it only runs
+`./supabase/migrations`, which this repo doesn't use). So
+`.github/workflows/migrate-dev.yml` applies pending Prisma migrations to the
+**dev** branch database on push to the `dev` git branch. It fetches the branch's
+connection string at runtime with the Supabase CLI
+(`supabase branches get <branch> -o env`) — no hardcoded dev DB URL — then runs
+`prisma migrate deploy`.
+
+**Required GitHub repository secrets** for the dev workflow:
+
+| Secret | Value |
+| --- | --- |
+| `SUPABASE_ACCESS_TOKEN` | A Supabase account access token (Dashboard → Account → Access Tokens). |
+| `SUPABASE_PROJECT_ID` | The **parent** project ref the dev branch lives under. |
+
+Notes:
+- Only fires when something under `prisma/` (or the workflow/config) changes —
+  code-only pushes to `dev` don't trigger it (nothing to migrate).
+- Assumes the Supabase branch name matches the git branch name (`dev`).
+
 ## Daily 10:00 AM Missing Clock-In Notification
 
 This project includes a scheduled API job that runs daily at **10:00 AM Asia/Manila** and emails admins a list of employees who have not clocked in yet.
