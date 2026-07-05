@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
-import { getSupabase } from '@/lib/supabaseServer';
+import { prisma } from '@/lib/prisma';
 import { handleCors } from '@/lib/cors';
+import { toExpenseType } from '@/lib/expenseType';
 
 export async function OPTIONS(request: Request) {
   return handleCors(request)!; // handles preflight
@@ -24,45 +25,31 @@ export async function POST(req: Request) {
       user_id,
     } = body;
 
-    // Insert into 'sales_reports' table
-    const { data, error: dbError } = await getSupabase()
-      .from('sales_reports')
-      .insert([
-        {
-          sales,
-          cash,
-          cash_fund,
-          inventory,
-          on_duty,
-          prepared_by,
-          type,
-          user_id,
-          branch_id,
-          title,
-          report_date: new Date().toISOString(),
-        },
-      ])
-      .select('id'); //Ensure your table has a UUID 'id' column
-
-    if (dbError) {
-      return NextResponse.json(
-        { error: dbError.message },
-        { status: 500, headers: cors?.headers },
-      );
-    }
-
-    const reportId = data?.[0].id;
+    const report = await prisma.sales_reports.create({
+      data: {
+        sales,
+        cash,
+        cash_fund,
+        inventory,
+        on_duty,
+        prepared_by,
+        type,
+        user_id,
+        branch_id: Number(branch_id),
+        title,
+        report_date: new Date(),
+      },
+      select: { id: true },
+    });
 
     for (const exp of expenses) {
-      await getSupabase()
-        .from('expenses')
-        .insert([
-          {
-            sales_report_id: reportId,
-            name: exp.name,
-            value: exp.value,
-          },
-        ]);
+      await prisma.expenses.create({
+        data: {
+          sales_report_id: report.id,
+          name: exp.name,
+          value: exp.value,
+        },
+      });
 
       if (
         !(
@@ -72,27 +59,23 @@ export async function POST(req: Request) {
         ) &&
         exp.value > 0
       ) {
-        // Insert into 'company_expenses' table
-        await getSupabase()
-          .from('company_expenses')
-          .insert([
-            {
-              name: exp.name,
-              amount: exp.value,
-              branch_id,
-              type,
-              expense_date: new Date().toISOString(),
-              date: new Date().toISOString(),
-            },
-          ])
-          .select('id'); //Ensure your table has a UUID 'id' column
+        await prisma.company_expenses.create({
+          data: {
+            name: exp.name,
+            amount: exp.value,
+            branch_id: Number(branch_id),
+            type: toExpenseType(type),
+            expense_date: new Date(),
+            date: new Date(),
+          },
+        });
       }
     }
 
     return NextResponse.json(
       {
         message: 'Sales report created successfully',
-        report: data?.[0],
+        report,
       },
       {
         status: 200,
@@ -101,8 +84,9 @@ export async function POST(req: Request) {
     );
   } catch (err) {
     console.error(err);
+    const message = err instanceof Error ? err.message : 'Server error';
     return NextResponse.json(
-      { error: 'Server error' },
+      { error: message },
       { status: 500, headers: cors?.headers },
     );
   }

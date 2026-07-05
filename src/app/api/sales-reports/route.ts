@@ -1,5 +1,7 @@
 import { handleCors } from '@/lib/cors';
-import { getSupabase } from '@/lib/supabaseServer';
+import { prisma } from '@/lib/prisma';
+import { serialize } from '@/lib/serialize';
+import { Prisma } from '@prisma/client';
 import { NextRequest, NextResponse } from 'next/server';
 
 export async function OPTIONS(request: Request) {
@@ -16,54 +18,54 @@ export async function GET(req: NextRequest) {
   const dates = searchParams.get('dates');
   const type = searchParams.get('type');
 
-  let query = getSupabase()
-    .from('sales_reports')
-    .select(
-      'id, title, report_date, cash, created_at, inventory, cash, sales, on_duty, expenses(*)',
-      {
-        count: 'exact',
-        head: false,
-      },
-    )
-    .order('created_at', { ascending: false });
-
-  // Optional branchId filtering
-  if (branchId) {
-    query = query.eq('branch_id', branchId);
-  }
-
-  if (type) {
-    query = query.eq('type', type);
-  }
-
+  const where: Prisma.sales_reportsWhereInput = {};
+  if (branchId) where.branch_id = Number(branchId);
+  if (type) where.type = type;
   if (dates) {
     const [start, end] = dates
       .split(',')
       .map((date) => new Date(date).toISOString().split('T')[0]);
-
-    query = query.gte('report_date', start).lte('report_date', end);
+    where.report_date = { gte: new Date(start), lte: new Date(end) };
   }
 
-  // Optional pagination
+  const args: Prisma.sales_reportsFindManyArgs = {
+    where,
+    select: {
+      id: true,
+      title: true,
+      report_date: true,
+      cash: true,
+      created_at: true,
+      inventory: true,
+      sales: true,
+      on_duty: true,
+      expenses: true,
+    },
+    orderBy: { created_at: 'desc' },
+  };
+
   if (pageParam && limitParam) {
     const page = parseInt(pageParam);
     const pageSize = parseInt(limitParam);
-    const from = (page - 1) * pageSize;
-    const to = from + pageSize - 1;
-    query = query.range(from, to);
+    args.skip = (page - 1) * pageSize;
+    args.take = pageSize;
   }
 
-  const { data, error, count } = await query;
+  try {
+    const [data, total] = await Promise.all([
+      prisma.sales_reports.findMany(args),
+      prisma.sales_reports.count({ where }),
+    ]);
 
-  if (error) {
     return NextResponse.json(
-      { error: error.message },
+      { sales_reports: serialize(data), total },
+      { headers: cors?.headers, status: 200 },
+    );
+  } catch (error) {
+    const message = error instanceof Error ? error.message : 'Server error';
+    return NextResponse.json(
+      { error: message },
       { status: 500, headers: cors?.headers },
     );
   }
-
-  return NextResponse.json(
-    { sales_reports: data, total: count ?? 0 },
-    { headers: cors?.headers, status: 200 },
-  );
 }

@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
-import { getSupabase } from '@/lib/supabaseServer';
+import { prisma } from '@/lib/prisma';
+import { serialize } from '@/lib/serialize';
 import { handleCors } from '@/lib/cors';
 
 export async function OPTIONS(request: Request) {
@@ -12,81 +13,39 @@ export async function POST(req: Request) {
     const body = await req.json();
     const { title, expenses, add_ons, sales } = body;
 
-    console.log('Received remit report data:', body);
-
-    // Insert into 'sales_reports' table
-    const { data, error: dbError } = await getSupabase()
-      .from('remit_reports')
-      .insert([
-        {
-          title,
-          sales,
-          report_date: new Date().toISOString(),
-        },
-      ])
-      .select('id'); //Ensure your table has a UUID 'id' column
-
-    if (dbError) {
-      return NextResponse.json(
-        { error: dbError.message },
-        { status: 500, headers: cors?.headers },
-      );
-    }
-
-    const remitId = data?.[0].id;
+    const report = await prisma.remit_reports.create({
+      data: {
+        title,
+        sales,
+        report_date: new Date(),
+      },
+      select: { id: true },
+    });
 
     for (const exp of expenses) {
-      await getSupabase()
-        .from('remit_expenses')
-        .insert([
-          {
-            remit_id: remitId,
-            name: exp.name,
-            value: exp.value,
-          },
-        ]);
-
-      // if (
-      //   !(
-      //     exp.name === 'Grab' ||
-      //     exp.name === 'FoodPanda' ||
-      //     exp.name === 'GCash'
-      //   ) &&
-      //   exp.value > 0
-      // ) {
-      //   // Insert into 'company_expenses' table
-      //   await getSupabase()
-      //     .from('company_expenses')
-      //     .insert([
-      //       {
-      //         name: exp.name,
-      //         amount: exp.value,
-      //         branch_id,
-      //         type,
-      //         expense_date: new Date().toISOString(),
-      //         date: new Date().toISOString(),
-      //       },
-      //     ])
-      //     .select('id'); //Ensure your table has a UUID 'id' column
-      // }
+      await prisma.remit_expenses.create({
+        data: {
+          remit_id: report.id,
+          name: exp.name,
+          value: exp.value,
+        },
+      });
     }
 
     for (const addOn of add_ons) {
-      await getSupabase()
-        .from('remit_add_ons')
-        .insert([
-          {
-            remit_id: remitId,
-            name: addOn.name,
-            value: addOn.value,
-          },
-        ]);
+      await prisma.remit_add_ons.create({
+        data: {
+          remit_id: report.id,
+          name: addOn.name,
+          value: addOn.value,
+        },
+      });
     }
 
     return NextResponse.json(
       {
         message: 'Remit report created successfully',
-        report: data?.[0],
+        report: serialize(report),
       },
       {
         status: 200,
@@ -95,8 +54,9 @@ export async function POST(req: Request) {
     );
   } catch (err) {
     console.error(err);
+    const message = err instanceof Error ? err.message : 'Server error';
     return NextResponse.json(
-      { error: 'Server error' },
+      { error: message },
       { status: 500, headers: cors?.headers },
     );
   }

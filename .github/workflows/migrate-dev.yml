@@ -1,0 +1,49 @@
+name: Migrate dev branch database
+
+# Applies pending Prisma migrations to the Supabase dev branch database on push
+# to the `dev` git branch.
+#
+# Supabase Branching does NOT run Prisma migrations (it only runs
+# ./supabase/migrations, which this repo doesn't use), so we run
+# `prisma migrate deploy` against the dev branch's direct connection ourselves.
+on:
+  push:
+    branches: [dev]
+    paths:
+      - 'prisma/migrations/**'
+      - 'prisma/schema.prisma'
+      - 'prisma.config.ts'
+      - '.github/workflows/migrate-dev.yml'
+  workflow_dispatch: {}
+
+concurrency:
+  group: prisma-migrate-dev
+  cancel-in-progress: false
+
+jobs:
+  migrate:
+    runs-on: ubuntu-latest
+    env:
+      # DEV_DIRECT_URL = the dev branch's DIRECT (:5432, non-pooled) connection
+      # string. Migrations must use the direct connection, never the pooler.
+      DIRECT_URL: ${{ secrets.DEV_DIRECT_URL }}
+      DATABASE_URL: ${{ secrets.DEV_DIRECT_URL }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Migration status (informational)
+        run: npx prisma migrate status
+        continue-on-error: true
+
+      - name: Apply pending migrations
+        run: npx prisma migrate deploy

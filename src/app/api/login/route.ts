@@ -1,5 +1,5 @@
-import { supabase } from '@/lib/supabaseClient';
 import { getSupabase } from '@/lib/supabaseServer';
+import { prisma } from '@/lib/prisma';
 import { IUserType } from '@/types/User';
 import { NextResponse } from 'next/server';
 
@@ -15,13 +15,12 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: error.message }, { status: 401 });
   }
 
-  const { data: userData, error: userError } = await supabase
-    .from('users')
-    .select('type')
-    .eq('id', data.user.id)
-    .single();
+  const userData = await prisma.users.findUnique({
+    where: { id: data.user.id },
+    select: { type: true },
+  });
 
-  if (userError || userData?.type !== IUserType.ADMIN) {
+  if (!userData || userData.type !== IUserType.ADMIN) {
     return NextResponse.json({ error: 'Access denied' }, { status: 403 });
   }
 

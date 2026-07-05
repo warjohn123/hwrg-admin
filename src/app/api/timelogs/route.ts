@@ -1,5 +1,7 @@
 import { handleCors } from '@/lib/cors';
-import { getSupabase } from '@/lib/supabaseServer';
+import { prisma } from '@/lib/prisma';
+import { serialize } from '@/lib/serialize';
+import { Prisma } from '@prisma/client';
 import { NextRequest, NextResponse } from 'next/server';
 
 export async function OPTIONS(req: Request) {
@@ -8,7 +10,6 @@ export async function OPTIONS(req: Request) {
 
 export async function GET(req: NextRequest) {
   const cors = handleCors(req);
-  const supabase = getSupabase();
 
   const { searchParams } = new URL(req.url);
 
@@ -19,48 +20,45 @@ export async function GET(req: NextRequest) {
   const page = Number(searchParams.get('page') ?? 1);
   const limit = Number(searchParams.get('limit') ?? 10);
   const from = (page - 1) * limit;
-  const to = from + limit - 1;
 
-  const selectClause = userId
-    ? '*'
-    : search
-      ? '*, users!inner (id, name)'
-      : '*, users (id, name)';
-
-  // ---- Base query ----
-  let query = supabase
-    .from('timelogs')
-    .select(selectClause, { count: 'exact' })
-    .order('created_at', { ascending: false })
-    .range(from, to);
-
-  // ---- Filters ----
-  if (userId) {
-    query = query.eq('user_id', userId);
-  }
-
+  const where: Prisma.timelogsWhereInput = {};
+  if (userId) where.user_id = userId;
   if (search) {
-    query = query.ilike('users.name', `%${search}%`);
+    where.users = { name: { contains: search, mode: 'insensitive' } };
   }
-
   if (dates) {
     const [start, end] = dates.split(',').map((d) => d.trim());
-
-    query = query.gte('date', start).lte('date', end);
+    where.date = { gte: new Date(start), lte: new Date(end) };
   }
 
-  // ---- Execute ----
-  const { data, error, count } = await query;
+  const args: Prisma.timelogsFindManyArgs = {
+    where,
+    orderBy: { created_at: 'desc' },
+    skip: from,
+    take: limit,
+  };
 
-  if (error) {
+  // Match the previous select behaviour: the joined user is only returned when
+  // not filtering by a specific user_id.
+  if (!userId) {
+    args.include = { users: { select: { id: true, name: true } } };
+  }
+
+  try {
+    const [data, total] = await Promise.all([
+      prisma.timelogs.findMany(args),
+      prisma.timelogs.count({ where }),
+    ]);
+
     return NextResponse.json(
-      { error: error.message },
+      { timelogs: serialize(data), total },
+      { headers: cors?.headers },
+    );
+  } catch (error) {
+    const message = error instanceof Error ? error.message : 'Server error';
+    return NextResponse.json(
+      { error: message },
       { status: 500, headers: cors?.headers },
     );
   }
-
-  return NextResponse.json(
-    { timelogs: data, total: count ?? 0 },
-    { headers: cors?.headers },
-  );
 }

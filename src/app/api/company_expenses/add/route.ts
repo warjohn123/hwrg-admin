@@ -1,5 +1,7 @@
 import { NextResponse } from 'next/server';
-import { getSupabase } from '@/lib/supabaseServer';
+import { prisma } from '@/lib/prisma';
+import { serialize } from '@/lib/serialize';
+import { toExpenseType } from '@/lib/expenseType';
 import { handleCors } from '@/lib/cors';
 
 export async function OPTIONS(request: Request) {
@@ -12,33 +14,23 @@ export async function POST(req: Request) {
     const body = await req.json();
     const { name, amount, branch_id, type, expense_date, notes } = body;
 
-    // Insert into 'company_expenses' table
-    const { data, error: dbError } = await getSupabase()
-      .from('company_expenses')
-      .insert([
-        {
-          name,
-          amount,
-          branch_id,
-          type,
-          date: new Date().toISOString(),
-          expense_date: expense_date ? expense_date : new Date().toISOString(),
-          notes
-        },
-      ])
-      .select('id'); //Ensure your table has a UUID 'id' column
-
-    if (dbError) {
-      return NextResponse.json(
-        { error: dbError.message },
-        { status: 500, headers: cors?.headers },
-      );
-    }
+    const expense = await prisma.company_expenses.create({
+      data: {
+        name,
+        amount,
+        branch_id: Number(branch_id),
+        type: toExpenseType(type),
+        date: new Date(),
+        expense_date: expense_date ? new Date(expense_date) : new Date(),
+        notes,
+      },
+      select: { id: true },
+    });
 
     return NextResponse.json(
       {
         message: 'Company expense created successfully',
-        expense: data?.[0],
+        expense: serialize(expense),
       },
       {
         status: 200,
@@ -47,8 +39,9 @@ export async function POST(req: Request) {
     );
   } catch (err) {
     console.error(err);
+    const message = err instanceof Error ? err.message : 'Server error';
     return NextResponse.json(
-      { error: 'Server error' },
+      { error: message },
       { status: 500, headers: cors?.headers },
     );
   }

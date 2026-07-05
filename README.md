@@ -37,6 +37,89 @@ The easiest way to deploy your Next.js app is to use the [Vercel Platform](https
 
 Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
 
+## Database & Migrations (Prisma)
+
+The database is **PostgreSQL on Supabase**. Application data access uses
+**Prisma**; Supabase is still used for **Auth** and **Storage**.
+
+> Database access in API routes must go through Prisma. An ESLint rule
+> (`no-restricted-syntax` in `eslint.config.mjs`) blocks
+> `getSupabase().from(...)` / `.rpc(...)` under `src/app/api/**`.
+> `getSupabase()` (`src/lib/supabaseServer.ts`) is for Auth/Storage only.
+
+### Connections
+
+- Runtime queries use the **pooled** connection (`DATABASE_URL`, `:6543`,
+  pgbouncer) via the pg adapter in `src/lib/prisma.ts`.
+- The Prisma **CLI** (migrate, `db pull/push`, studio) uses the **direct**
+  connection (`DIRECT_URL`, `:5432`) — configured as the datasource `url` in
+  `prisma.config.ts`. Migrations must never run over the pooler.
+
+### Authoring a migration
+
+Run against a **dev/branch database** (never prod):
+
+```bash
+# 1. Edit prisma/schema.prisma
+# 2. Create + apply the migration locally
+npx prisma migrate dev --name <change_name>
+# 3. Commit the generated prisma/migrations/<timestamp>_<change_name>/ folder
+```
+
+Keep migrations **backwards-compatible** with the currently-deployed app — the
+migration workflow and the Vercel deploy run independently, so a breaking change
+must be split into deploy-safe steps (expand → migrate → contract).
+
+### Auto-deploy of migrations (GitHub Actions)
+
+`.github/workflows/migrate.yml` runs `prisma migrate deploy` on merge to `main`
+(when anything under `prisma/` or the config changes), applying any pending
+migrations. It can also be triggered manually via **Run workflow**
+(`workflow_dispatch`).
+
+**Required GitHub repository secrets** (Settings → Secrets and variables →
+Actions) — paste the connection strings **without surrounding quotes**:
+
+| Secret | Value |
+| --- | --- |
+| `DIRECT_URL` | Direct `:5432` connection — used by `migrate deploy`. |
+| `DATABASE_URL` | Pooled `:6543` connection — used by `postinstall` generate. |
+
+> **One-time prod baseline required.** The initial schema was introspected from
+> an existing database, so before the workflow's first `migrate deploy` against
+> production, the baseline must be marked applied there (so deploy doesn't try to
+> re-run it against existing tables):
+>
+> ```bash
+> # with DIRECT_URL pointing at PROD
+> npx prisma migrate resolve --applied 0_init
+> ```
+>
+> Prisma does not manage RLS policies, the `get_sales_by_branch_previous_date`
+> function, or the `auth` schema — see `prisma/migrations/0_init/README.md`.
+
+For a manual approval gate before prod migrations, move the secrets into a
+GitHub **Environment** (e.g. `production`) with required reviewers and add
+`environment: production` to the `migrate` job.
+
+### Auto-migrating the Supabase dev branch
+
+Supabase Branching does **not** run Prisma migrations (it only runs
+`./supabase/migrations`, which this repo doesn't use). So
+`.github/workflows/migrate-dev.yml` applies pending Prisma migrations to the
+**dev** branch database on push to the `dev` git branch via
+`prisma migrate deploy`.
+
+**Required GitHub repository secret** for the dev workflow:
+
+| Secret | Value |
+| --- | --- |
+| `DEV_DIRECT_URL` | The dev branch's **direct** (`:5432`, non-pooled) connection string — no surrounding quotes. |
+
+Notes:
+- Only fires when something under `prisma/` (or the workflow/config) changes —
+  code-only pushes to `dev` don't trigger it (nothing to migrate).
+
 ## Daily 10:00 AM Missing Clock-In Notification
 
 This project includes a scheduled API job that runs daily at **10:00 AM Asia/Manila** and emails admins a list of employees who have not clocked in yet.

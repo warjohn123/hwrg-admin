@@ -1,5 +1,7 @@
 import { handleCors } from '@/lib/cors';
-import { getSupabase } from '@/lib/supabaseServer';
+import { prisma } from '@/lib/prisma';
+import { serialize } from '@/lib/serialize';
+import { Prisma } from '@prisma/client';
 import { NextRequest, NextResponse } from 'next/server';
 
 export async function OPTIONS(request: Request) {
@@ -14,36 +16,37 @@ export async function GET(req: NextRequest) {
   const limitParam = searchParams.get('limit');
   const assignment = searchParams.get('assignment');
 
-  const supabase = getSupabase();
-  let query = supabase
-    .from('branches')
-    .select('*', { count: 'exact', head: false })
-    .order('created_at', { ascending: false }); // descending order
+  const where: Prisma.branchesWhereInput = {};
+  if (assignment) where.assignment = assignment;
+
+  const args: Prisma.branchesFindManyArgs = {
+    where,
+    orderBy: { created_at: 'desc' },
+  };
 
   // Apply pagination only if both page and limit are provided
   if (pageParam && limitParam) {
     const page = parseInt(pageParam);
     const limit = parseInt(limitParam);
-    const from = (page - 1) * limit;
-    const to = from + limit - 1;
-    query = query.range(from, to);
+    args.skip = (page - 1) * limit;
+    args.take = limit;
   }
 
-  if (assignment) {
-    query = query.eq('assignment', assignment);
-  }
+  try {
+    const [data, total] = await Promise.all([
+      prisma.branches.findMany(args),
+      prisma.branches.count({ where }),
+    ]);
 
-  const { data, error, count } = await query;
-
-  if (error) {
     return NextResponse.json(
-      { error: error.message },
+      { branches: serialize(data), total },
+      { headers: cors?.headers },
+    );
+  } catch (error) {
+    const message = error instanceof Error ? error.message : 'Server error';
+    return NextResponse.json(
+      { error: message },
       { status: 500, headers: cors?.headers },
     );
   }
-
-  return NextResponse.json(
-    { branches: data, total: count ?? 0 },
-    { headers: cors?.headers },
-  );
 }

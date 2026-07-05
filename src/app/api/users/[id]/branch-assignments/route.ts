@@ -1,5 +1,6 @@
 import { handleCors } from '@/lib/cors';
-import { getSupabase } from '@/lib/supabaseServer';
+import { prisma } from '@/lib/prisma';
+import { serialize } from '@/lib/serialize';
 import { NextRequest, NextResponse } from 'next/server';
 
 export async function OPTIONS(request: Request) {
@@ -11,25 +12,29 @@ export async function GET(
   { params }: { params: Promise<{ id: string }> },
 ) {
   const cors = handleCors(req);
-
   const { id } = await params;
 
-  const { data, error } = await getSupabase()
-    .from('branch_assignments')
-    .select(
-      'id, branch_id, user_id, users (id, name), branches (id, branch_name, assignment)',
-    )
-    .eq('user_id', id);
+  try {
+    const data = await prisma.branch_assignments.findMany({
+      where: { user_id: id },
+      select: {
+        id: true,
+        branch_id: true,
+        user_id: true,
+        users: { select: { id: true, name: true } },
+        branches: { select: { id: true, branch_name: true, assignment: true } },
+      },
+    });
 
-  if (error) {
+    return NextResponse.json(serialize(data), {
+      status: 200,
+      headers: cors?.headers,
+    });
+  } catch (error) {
+    const message = error instanceof Error ? error.message : 'Server error';
     return NextResponse.json(
-      { error: error.message },
-      { status: 404, headers: cors?.headers },
+      { error: message },
+      { status: 500, headers: cors?.headers },
     );
   }
-
-  return NextResponse.json(data, {
-    status: 200,
-    headers: cors?.headers,
-  });
 }

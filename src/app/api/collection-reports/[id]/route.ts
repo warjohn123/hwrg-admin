@@ -1,5 +1,6 @@
 import { handleCors } from '@/lib/cors';
-import { getSupabase } from '@/lib/supabaseServer';
+import { prisma } from '@/lib/prisma';
+import { serialize } from '@/lib/serialize';
 import { NextRequest, NextResponse } from 'next/server';
 
 export async function OPTIONS(request: Request) {
@@ -13,20 +14,21 @@ export async function GET(
   const cors = handleCors(req);
   const { id } = await params;
 
-  const { data, error } = await getSupabase()
-    .from('collection_reports')
-    .select('*')
-    .eq('id', id)
-    .single();
+  const report = await prisma.collection_reports.findUnique({
+    where: { id: Number(id) },
+  });
 
-  if (error) {
+  if (!report) {
     return NextResponse.json(
-      { error: error.message },
-      { status: 500, headers: cors?.headers },
+      { error: 'Collection report not found' },
+      { status: 404, headers: cors?.headers },
     );
   }
 
-  return NextResponse.json(data, { headers: cors?.headers, status: 200 });
+  return NextResponse.json(serialize(report), {
+    headers: cors?.headers,
+    status: 200,
+  });
 }
 
 export async function DELETE(
@@ -36,14 +38,12 @@ export async function DELETE(
   const cors = handleCors(req);
   const { id } = await params;
 
-  const { error } = await getSupabase()
-    .from('collection_reports')
-    .delete()
-    .eq('id', id);
-
-  if (error) {
+  try {
+    await prisma.collection_reports.deleteMany({ where: { id: Number(id) } });
+  } catch (error) {
+    const message = error instanceof Error ? error.message : 'Delete failed';
     return NextResponse.json(
-      { error: error.message },
+      { error: message },
       { status: 500, headers: cors?.headers },
     );
   }

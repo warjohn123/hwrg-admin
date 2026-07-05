@@ -1,7 +1,10 @@
 import { handleCors } from '@/lib/cors';
 import { sumKeyValueArray } from '@/lib/sumKeyValueArray';
 import { sumSalesRemits } from '@/lib/sumSalesRemits';
-import { getSupabase } from '@/lib/supabaseServer';
+import { prisma } from '@/lib/prisma';
+import { serialize } from '@/lib/serialize';
+import type { RemitSalesType } from '@/types/RemitReport';
+import { Prisma } from '@prisma/client';
 import { NextRequest, NextResponse } from 'next/server';
 
 export async function OPTIONS(request: Request) {
@@ -16,65 +19,71 @@ export async function GET(req: NextRequest) {
   const limitParam = searchParams.get('limit');
   const dates = searchParams.get('dates');
 
-  let query = getSupabase()
-    .from('remit_reports')
-    .select(
-      'id, title, report_date, sales, remit_expenses(*), remit_add_ons(*)',
-      {
-        count: 'exact',
-        head: false,
-      },
-    )
-    .order('created_at', { ascending: false });
-
+  const where: Prisma.remit_reportsWhereInput = {};
   if (dates) {
     const [start, end] = dates
       .split(',')
       .map((date) => new Date(date).toISOString().split('T')[0]);
-
-    query = query.gte('report_date', start).lte('report_date', end);
+    where.report_date = { gte: new Date(start), lte: new Date(end) };
   }
 
-  // Optional pagination
-  if (pageParam && limitParam) {
-    const page = parseInt(pageParam);
-    const pageSize = parseInt(limitParam);
-    const from = (page - 1) * pageSize;
-    const to = from + pageSize - 1;
-    query = query.range(from, to);
-  }
+  const paginated = Boolean(pageParam && limitParam);
+  const pageSize = paginated ? parseInt(limitParam!) : undefined;
+  const skip = paginated ? (parseInt(pageParam!) - 1) * pageSize! : undefined;
 
-  const { data, error, count } = await query;
+  try {
+    const [raw, total] = await Promise.all([
+      prisma.remit_reports.findMany({
+        where,
+        select: {
+          id: true,
+          title: true,
+          report_date: true,
+          sales: true,
+          remit_expenses: true,
+          remit_add_ons: true,
+        },
+        orderBy: { created_at: 'desc' },
+        skip,
+        take: pageSize,
+      }),
+      prisma.remit_reports.count({ where }),
+    ]);
 
-  if (error) {
+    // Serialize first so Decimal values become numbers before totalling.
+    const data = serialize(raw);
+
+    const enriched = data.map((report) => {
+      const salesTotal = sumSalesRemits(report.sales as RemitSalesType);
+      const expensesTotal = sumKeyValueArray(
+        (report.remit_expenses as unknown as [{ [value: string]: number }]) ||
+          [],
+      );
+      const addOnsTotal = sumKeyValueArray(
+        (report.remit_add_ons as unknown as [{ [value: string]: number }]) ||
+          [],
+      );
+
+      return {
+        ...report,
+        totals: {
+          sales: salesTotal,
+          expenses: expensesTotal,
+          add_ons: addOnsTotal,
+          remit_total: salesTotal + addOnsTotal - expensesTotal,
+        },
+      };
+    });
+
     return NextResponse.json(
-      { error: error.message },
+      { remit_reports: enriched, total },
+      { headers: cors?.headers, status: 200 },
+    );
+  } catch (error) {
+    const message = error instanceof Error ? error.message : 'Server error';
+    return NextResponse.json(
+      { error: message },
       { status: 500, headers: cors?.headers },
     );
   }
-
-  const enriched = data.map((report) => {
-    const salesTotal = sumSalesRemits(report.sales);
-    const expensesTotal = sumKeyValueArray(
-      (report.remit_expenses as [{ [value: string]: number }]) || [],
-    );
-    const addOnsTotal = sumKeyValueArray(
-      (report.remit_add_ons as [{ [value: string]: number }]) || [],
-    );
-
-    return {
-      ...report,
-      totals: {
-        sales: salesTotal,
-        expenses: expensesTotal,
-        add_ons: addOnsTotal,
-        remit_total: salesTotal + addOnsTotal - expensesTotal,
-      },
-    };
-  });
-
-  return NextResponse.json(
-    { remit_reports: enriched, total: count ?? 0 },
-    { headers: cors?.headers, status: 200 },
-  );
 }
