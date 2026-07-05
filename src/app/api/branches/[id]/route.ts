@@ -16,7 +16,7 @@ export async function PUT(
       data: { branch_name: body.branch_name, assignment: body.assignment },
     });
 
-    return NextResponse.json({ message: 'User updated successfully' });
+    return NextResponse.json({ message: 'Branch updated successfully' });
   } catch (error) {
     const message = error instanceof Error ? error.message : 'Update failed';
     return NextResponse.json({ error: message }, { status: 400 });
