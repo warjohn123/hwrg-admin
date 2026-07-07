@@ -7,6 +7,7 @@ import { FaTrash } from 'react-icons/fa6';
 import ConfirmModal from '@/components/modals/ConfirmationModal';
 import Pagination from '@/components/Pagination';
 import { ICompanyExpense } from '@/types/CompanyExpenses';
+import { formatDate } from '@/lib/formatDate';
 import {
   deleteCompanyExpense,
   fetchCompanyExpenses,
@@ -249,7 +250,9 @@ export default function ExpensesTable({ type }: Props) {
                     key={expense.id}
                     className="border-b hover:bg-gray-50 cursor-pointer"
                   >
-                    <td className="px-6 py-4">{expense.expense_date}</td>
+                    <td className="px-6 py-4">
+                      {formatDate(expense.expense_date)}
+                    </td>
                     <td className="px-6 py-4">{expense.name}</td>
                     <td className="px-6 py-4">{expense.amount}</td>
                     <td className="px-6 py-4">
