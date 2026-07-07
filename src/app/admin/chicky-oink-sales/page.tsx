@@ -1,6 +1,7 @@
 'use client';
 
 import ChickyOinkReportDetails from '@/components/ChickyOinkReportDetails';
+import { formatDate } from '@/lib/formatDate';
 import ConfirmModal from '@/components/modals/ConfirmationModal';
 import Pagination from '@/components/Pagination';
 import { CHICKY_OINK_INVENTORY } from '@/constants/ChickyOinkInventory';
@@ -283,7 +284,7 @@ export default function ReportsPage() {
                 }}
               >
                 <td className="px-6 py-4">{report.title}</td>
-                <td className="px-6 py-4">{report.report_date}</td>
+                <td className="px-6 py-4">{formatDate(report.report_date)}</td>
                 <td className="px-6 py-4">{report.sales.uling}</td>
                 <td className="px-6 py-4">
                   {getChickyOinkTotalSales(report.sales).toLocaleString()}

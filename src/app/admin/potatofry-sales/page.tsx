@@ -1,6 +1,7 @@
 'use client';
 
 import ConfirmModal from '@/components/modals/ConfirmationModal';
+import { formatDate } from '@/lib/formatDate';
 import Pagination from '@/components/Pagination';
 import PotatoFryReportDetails from '@/components/PotatoFryReportDetails';
 import { usePagination } from '@/hooks/usePagination';
@@ -186,7 +187,7 @@ export default function ReportsPage() {
                 }}
               >
                 <td className="px-6 py-4">{report.title}</td>
-                <td className="px-6 py-4">{report.report_date}</td>
+                <td className="px-6 py-4">{formatDate(report.report_date)}</td>
                 <td className="px-6 py-4">
                   {getPotatoFryTotalSales(
                     report.sales as PotatoFrySales,

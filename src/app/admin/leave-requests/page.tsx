@@ -1,6 +1,7 @@
 'use client';
 
 import Pagination from '@/components/Pagination';
+import { formatDate } from '@/lib/formatDate';
 import { usePagination } from '@/hooks/usePagination';
 import { fetchLeaveRequests } from '@/services/leave_requests.service';
 import {
@@ -232,14 +233,10 @@ export default function LeaveRequestsPage() {
                       <td className="px-6 py-4">{lr.users?.name ?? '—'}</td>
                       <td className="px-6 py-4">{lr.leave_type}</td>
                       <td className="px-6 py-4">
-                        {lr.date_from
-                          ? new Date(lr.date_from).toLocaleDateString()
-                          : '—'}
+                        {lr.date_from ? formatDate(lr.date_from) : '—'}
                       </td>
                       <td className="px-6 py-4">
-                        {lr.date_to
-                          ? new Date(lr.date_to).toLocaleDateString()
-                          : '—'}
+                        {lr.date_to ? formatDate(lr.date_to) : '—'}
                       </td>
                       <td className="px-6 py-4 max-w-xs truncate">
                         {lr.reason}
@@ -248,9 +245,7 @@ export default function LeaveRequestsPage() {
                         <StatusBadge status={lr.status} />
                       </td>
                       <td className="px-6 py-4">
-                        {lr.created_at
-                          ? new Date(lr.created_at).toLocaleDateString()
-                          : '—'}
+                        {lr.created_at ? formatDate(lr.created_at) : '—'}
                       </td>
                     </tr>
                   ),
