@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { handleCors } from '@/lib/cors';
 import { toExpenseType } from '@/lib/expenseType';
+import { COMMISSION_EXPENSE_NAME } from '@/constants/commission';
 
 export async function OPTIONS(request: Request) {
   return handleCors(request)!; // handles preflight
@@ -25,6 +26,8 @@ export async function POST(req: Request) {
       user_id,
     } = body;
 
+    const reportDate = new Date();
+
     const report = await prisma.sales_reports.create({
       data: {
         sales,
@@ -37,7 +40,7 @@ export async function POST(req: Request) {
         user_id,
         branch_id: Number(branch_id),
         title,
-        report_date: new Date(),
+        report_date: reportDate,
       },
       select: { id: true },
     });
@@ -50,6 +53,20 @@ export async function POST(req: Request) {
           value: exp.value,
         },
       });
+
+      if (
+        exp.name?.trim().toLowerCase() ===
+          COMMISSION_EXPENSE_NAME.toLowerCase() &&
+        exp.value > 0
+      ) {
+        await prisma.commissions.create({
+          data: {
+            sales_report_id: report.id,
+            amount: exp.value,
+            date: reportDate,
+          },
+        });
+      }
 
       if (
         !(

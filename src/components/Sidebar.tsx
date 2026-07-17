@@ -65,6 +65,12 @@ export default function Sidebar({ isOpen, setIsOpen }: SidebarProps) {
             >
               Expenses
             </Link>
+            <Link
+              href="/admin/chicky-oink-commissions"
+              className={linkClasses('/admin/chicky-oink-commissions')}
+            >
+              Commissions
+            </Link>
           </div>
         </div>
 
