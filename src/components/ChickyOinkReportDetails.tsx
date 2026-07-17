@@ -167,6 +167,7 @@ export default function ChickyOinkReportDetails({
                 <th className="border w-30 py-2">Pull-Out</th>
                 <th className="border w-30 py-2">Sales</th>
                 <th className="border w-30 py-2">Remaining Stocks</th>
+                <th className="border w-30 py-2">Bahaw</th>
                 <th className="border px-4 py-2">Notes</th>
               </tr>
             </thead>
@@ -223,6 +224,13 @@ export default function ChickyOinkReportDetails({
                         report.inventory[
                           key as keyof IChickyOinkReportInventory
                         ].remaining_stocks
+                      }
+                    </td>
+                    <td className="border px-4 py-2">
+                      {
+                        report.inventory[
+                          key as keyof IChickyOinkReportInventory
+                        ].day_old
                       }
                     </td>
                     <td className="border px-4 py-2">

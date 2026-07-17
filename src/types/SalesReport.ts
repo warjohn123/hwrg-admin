@@ -13,6 +13,7 @@ export interface IInventoryFormat {
   pull_out: number;
   sales: number;
   remaining_stocks: number;
+  day_old: number;
   notes: string;
 }
 
