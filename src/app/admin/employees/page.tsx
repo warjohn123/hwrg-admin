@@ -13,7 +13,7 @@ export default function EmployeesPage() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [search, setSearch] = useState<string>('');
   const [debouncedSearch, setDebouncedSearch] = useState('');
-  const { page, setPage, limit } = usePagination();
+  const { page, totalPages, setTotal, setPage, limit } = usePagination();
   const { data, isPending, error, refetch } = useQuery({
     queryKey: ['employees', page, limit, debouncedSearch],
     queryFn: () => getEmployees(page, limit, debouncedSearch),
@@ -32,6 +32,12 @@ export default function EmployeesPage() {
       clearTimeout(handler); // Cleanup if value changes
     };
   }, [search]);
+
+  useEffect(() => {
+    if (data?.total != null) {
+      setTotal(data.total);
+    }
+  }, [data?.total, setTotal]);
 
   if (error) return <p>Error loading employees: {error.message}</p>;
 
@@ -100,7 +106,7 @@ export default function EmployeesPage() {
             </table>
           </div>
 
-          <Pagination setPage={setPage} totalPages={data.total} page={page} />
+          <Pagination setPage={setPage} totalPages={totalPages} page={page} />
 
           {isModalOpen && (
             <SaveEmployeeModal
