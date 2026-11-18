@@ -119,6 +119,10 @@ export default function ReportsPage() {
     { SM: 0, RM: 0, RL: 0, SL: 0 },
   );
 
+  const totalRemainingUling = salesReports.reduce((acc, report) => {
+    return acc + report.inventory.uling.remaining_stocks;
+  }, 0);
+
   const totalRemainingMeatsValue =
     totalRemainingMeats.SM * CHICKY_OINK_INVENTORY['SPICY_CHICKEN'].price +
     totalRemainingMeats.RM * CHICKY_OINK_INVENTORY['REGULAR_CHICKEN'].price +
@@ -248,6 +252,9 @@ export default function ReportsPage() {
         </p>
         <p className="font-bold">
           Total Inventory Value: {totalRemainingMeatsValue.toLocaleString()}
+        </p>
+        <p className="font-bold">
+          Total Remaining No. of Uling: {totalRemainingUling.toLocaleString()}
         </p>
         <br />
         <div className="flex gap-10">
